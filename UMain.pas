@@ -31,12 +31,11 @@ uses
   LCLIntf,
   LCLType,
   SysUtils,
-  Variants,
-  Dialogs,
+
   ExtCtrls,
   Menus,
   Spin,
-  StdCtrls,
+  StdCtrls, ComCtrls,
   strutils,
   UConst,
   UDraw,
@@ -49,6 +48,8 @@ type
   TfrmMain = class(TForm)
     btnBackClock: TButton;
     btnBackCounter: TButton;
+    btnCurrentStateRandomize: TButton;
+    btnCurrentStateReset: TButton;
     btnDownClock: TButton;
     btnDownCounter: TButton;
     btnFrontClock: TButton;
@@ -56,32 +57,32 @@ type
     btnLeftClock: TButton;
     btnLeftCounter: TButton;
     btnReset3Dview: TButton;
+    btnPerformMoves: TButton;
     btnRightClock: TButton;
     btnRightCounter: TButton;
-    btnCurrentStateReset: TButton;
-    btnCurrentStateRandomize: TButton;
-    btnPerformMoves: TButton;
     btnSearchForSolution: TButton;
     btnUpClock: TButton;
     btnUpCounter: TButton;
     edtMoveString: TEdit;
     imgFilters: TImage;
     Label1: TLabel;
-    lblControlDirections: TLabel;
     lblClickExplainer: TLabel;
     lblClickExplainer1: TLabel;
+    lblControlDirections: TLabel;
     lblFaceCode: TLabel;
     lblNoticeTarget: TLabel;
     memMoveSum: TMemo;
+    pcOneDviews: TPageControl;
     pnlDestination: TPanel;
-    pntBoxCurrentState: TPaintBox;
+    pnlSetState: TPanel;
     pntBox3Dview: TPaintBox;
     pnl3Dview: TPanel;
     pnlSolution: TPanel;
-    pnlOriginal: TPanel;
+    pntBoxCurrentState: TPaintBox;
     pntBoxDestination: TPaintBox;
     spinEdtAnimationSpeed: TSpinEdit;
-    Timer1: TTimer;
+    TabSheet1: TTabSheet;
+    TabSheet2: TTabSheet;
     procedure btnCurrentStateRandomizeClick(Sender: TObject);
     procedure btnPerformMovesClick(Sender: TObject);
     procedure btnCurrentStateResetClick(Sender: TObject);
@@ -91,8 +92,8 @@ type
     procedure FormKeyDown(Sender: TObject; var Key: word; Shift: TShiftState);
     procedure FormKeyPress(Sender: TObject; var Key: char);
     procedure FormKeyUp(Sender: TObject; var Key: word; Shift: TShiftState);
+    procedure lblClickExplainerClick(Sender: TObject);
     procedure pntBox3DviewMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: integer);
-    procedure pntBoxCurrentStateClick(Sender: TObject);
     procedure pntBoxDestinationPaint(Sender: TObject);
     procedure pntBoxCurrentStateMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: integer);
     procedure pntBoxCurrentStateMouseMove(Sender: TObject; Shift: TShiftState; X, Y: integer);
@@ -189,8 +190,7 @@ begin
   end;
 end;
 
-
-procedure TfrmMain.pntBoxCurrentStateClick(Sender: TObject);
+procedure TfrmMain.lblClickExplainerClick(Sender: TObject);
 begin
 
 end;
@@ -205,9 +205,10 @@ procedure TfrmMain.pntBoxCurrentStateMouseDown(Sender: TObject; Button: TMouseBu
 var
   colorIndex: integer;
 begin
+  if IsRunning then Exit;
   colorIndex := GetCubeyColor(original, Point(x, y));
   // Assume GetColor returns the current color index at the clicked position
-  WriteLn(colorIndex);
+ // WriteLn(colorIndex);
   if Button = mbLeft then
   begin
     // Cycles colors 2 to 5 with left mouse button
@@ -274,9 +275,9 @@ end;
 
 procedure TfrmMain.Timer1Timer(Sender: TObject);
 begin
-  WriteLn('x: ' + IntToStr(tmx));
-  WriteLn('y: ' + IntToStr(tmy));
-
+  //WriteLn('x: ' + IntToStr(tmx));
+  //WriteLn('y: ' + IntToStr(tmy));
+  //
 end;
 
 procedure TfrmMain.btnReset3DviewClick(Sender: TObject);

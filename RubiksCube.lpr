@@ -23,7 +23,7 @@ program RubiksCube;
 {$MODE Delphi}
 
 uses
-  Forms, anchordockpkg,
+  Forms,
   Interfaces,
   UMain in 'UMain.pas' {Form1},
   UConst in 'UConst.pas',

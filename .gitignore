@@ -67,3 +67,15 @@ __recovery/
 
 # Boss dependency manager vendor folder https://github.com/HashLoad/boss
 modules/
+backup/RubiksCube.lpi
+backup/RubiksCube.lpr
+backup/RubiksCube.lps
+backup/UMain.lfm
+backup/UMain.pas
+lib/x86_64-win64/RubiksCube.compiled
+lib/x86_64-win64/RubiksCube.obj
+lib/x86_64-win64/UConst.ppu
+lib/x86_64-win64/UDraw.ppu
+lib/x86_64-win64/UMain.lfm
+lib/x86_64-win64/UMain.ppu
+lib/x86_64-win64/URubik.ppu

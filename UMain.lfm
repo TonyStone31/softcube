@@ -1,17 +1,17 @@
 object frmMain: TfrmMain
-  Left = 585
-  Height = 793
-  Top = 3063
-  Width = 1362
+  Left = 353
+  Height = 650
+  Top = 69
+  Width = 805
   Caption = 'Rubik''s Cube'
-  ClientHeight = 793
-  ClientWidth = 1362
+  ClientHeight = 650
+  ClientWidth = 805
   Color = clAppWorkspace
-  Constraints.MinHeight = 675
-  Constraints.MinWidth = 750
-  DesignTimePPI = 115
+  Constraints.MinHeight = 650
+  Constraints.MinWidth = 650
+  DesignTimePPI = 120
   Font.Color = clWindowText
-  Font.Height = -13
+  Font.Height = -14
   Font.Name = 'MS Sans Serif'
   KeyPreview = True
   Position = poScreenCenter
@@ -26,22 +26,22 @@ object frmMain: TfrmMain
     AnchorSideRight.Control = Owner
     AnchorSideRight.Side = asrBottom
     AnchorSideBottom.Side = asrBottom
-    Left = 1101
-    Height = 263
+    Left = 533
+    Height = 274
     Top = 0
-    Width = 261
+    Width = 272
     Anchors = [akTop, akRight]
-    ClientHeight = 263
-    ClientWidth = 261
+    ClientHeight = 274
+    ClientWidth = 272
     ParentBackground = False
     TabOrder = 0
     object pntBox3Dview: TPaintBox
       AnchorSideLeft.Control = pnl3Dview
       AnchorSideTop.Control = pnl3Dview
       Left = 11
-      Height = 240
+      Height = 250
       Top = 11
-      Width = 240
+      Width = 250
       BorderSpacing.Left = 10
       BorderSpacing.Top = 10
       OnMouseDown = pntBox3DviewMouseDown
@@ -53,87 +53,93 @@ object frmMain: TfrmMain
       AnchorSideLeft.Control = pntBox3Dview
       AnchorSideBottom.Control = pntBox3Dview
       AnchorSideBottom.Side = asrBottom
-      Left = 16
-      Height = 30
-      Top = 216
-      Width = 122
+      Left = 21
+      Height = 26
+      Top = 225
+      Width = 75
       Anchors = [akLeft, akBottom]
-      BorderSpacing.Around = 5
-      Caption = 'Reset View'
+      BorderSpacing.Around = 10
+      Caption = 'Reset'
       TabOrder = 0
       OnClick = btnReset3DviewClick
     end
   end
   object pnlSolution: TPanel
-    AnchorSideLeft.Control = pnlOriginal
-    AnchorSideLeft.Side = asrBottom
-    AnchorSideTop.Control = pnl3Dview
+    AnchorSideLeft.Control = Owner
+    AnchorSideTop.Control = pcOneDviews
     AnchorSideTop.Side = asrBottom
     AnchorSideRight.Control = Owner
     AnchorSideRight.Side = asrBottom
     AnchorSideBottom.Control = Owner
     AnchorSideBottom.Side = asrBottom
-    Left = 448
-    Height = 530
-    Top = 263
-    Width = 914
+    Left = 0
+    Height = 250
+    Top = 400
+    Width = 805
     Anchors = [akTop, akLeft, akRight, akBottom]
-    ClientHeight = 530
-    ClientWidth = 914
+    ClientHeight = 250
+    ClientWidth = 805
     ParentBackground = False
     TabOrder = 1
     object Label1: TLabel
-      AnchorSideTop.Control = spinEdtAnimationSpeed
+      AnchorSideLeft.Control = btnPerformMoves
+      AnchorSideLeft.Side = asrBottom
+      AnchorSideTop.Control = btnPerformMoves
       AnchorSideTop.Side = asrCenter
       AnchorSideRight.Control = spinEdtAnimationSpeed
-      Left = 795
-      Height = 17
-      Top = 496
+      Left = 96
+      Height = 16
+      Top = 52
       Width = 44
-      Anchors = [akTop, akRight]
+      BorderSpacing.Left = 10
       BorderSpacing.Right = 5
       Caption = 'Speed:'
     end
     object edtMoveString: TEdit
       AnchorSideLeft.Control = pnlSolution
+      AnchorSideTop.Control = imgFilters
+      AnchorSideTop.Side = asrBottom
       AnchorSideRight.Control = pnlSolution
       AnchorSideRight.Side = asrBottom
-      AnchorSideBottom.Control = btnPerformMoves
+      AnchorSideBottom.Control = pnlSolution
+      AnchorSideBottom.Side = asrBottom
       Left = 11
-      Height = 29
-      Top = 450
-      Width = 892
-      Anchors = [akLeft, akRight, akBottom]
+      Height = 24
+      Top = 79
+      Width = 783
+      Anchors = [akTop, akLeft, akRight]
       BorderSpacing.Left = 10
       BorderSpacing.Right = 10
-      BorderSpacing.Bottom = 10
       TabOrder = 0
     end
     object btnPerformMoves: TButton
       AnchorSideLeft.Control = pnlSolution
+      AnchorSideTop.Control = btnSearchForSolution
+      AnchorSideTop.Side = asrBottom
       AnchorSideBottom.Control = pnlSolution
       AnchorSideBottom.Side = asrBottom
       Left = 11
-      Height = 30
-      Top = 489
-      Width = 101
-      Anchors = [akLeft, akBottom]
-      BorderSpacing.Left = 10
-      BorderSpacing.Bottom = 10
+      Height = 26
+      Top = 47
+      Width = 75
+      BorderSpacing.Around = 10
       Caption = 'Execute'
       TabOrder = 1
       OnClick = btnPerformMovesClick
     end
     object spinEdtAnimationSpeed: TSpinEdit
-      AnchorSideRight.Control = pnlSolution
+      AnchorSideLeft.Control = Label1
+      AnchorSideLeft.Side = asrBottom
+      AnchorSideTop.Control = Label1
+      AnchorSideTop.Side = asrCenter
       AnchorSideRight.Side = asrBottom
       AnchorSideBottom.Control = pnlSolution
       AnchorSideBottom.Side = asrBottom
-      Left = 844
-      Height = 29
-      Top = 490
-      Width = 59
-      Anchors = [akRight, akBottom]
+      Left = 150
+      Height = 24
+      Top = 48
+      Width = 62
+      BorderSpacing.Left = 10
       BorderSpacing.Right = 10
       BorderSpacing.Bottom = 10
       MaxValue = 10
@@ -142,15 +148,15 @@ object frmMain: TfrmMain
       Value = 10
     end
     object imgFilters: TImage
-      AnchorSideLeft.Control = pnlSolution
-      AnchorSideTop.Control = btnSearchForSolution
-      AnchorSideTop.Side = asrBottom
+      AnchorSideLeft.Control = spinEdtAnimationSpeed
+      AnchorSideLeft.Side = asrBottom
+      AnchorSideTop.Control = pnlSolution
       AnchorSideRight.Control = pnlSolution
       AnchorSideRight.Side = asrBottom
-      Left = 11
-      Height = 65
-      Top = 58
-      Width = 892
+      Left = 222
+      Height = 68
+      Top = 11
+      Width = 572
       Anchors = [akTop, akLeft, akRight]
       BorderSpacing.Left = 10
       BorderSpacing.Top = 10
@@ -158,15 +164,16 @@ object frmMain: TfrmMain
     end
     object memMoveSum: TMemo
       AnchorSideLeft.Control = pnlSolution
-      AnchorSideTop.Control = imgFilters
+      AnchorSideTop.Control = edtMoveString
       AnchorSideTop.Side = asrBottom
       AnchorSideRight.Control = pnlSolution
       AnchorSideRight.Side = asrBottom
-      AnchorSideBottom.Control = edtMoveString
+      AnchorSideBottom.Control = pnlSolution
+      AnchorSideBottom.Side = asrBottom
       Left = 11
-      Height = 317
-      Top = 123
-      Width = 892
+      Height = 136
+      Top = 103
+      Width = 783
       Anchors = [akTop, akLeft, akRight, akBottom]
       BorderSpacing.Left = 10
       BorderSpacing.Right = 10
@@ -178,308 +185,352 @@ object frmMain: TfrmMain
     object btnSearchForSolution: TButton
       AnchorSideLeft.Control = pnlSolution
       AnchorSideTop.Control = pnlSolution
+      AnchorSideRight.Control = pnlSetState
+      AnchorSideRight.Side = asrBottom
+      AnchorSideBottom.Control = pnlSetState
+      AnchorSideBottom.Side = asrBottom
       Left = 11
-      Height = 37
+      Height = 26
       Top = 11
-      Width = 181
+      Width = 75
       BorderSpacing.Left = 10
       BorderSpacing.Top = 10
-      Caption = 'Search for the solution'
+      Caption = 'Solve'
       TabOrder = 4
       OnClick = btnSearchForSolutionClick
     end
   end
-  object pnlOriginal: TPanel
-    AnchorSideLeft.Control = Owner
-    AnchorSideTop.Control = Owner
-    Left = 0
-    Height = 352
-    Top = 0
-    Width = 448
-    ClientHeight = 352
-    ClientWidth = 448
-    ParentBackground = False
-    TabOrder = 2
-    object pntBoxCurrentState: TPaintBox
-      AnchorSideLeft.Control = pnlOriginal
-      AnchorSideLeft.Side = asrCenter
-      Left = 44
-      Height = 270
-      Top = 41
-      Width = 360
-      Color = clWhite
-      ParentColor = False
-      OnClick = pntBoxCurrentStateClick
-      OnMouseDown = pntBoxCurrentStateMouseDown
-      OnMouseMove = pntBoxCurrentStateMouseMove
-      OnPaint = pntBoxCurrentStatePaint
-    end
-    object btnCurrentStateReset: TButton
-      Left = 48
-      Height = 30
-      Top = 274
-      Width = 59
-      Caption = 'Reset'
-      TabOrder = 0
-      OnClick = btnCurrentStateResetClick
-    end
-    object btnCurrentStateRandomize: TButton
-      Left = 272
-      Height = 30
-      Top = 274
-      Width = 122
-      Caption = 'Scramble Cube'
-      TabOrder = 1
-      OnClick = btnCurrentStateRandomizeClick
-    end
-    object btnDownClock: TButton
-      Tag = 5
-      AnchorSideLeft.Control = pntBoxCurrentState
-      AnchorSideLeft.Side = asrBottom
-      Left = 404
-      Height = 30
-      Top = 187
-      Width = 30
-      Caption = 'D'
-      TabOrder = 2
-      OnClick = btnRightClockClick
-    end
-    object btnDownCounter: TButton
-      Tag = 15
-      AnchorSideRight.Control = pntBoxCurrentState
-      Left = 14
-      Height = 30
-      Top = 187
-      Width = 30
-      Anchors = [akTop, akRight]
-      Caption = 'D'''
-      TabOrder = 3
-      OnClick = btnRightClockClick
-    end
-    object btnUpCounter: TButton
-      Tag = 10
-      AnchorSideLeft.Control = pntBoxCurrentState
-      AnchorSideLeft.Side = asrBottom
-      Left = 404
-      Height = 30
-      Top = 139
-      Width = 30
-      Caption = 'U'''
-      TabOrder = 4
-      OnClick = btnRightClockClick
-    end
-    object btnUpClock: TButton
-      AnchorSideRight.Control = pntBoxCurrentState
-      Left = 14
-      Height = 30
-      Top = 139
-      Width = 30
-      Anchors = [akTop, akRight]
-      Caption = 'U'
-      TabOrder = 5
-      OnClick = btnRightClockClick
-    end
-    object btnBackClock: TButton
-      Tag = 3
-      AnchorSideBottom.Control = pntBoxCurrentState
-      Left = 224
-      Height = 30
-      Top = 11
-      Width = 30
-      Anchors = [akLeft, akBottom]
-      Caption = 'B'
-      TabOrder = 6
-      OnClick = btnRightClockClick
-    end
-    object btnBackCounter: TButton
-      Tag = 13
-      AnchorSideBottom.Control = pntBoxCurrentState
-      Left = 192
-      Height = 30
-      Top = 11
-      Width = 30
-      Anchors = [akLeft, akBottom]
-      Caption = 'B'''
-      TabOrder = 7
-      OnClick = btnRightClockClick
-    end
-    object btnFrontClock: TButton
-      Tag = 1
-      AnchorSideTop.Control = pntBoxCurrentState
-      AnchorSideTop.Side = asrBottom
-      Left = 192
-      Height = 30
-      Top = 311
-      Width = 30
-      Caption = 'F'
-      TabOrder = 8
-      OnClick = btnRightClockClick
-    end
-    object btnFrontCounter: TButton
-      Tag = 11
-      AnchorSideTop.Control = pntBoxCurrentState
-      AnchorSideTop.Side = asrBottom
-      Left = 224
-      Height = 30
-      Top = 311
-      Width = 30
-      Caption = 'F'''
-      TabOrder = 9
-      OnClick = btnRightClockClick
-    end
-    object btnLeftClock: TButton
-      Tag = 4
-      AnchorSideTop.Control = pntBoxCurrentState
-      AnchorSideRight.Control = pntBoxCurrentState
-      Left = 14
-      Height = 30
-      Top = 41
-      Width = 30
-      Anchors = [akTop, akRight]
-      Caption = 'L'
-      TabOrder = 10
-      OnClick = btnRightClockClick
-    end
-    object btnRightClock: TButton
-      Tag = 2
-      AnchorSideLeft.Control = pntBoxCurrentState
-      AnchorSideLeft.Side = asrBottom
-      AnchorSideBottom.Control = pntBoxCurrentState
-      AnchorSideBottom.Side = asrBottom
-      Left = 404
-      Height = 30
-      Top = 281
-      Width = 30
-      Anchors = [akLeft, akBottom]
-      Caption = 'R'
-      TabOrder = 11
-      OnClick = btnRightClockClick
-    end
-    object btnRightCounter: TButton
-      Tag = 12
-      AnchorSideLeft.Control = pntBoxCurrentState
-      AnchorSideLeft.Side = asrBottom
-      AnchorSideTop.Control = pntBoxCurrentState
-      Left = 404
-      Height = 30
-      Top = 41
-      Width = 30
-      Caption = 'R'''
-      TabOrder = 12
-      OnClick = btnRightClockClick
-    end
-    object btnLeftCounter: TButton
-      Tag = 14
-      AnchorSideRight.Control = pntBoxCurrentState
-      AnchorSideBottom.Control = pntBoxCurrentState
-      AnchorSideBottom.Side = asrBottom
-      Left = 14
-      Height = 30
-      Top = 281
-      Width = 30
-      Anchors = [akRight, akBottom]
-      Caption = 'L'''
-      TabOrder = 13
-      OnClick = btnRightClockClick
-    end
-    object lblClickExplainer: TLabel
-      Left = 14
-      Height = 34
-      Top = 0
-      Width = 161
-      Caption = 'Left Click'#10'(Green\Red\Blue\Orange)'
-    end
-    object lblClickExplainer1: TLabel
-      Left = 341
-      Height = 34
-      Top = 0
-      Width = 93
-      Caption = 'Right Click'#10'(Yellow\White)'
-    end
-  end
-  object pnlDestination: TPanel
-    AnchorSideLeft.Control = Owner
-    AnchorSideTop.Control = pnlOriginal
-    AnchorSideTop.Side = asrBottom
-    AnchorSideRight.Control = pnlOriginal
-    AnchorSideRight.Side = asrBottom
-    AnchorSideBottom.Control = Owner
-    AnchorSideBottom.Side = asrBottom
-    Left = 0
-    Height = 441
-    Top = 352
-    Width = 448
-    Anchors = [akTop, akLeft, akRight, akBottom]
-    ClientHeight = 441
-    ClientWidth = 448
-    ParentBackground = False
-    TabOrder = 3
-    object pntBoxDestination: TPaintBox
-      AnchorSideLeft.Control = pnlDestination
-      AnchorSideLeft.Side = asrCenter
-      Left = 44
-      Height = 270
-      Top = 32
-      Width = 360
-      OnPaint = pntBoxDestinationPaint
-    end
-    object lblNoticeTarget: TLabel
-      AnchorSideLeft.Control = pntBoxDestination
-      AnchorSideLeft.Side = asrCenter
-      AnchorSideTop.Control = pntBoxDestination
-      AnchorSideTop.Side = asrBottom
-      Left = 107
-      Height = 42
-      Top = 302
-      Width = 234
-      Caption = '(Not working yet)'#10'The image above will be used to configure'#10'a target cube configuration.'
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Sans'
-      ParentFont = False
-    end
-  end
   object lblFaceCode: TLabel
-    AnchorSideLeft.Control = pnlOriginal
     AnchorSideLeft.Side = asrBottom
     AnchorSideTop.Control = Owner
     AnchorSideRight.Control = pnl3Dview
-    Left = 453
-    Height = 34
+    Left = 473
+    Height = 35
     Top = 5
-    Width = 643
+    Width = 55
     Anchors = [akTop, akLeft, akRight]
     BorderSpacing.Around = 5
     Caption = '0'
     Font.Color = clWindowText
-    Font.Height = -29
+    Font.Height = -30
     Font.Name = 'Sans'
     Font.Style = [fsBold]
     ParentFont = False
   end
   object lblControlDirections: TLabel
-    AnchorSideLeft.Control = pnlOriginal
+    AnchorSideLeft.Control = pcOneDviews
     AnchorSideLeft.Side = asrBottom
-    AnchorSideRight.Control = pnl3Dview
+    AnchorSideTop.Control = pnl3Dview
+    AnchorSideTop.Side = asrBottom
+    AnchorSideRight.Control = Owner
+    AnchorSideRight.Side = asrBottom
     AnchorSideBottom.Control = pnlSolution
-    Left = 453
-    Height = 167
-    Top = 91
-    Width = 643
-    Anchors = [akLeft, akRight, akBottom]
+    Left = 469
+    Height = 116
+    Top = 279
+    Width = 331
+    Anchors = [akTop, akLeft, akRight, akBottom]
     AutoSize = False
     BorderSpacing.Around = 5
-    Caption = 'Activate Face: Press the corresponding key to select the cube face you wish to rotate:'#10'A: Left    D: Right           S: Bottom    W: Top'#10'R: Back    F: Front'#10#10#10'Rotate Face: Use the arrow keys to rotate the activated face.'#10'Left/Right Keys: Rotate all faces except for left and right.'#10'Up/Down Keys: Rotate the left and right faces.'
+    Caption = 'Control with keyboard:'#13#10'Activate Face: Press the corresponding key to select the cube face you wish to rotate:'#13#10'A: Left    D: Right           S: Bottom    W: Top'#13#10'R: Back    F: Front'#13#10#13#10#13#10'Rotate Face: Use the arrow keys to rotate the activated face.'#13#10'Left/Right Keys: Rotate all faces except for left and right.'#13#10'Up/Down Keys: Rotate the left and right faces.'
     Font.Color = clWindowText
-    Font.Height = 12
+    Font.Height = 15
     Font.Name = 'MS Sans Serif'
     OptimalFill = True
     ParentFont = False
     WordWrap = True
   end
-  object Timer1: TTimer
-    OnTimer = Timer1Timer
-    Left = 572
-    Top = 26
+  object pcOneDviews: TPageControl
+    AnchorSideLeft.Control = Owner
+    AnchorSideTop.Control = Owner
+    AnchorSideBottom.Control = Owner
+    AnchorSideBottom.Side = asrBottom
+    Left = 0
+    Height = 400
+    Top = 0
+    Width = 464
+    ActivePage = TabSheet1
+    Anchors = [akTop, akLeft, akBottom]
+    Constraints.MaxHeight = 400
+    TabIndex = 0
+    TabOrder = 2
+    object TabSheet1: TTabSheet
+      Caption = 'Set State'
+      ClientHeight = 371
+      ClientWidth = 456
+      object pnlSetState: TPanel
+        AnchorSideLeft.Control = TabSheet1
+        AnchorSideTop.Control = TabSheet1
+        AnchorSideBottom.Control = TabSheet1
+        AnchorSideBottom.Side = asrBottom
+        Left = 0
+        Height = 371
+        Top = 0
+        Width = 467
+        Anchors = [akTop, akLeft, akBottom]
+        BevelOuter = bvNone
+        ClientHeight = 371
+        ClientWidth = 467
+        ParentBackground = False
+        TabOrder = 0
+        object pntBoxCurrentState: TPaintBox
+          AnchorSideLeft.Control = pnlSetState
+          AnchorSideLeft.Side = asrCenter
+          Left = 45
+          Height = 282
+          Top = 43
+          Width = 376
+          Color = clWhite
+          ParentColor = False
+          OnMouseDown = pntBoxCurrentStateMouseDown
+          OnMouseMove = pntBoxCurrentStateMouseMove
+          OnPaint = pntBoxCurrentStatePaint
+        end
+        object btnCurrentStateReset: TButton
+          AnchorSideLeft.Control = pntBoxCurrentState
+          AnchorSideTop.Control = pntBoxCurrentState
+          AnchorSideRight.Control = pntBoxCurrentState
+          AnchorSideRight.Side = asrBottom
+          AnchorSideBottom.Control = pntBoxCurrentState
+          AnchorSideBottom.Side = asrBottom
+          Left = 55
+          Height = 26
+          Top = 289
+          Width = 75
+          Anchors = [akLeft, akBottom]
+          BorderSpacing.Around = 10
+          Caption = 'Reset'
+          TabOrder = 0
+          OnClick = btnCurrentStateResetClick
+        end
+        object btnCurrentStateRandomize: TButton
+          AnchorSideRight.Control = pntBoxCurrentState
+          AnchorSideRight.Side = asrBottom
+          AnchorSideBottom.Control = pntBoxCurrentState
+          AnchorSideBottom.Side = asrBottom
+          Left = 336
+          Height = 26
+          Top = 289
+          Width = 75
+          Anchors = [akRight, akBottom]
+          BorderSpacing.Around = 10
+          Caption = 'Scramble'
+          TabOrder = 1
+          OnClick = btnCurrentStateRandomizeClick
+        end
+        object btnDownClock: TButton
+          Tag = 5
+          AnchorSideLeft.Control = pntBoxCurrentState
+          AnchorSideLeft.Side = asrBottom
+          Left = 421
+          Height = 31
+          Top = 195
+          Width = 31
+          Caption = 'D'
+          TabOrder = 2
+          OnClick = btnRightClockClick
+        end
+        object btnDownCounter: TButton
+          Tag = 15
+          AnchorSideRight.Control = pntBoxCurrentState
+          Left = 14
+          Height = 31
+          Top = 195
+          Width = 31
+          Anchors = [akTop, akRight]
+          Caption = 'D'''
+          TabOrder = 3
+          OnClick = btnRightClockClick
+        end
+        object btnUpCounter: TButton
+          Tag = 10
+          AnchorSideLeft.Control = pntBoxCurrentState
+          AnchorSideLeft.Side = asrBottom
+          Left = 421
+          Height = 31
+          Top = 145
+          Width = 31
+          Caption = 'U'''
+          TabOrder = 4
+          OnClick = btnRightClockClick
+        end
+        object btnUpClock: TButton
+          AnchorSideRight.Control = pntBoxCurrentState
+          Left = 14
+          Height = 31
+          Top = 145
+          Width = 31
+          Anchors = [akTop, akRight]
+          Caption = 'U'
+          TabOrder = 5
+          OnClick = btnRightClockClick
+        end
+        object btnBackClock: TButton
+          Tag = 3
+          AnchorSideBottom.Control = pntBoxCurrentState
+          Left = 234
+          Height = 31
+          Top = 12
+          Width = 31
+          Anchors = [akLeft, akBottom]
+          Caption = 'B'
+          TabOrder = 6
+          OnClick = btnRightClockClick
+        end
+        object btnBackCounter: TButton
+          Tag = 13
+          AnchorSideBottom.Control = pntBoxCurrentState
+          Left = 200
+          Height = 31
+          Top = 12
+          Width = 31
+          Anchors = [akLeft, akBottom]
+          Caption = 'B'''
+          TabOrder = 7
+          OnClick = btnRightClockClick
+        end
+        object btnFrontClock: TButton
+          Tag = 1
+          AnchorSideTop.Control = pntBoxCurrentState
+          AnchorSideTop.Side = asrBottom
+          Left = 200
+          Height = 31
+          Top = 325
+          Width = 31
+          Caption = 'F'
+          TabOrder = 8
+          OnClick = btnRightClockClick
+        end
+        object btnFrontCounter: TButton
+          Tag = 11
+          AnchorSideTop.Control = pntBoxCurrentState
+          AnchorSideTop.Side = asrBottom
+          Left = 234
+          Height = 31
+          Top = 325
+          Width = 31
+          Caption = 'F'''
+          TabOrder = 9
+          OnClick = btnRightClockClick
+        end
+        object btnLeftClock: TButton
+          Tag = 4
+          AnchorSideTop.Control = pntBoxCurrentState
+          AnchorSideRight.Control = pntBoxCurrentState
+          Left = 14
+          Height = 31
+          Top = 43
+          Width = 31
+          Anchors = [akTop, akRight]
+          Caption = 'L'
+          TabOrder = 10
+          OnClick = btnRightClockClick
+        end
+        object btnRightClock: TButton
+          Tag = 2
+          AnchorSideLeft.Control = pntBoxCurrentState
+          AnchorSideLeft.Side = asrBottom
+          AnchorSideBottom.Control = pntBoxCurrentState
+          AnchorSideBottom.Side = asrBottom
+          Left = 421
+          Height = 31
+          Top = 294
+          Width = 31
+          Anchors = [akLeft, akBottom]
+          Caption = 'R'
+          TabOrder = 11
+          OnClick = btnRightClockClick
+        end
+        object btnRightCounter: TButton
+          Tag = 12
+          AnchorSideLeft.Control = pntBoxCurrentState
+          AnchorSideLeft.Side = asrBottom
+          AnchorSideTop.Control = pntBoxCurrentState
+          Left = 421
+          Height = 31
+          Top = 43
+          Width = 31
+          Caption = 'R'''
+          TabOrder = 12
+          OnClick = btnRightClockClick
+        end
+        object btnLeftCounter: TButton
+          Tag = 14
+          AnchorSideRight.Control = pntBoxCurrentState
+          AnchorSideBottom.Control = pntBoxCurrentState
+          AnchorSideBottom.Side = asrBottom
+          Left = 14
+          Height = 31
+          Top = 294
+          Width = 31
+          Anchors = [akRight, akBottom]
+          Caption = 'L'''
+          TabOrder = 13
+          OnClick = btnRightClockClick
+        end
+        object lblClickExplainer: TLabel
+          Left = 14
+          Height = 32
+          Top = 0
+          Width = 155
+          Caption = 'Left Click'#10'(Green\Red\Blue\Orange)'
+          OnClick = lblClickExplainerClick
+        end
+        object lblClickExplainer1: TLabel
+          Left = 356
+          Height = 32
+          Top = 0
+          Width = 86
+          Caption = 'Right Click'#10'(Yellow\White)'
+        end
+      end
+    end
+    object TabSheet2: TTabSheet
+      Caption = 'Target State'
+      ClientHeight = 371
+      ClientWidth = 456
+      object pnlDestination: TPanel
+        AnchorSideLeft.Control = TabSheet2
+        AnchorSideTop.Control = TabSheet2
+        AnchorSideRight.Control = TabSheet2
+        AnchorSideRight.Side = asrBottom
+        AnchorSideBottom.Control = TabSheet2
+        AnchorSideBottom.Side = asrBottom
+        Left = 0
+        Height = 371
+        Top = 0
+        Width = 456
+        Anchors = [akTop, akLeft, akRight, akBottom]
+        BevelOuter = bvNone
+        ClientHeight = 371
+        ClientWidth = 456
+        ParentBackground = False
+        TabOrder = 0
+        object pntBoxDestination: TPaintBox
+          AnchorSideLeft.Control = pnlDestination
+          AnchorSideLeft.Side = asrCenter
+          Left = 40
+          Height = 282
+          Top = 33
+          Width = 376
+          OnPaint = pntBoxDestinationPaint
+        end
+        object lblNoticeTarget: TLabel
+          AnchorSideLeft.Control = pntBoxDestination
+          AnchorSideLeft.Side = asrCenter
+          AnchorSideTop.Control = pntBoxDestination
+          AnchorSideTop.Side = asrBottom
+          Left = 126
+          Height = 42
+          Top = 315
+          Width = 204
+          Caption = '(Not working yet)'#10'The image above will be used to configure'#10'a target cube configuration.'
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Sans'
+          ParentFont = False
+        end
+      end
+    end
   end
 end
