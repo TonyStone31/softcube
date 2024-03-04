@@ -30,6 +30,8 @@ uses
   UConst,
   UDraw;
 
+procedure LFDstringCorrection(var s: string);
+function CubeToDefinitionString(cube: TRubik): string;
 procedure RotateFace(var cube: TUnitRubik; face, rotation: integer);
 procedure ApplyFormula(var cube: TRubik; s: string);
 function findEdge(cube: TFaceRubik; c: integer; sens: byte = 0): integer;
@@ -41,18 +43,84 @@ procedure PlaceYellowEdges(var cube: TRubik);
 procedure OrientYellowEdges(var cube: TRubik);
 procedure PlaceYellowCorners(var cube: TRubik);
 procedure OrientYellowCorners(var cube: TRubik);
-function filtre(var s: string; cube: TFaceRubik; can: tcanvas): string;
+function FilterMoves(var s: string; cube: TFaceRubik; can: tcanvas): string;
 function CountMoves(s: string): integer;
 function VerifyCube(original: TFaceRubik; var s: string): boolean;
-
 
 var
   solu: string = '';
 
 implementation
 
+procedure LFDstringCorrection(var s: string);
+{ #note -oTonyStone : Yes this is very hackish.  It was currently the easiest solution for me to
+invert the rotation directions for the Left Front and Down faces.  A proper solution I think may
+be to adjust the rotations in the RotateFace procedure in the future. }
+var
+  i: Integer;
+  newS: string;
+begin
+  newS := ''; // Initialize the new string
+  i := 1;
+  while i <= Length(s) do
+  begin
+    if (i < Length(s)) and (s[i + 1] = '''') then
+    begin
+      // Check for L', D', F' and convert them to L, D, F
+      case s[i] of
+        'L', 'D', 'F': newS := newS + s[i]; // Drop the '
+      else
+        newS := newS + s[i] + s[i + 1]; // Keep other moves as they are
+      end;
+      Inc(i, 2); // Skip the next character as it's already processed
+    end
+    else if (i < Length(s)) and (s[i + 1] = '2') then
+    begin
+      newS := newS + s[i] + s[i + 1];
+      Inc(i, 2); // Skip the next character as it's already processed
+    end
+    else
+    begin
+      // Handle the last character or any character not followed by ' or 2
+      case s[i] of
+        'L', 'D', 'F': newS := newS + s[i] + '''';
+      else
+        newS := newS + s[i];
+      end;
+      Inc(i);
+    end;
+  end;
+  s := newS; // Update the original string
+end;
 
+function CubeToDefinitionString(cube: TRubik): string;
+var
+  faceOrder: array[1..6] of integer; // Array to define the custom order of faces
+  face, i: integer;
+  faceName: string;
+begin
+  Result := '';
+  // remap so string matches expected input in other solvers
+  faceOrder[1] := 1; // UP
+  faceOrder[2] := 3; // FRONT
+  faceOrder[3] := 2; // RIGHT
+  faceOrder[4] := 6; // BACK
+  faceOrder[5] := 5; // LEFT
+  faceOrder[6] := 4; // DOWN
 
+  for face := 1 to 6 do
+  begin
+    // Use faceOrder array to access the faces in the desired order
+    for i := 0 to 8 do
+    begin
+      faceName := FACE_NAMES[cube[faceOrder[face], i]];
+      Result := Result + faceName;
+    end;
+  end;
+end;
+
+//UUUUUUUUULLLLLLLLLFFFFFFFFFRRRRRRRRRBBBBBBBBBDDDDDDDDD
+//BDBBURBRFRBUFLFFBBLULUFULDRURRLRUDFDDDUBBLLFRULDDDLFRF
 
 function CountMoves(s: string): integer;
 var
@@ -74,8 +142,7 @@ begin
       Inc(i);
   end;
 end;
-
-
+         // French still... I think it is just comparing two cubes.  Will rename
 function MemeCubes(c1, c2: TRubik): boolean;
 var
   i: integer;
@@ -85,18 +152,17 @@ begin
   Result := True;
 end;
 
-
-
 procedure RotateFace(var cube: TUnitRubik; face, rotation: integer);
 var
-  i, j, k: integer;
+  i, j: integer;
   tmp: TUnitRubik;
 begin
-
   if rotation = 0 then exit;
   if rotation > 1 then RotateFace(cube, face, rotation - 1);
+
   tmp := cube;
-  case face of
+
+  case face of // Faces that rotate "naturally" with the given logic
     CUBE_TOP: // face  blanche
     begin     // White Face
       for j := 0 to 2 do for i := 0 to 2 do tmp[1, j, i] := cube[1, 2 - i, j];
@@ -105,38 +171,7 @@ begin
       for i := 0 to 2 do tmp[4, 0, i] := cube[5, 0, i];
       for i := 0 to 2 do tmp[5, 0, i] := cube[2, 0, i];
     end;
-    CUBE_BOTTOM: // face  jaune
-    begin        // Yellow Face
-      for j := 0 to 2 do for i := 0 to 2 do tmp[6, j, i] := cube[6, i, 2 - j];
-      for i := 0 to 2 do tmp[2, 2, i] := cube[3, 2, i];
-      for i := 0 to 2 do tmp[3, 2, i] := cube[4, 2, i];
-      for i := 0 to 2 do tmp[4, 2, i] := cube[5, 2, i];
-      for i := 0 to 2 do tmp[5, 2, i] := cube[2, 2, i];
-    end;
-    CUBE_LEFT: // face  orange
-    begin      // Orange Face
-      for j := 0 to 2 do for i := 0 to 2 do tmp[5, j, i] := cube[5, i, 2 - j];
-      for i := 0 to 2 do tmp[1, i, 0] := cube[2, i, 0];
-      for i := 0 to 2 do tmp[2, i, 0] := cube[6, i, 0];
-      for i := 0 to 2 do tmp[6, i, 0] := cube[4, 2 - i, 2];
-      for i := 0 to 2 do tmp[4, 2 - i, 2] := cube[1, i, 0];
-    end;
-    CUBE_RIGHT: // face 4 rouge
-    begin
-      for j := 0 to 2 do for i := 0 to 2 do tmp[3, j, i] := cube[3, 2 - i, j];
-      for i := 0 to 2 do tmp[1, i, 2] := cube[2, i, 2];
-      for i := 0 to 2 do tmp[2, i, 2] := cube[6, i, 2];
-      for i := 0 to 2 do tmp[6, i, 2] := cube[4, 2 - i, 0];
-      for i := 0 to 2 do tmp[4, 2 - i, 0] := cube[1, i, 2];
-    end;
-    CUBE_FRONT: // face 3 vert
-    begin
-      for j := 0 to 2 do for i := 0 to 2 do tmp[2, j, i] := cube[2, i, 2 - j];
-      for i := 0 to 2 do tmp[1, 2, i] := cube[3, i, 0];
-      for i := 0 to 2 do tmp[3, i, 0] := cube[6, 0, 2 - i];
-      for i := 0 to 2 do tmp[6, 0, 2 - i] := cube[5, 2 - i, 2];
-      for i := 0 to 2 do tmp[5, 2 - i, 2] := cube[1, 2, i];
-    end;
+
     CUBE_BACK: // face 1 bleu
     begin      // Blue Face
       for j := 0 to 2 do for i := 0 to 2 do tmp[4, j, i] := cube[4, 2 - i, j];
@@ -145,21 +180,63 @@ begin
       for i := 0 to 2 do tmp[6, 2, 2 - i] := cube[5, 2 - i, 0];
       for i := 0 to 2 do tmp[5, 2 - i, 0] := cube[1, 0, i];
     end;
-    CUBE_CENTER_HORIZONTAL: // entre CUBE_TOP et CUBE_BOTTOM
+
+    CUBE_RIGHT: // face 4 rouge
+    begin       // Red Face
+      for j := 0 to 2 do for i := 0 to 2 do tmp[3, j, i] := cube[3, 2 - i, j];
+      for i := 0 to 2 do tmp[1, i, 2] := cube[2, i, 2];
+      for i := 0 to 2 do tmp[2, i, 2] := cube[6, i, 2];
+      for i := 0 to 2 do tmp[6, i, 2] := cube[4, 2 - i, 0];
+      for i := 0 to 2 do tmp[4, 2 - i, 0] := cube[1, i, 2];
+    end;
+  end;
+
+  case face of
+    CUBE_BOTTOM: // face  jaune
+    begin        // Yellow Face
+      //Orginal before I flipped directions.
+      for j := 0 to 2 do for i := 0 to 2 do tmp[6, j, i] := cube[6, i, 2 - j];
+      for i := 0 to 2 do tmp[2, 2, i] := cube[3, 2, i];
+      for i := 0 to 2 do tmp[3, 2, i] := cube[4, 2, i];
+      for i := 0 to 2 do tmp[4, 2, i] := cube[5, 2, i];
+      for i := 0 to 2 do tmp[5, 2, i] := cube[2, 2, i];
+    end;
+    CUBE_LEFT: // Orange Face - Adjusted for counter-clockwise rotation
+    begin
+      for j := 0 to 2 do for i := 0 to 2 do tmp[5, j, i] := cube[5, i, 2 - j];
+      for i := 0 to 2 do tmp[1, i, 0] := cube[2, i, 0];
+      for i := 0 to 2 do tmp[2, i, 0] := cube[6, i, 0];
+      for i := 0 to 2 do tmp[6, i, 0] := cube[4, 2 - i, 2];
+      for i := 0 to 2 do tmp[4, 2 - i, 2] := cube[1, i, 0];
+    end;
+
+    CUBE_FRONT: // face 3 vert
+    begin       // Face Green
+      for j := 0 to 2 do for i := 0 to 2 do tmp[2, j, i] := cube[2, i, 2 - j];
+      for i := 0 to 2 do tmp[1, 2, i] := cube[3, i, 0];
+      for i := 0 to 2 do tmp[3, i, 0] := cube[6, 0, 2 - i];
+      for i := 0 to 2 do tmp[6, 0, 2 - i] := cube[5, 2 - i, 2];
+      for i := 0 to 2 do tmp[5, 2 - i, 2] := cube[1, 2, i];
+    end;
+  end;
+
+  // not into this yet but its something....
+  case face of
+    CUBE_CENTER_HORIZONTAL: // Between CUBE_TOP and CUBE_BOTTOM
     begin
       for i := 0 to 2 do tmp[2, 1, i] := cube[3, 1, i];
       for i := 0 to 2 do tmp[3, 1, i] := cube[4, 1, i];
       for i := 0 to 2 do tmp[4, 1, i] := cube[5, 1, i];
       for i := 0 to 2 do tmp[5, 1, i] := cube[2, 1, i];
     end;
-    CUBE_CENTER_DEPTH: // entre CUBE_FRONT et CUBE_BACK
+    CUBE_CENTER_DEPTH: // Between CUBE_FRONT and CUBE_BACK
     begin
       for i := 0 to 2 do tmp[1, 1, i] := cube[3, i, 1];
       for i := 0 to 2 do tmp[3, i, 1] := cube[6, 1, 2 - i];
       for i := 0 to 2 do tmp[6, 1, 2 - i] := cube[5, 2 - i, 1];
       for i := 0 to 2 do tmp[5, 2 - i, 1] := cube[1, 1, i];
     end;
-    CUBE_CENTER_VERTICAL: // entre CUBE_LEFT et CUBE_RIGHT
+    CUBE_CENTER_VERTICAL: // Between CUBE_LEFT and CUBE_RIGHT
     begin
       for i := 0 to 2 do tmp[1, i, 1] := cube[2, i, 1];
       for i := 0 to 2 do tmp[2, i, 1] := cube[6, i, 1];
@@ -198,8 +275,6 @@ begin
   end;
 end;
 
-
-
 function RotateEdge(cube: TFaceRubik; c, ref: integer): integer;
 var
   i: integer;
@@ -224,8 +299,8 @@ begin
     begin
       for i := 0 to 23 do if c = EDGE_POSITIONS[i, 4] then
         begin
-          c1 := destination[EDGE_POSITIONS[i, 0], EDGE_POSITIONS[i, 1]];
-          c2 := destination[EDGE_POSITIONS[i, 2], EDGE_POSITIONS[i, 3]];
+          c1 := TargetCubeState[EDGE_POSITIONS[i, 0], EDGE_POSITIONS[i, 1]];
+          c2 := TargetCubeState[EDGE_POSITIONS[i, 2], EDGE_POSITIONS[i, 3]];
         end;
 
       for i := 0 to 23 do
@@ -242,8 +317,8 @@ begin
         end;
 
       for i := 0 to 23 do
-        if (destination[EDGE_POSITIONS[i, 0], EDGE_POSITIONS[i, 1]] = c1) and
-          (destination[EDGE_POSITIONS[i, 2], EDGE_POSITIONS[i, 3]] = c2) then Result := EDGE_POSITIONS[i, 4];
+        if (TargetCubeState[EDGE_POSITIONS[i, 0], EDGE_POSITIONS[i, 1]] = c1) and
+          (TargetCubeState[EDGE_POSITIONS[i, 2], EDGE_POSITIONS[i, 3]] = c2) then Result := EDGE_POSITIONS[i, 4];
     end
   end;
 end;
@@ -257,9 +332,9 @@ begin
   for i := 0 to 23 do
     if a = CORNER_POSITION[i, 6] then
     begin
-      c1 := destination[CORNER_POSITION[i, 0], CORNER_POSITION[i, 1]];
-      c2 := destination[CORNER_POSITION[i, 2], CORNER_POSITION[i, 3]];
-      c3 := destination[CORNER_POSITION[i, 4], CORNER_POSITION[i, 5]];
+      c1 := TargetCubeState[CORNER_POSITION[i, 0], CORNER_POSITION[i, 1]];
+      c2 := TargetCubeState[CORNER_POSITION[i, 2], CORNER_POSITION[i, 3]];
+      c3 := TargetCubeState[CORNER_POSITION[i, 4], CORNER_POSITION[i, 5]];
     end;
 
   for i := 0 to 23 do
@@ -662,7 +737,7 @@ begin
   end;
 end;
 
-const
+const //from french translates to Actions... may rename to MoveActions ?
   QuoiFaire1: array[1..24, 1..7] of integer =
     ((2345, 0, 0, 0, 0, 0, 0), (2354, 4, 1, 1, 4, 9, 0), (2435, 2, 1, 4, 0, 0, 0),
     (2453, 3, 4, 1, 1, 0, 0), (2534, 3, 9, 4, 1, 0, 0), (2543, 3, 4, 9, 4, 0, 0), (3245, 2, 4, 1, 0, 0, 0),
@@ -742,7 +817,7 @@ begin
   end;
 
   n := 0;
-  for i := 1 to 24 do if QuoiFaire2[i, 1] = c1 * 1000 + c2 * 100 + c3 * 10 + c4 then n := i;
+  for i := 1 to 12 do if QuoiFaire2[i, 1] = c1 * 1000 + c2 * 100 + c3 * 10 + c4 then n := i;
   if n < 1 then exit;
   for i := 1 to QuoiFaire2[n, 2] do
   begin
@@ -840,7 +915,7 @@ end;
 // Supressions de deux mouvements opposés consécutifs
 // Removal of two consecutive opposite movements
 
-function filtre(var s: string; cube: TFaceRubik; can: tcanvas): string;
+function FilterMoves(var s: string; cube: TFaceRubik; can: tcanvas): string;
 var
   tmp: TLinRubik;
   tab: array of string;

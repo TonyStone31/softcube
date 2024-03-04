@@ -51,8 +51,8 @@ procedure DrawCube(P: TPaintBox; c: TRubik);
 procedure PlaceColor(var cube: TRubik; pt: tpoint);
 
 var
-  original: TRubik;
-  destination: TRubik;
+  CurrentCubeState: TRubik;
+  TargetCubeState: TRubik;
   SelectedColor: integer = 0;
   Cube3D: TCube3D;
   axeX: T3dPoint = (-1, 0, 0);
@@ -119,16 +119,18 @@ procedure DrawCube(P: TPaintBox; c: TRubik);
 var
   i, j, k: integer;
   tmp: TBitmap;
+  centerPoint: TPoint;
+  faceName: string;
 begin
   tmp := TBitmap.Create;
   try
     tmp.Width := P.Width;
     tmp.Height := P.Height;
-    tmp.Canvas.Brush.Color := clSilver;
+    tmp.Canvas.Brush.Color := clAppWorkspace;
     tmp.Canvas.FillRect(P.ClientRect);
 
     // Optionally draw a black outline around each cube face for clarity
-    tmp.Canvas.Brush.Color := clBlack; // Outline color
+    tmp.Canvas.Brush.Color := clMenuBar; // Outline color
     // Drawing outlines for each cube face
 
     // Background for Orange face
@@ -149,6 +151,17 @@ begin
     //Background for Yellow face
     tmp.Canvas.Rectangle(3 * C_CUBE_SIZE + 2, 6 * C_CUBE_SIZE + 2, 6 * C_CUBE_SIZE - 4, 9 * C_CUBE_SIZE - 4);
 
+
+    //    for face := 1 to 6 do
+    //begin
+    //  // Append each color of the current face to the result string
+    //  for i := 0 to 8 do
+    //  begin
+    //    faceName := FACE_NAMES[cube[face, i]];
+    //    Result := Result + faceName;
+    //  end;
+    //end;
+
     // Fill cube faces with appropriate colors
     for i := 1 to 6 do
     begin
@@ -157,10 +170,27 @@ begin
         for k := 0 to 2 do
         begin
           tmp.Canvas.Brush.Color := C_COLOR[TUnitRubik(c)[i, j, k]];
+          faceName := FACE_NAMES[TUnitRubik(c)[i, j, k]];
+
           tmp.Canvas.Rectangle(C_FACE_GRID_POS[i, j, k].x * C_CUBE_SIZE + 1,
             C_FACE_GRID_POS[i, j, k].Y * C_CUBE_SIZE + 1,
             C_FACE_GRID_POS[i, j, k].x * C_CUBE_SIZE + C_CUBE_SIZE - 3,
             C_FACE_GRID_POS[i, j, k].Y * C_CUBE_SIZE + C_CUBE_SIZE - 3);
+
+          centerPoint := C_FACE_GRID_POS[i, j, k];
+          faceName := faceName
+          //+ IntToStr(C_FACE_GRID_POS[i, j, k].X)
+          //+ IntToStr(C_FACE_GRID_POS[i, j, k].Y) // Constructs name like U1, L2, etc.
+          // Needs more thought
+          ;
+          tmp.Canvas.Font.Size := 7;
+          tmp.Canvas.Font.Color := clBlack;
+
+          // Draw face name in the center of each cubelet
+            //tmp.Canvas.TextOut(
+            //C_FACE_GRID_POS[i, j, k].x * C_CUBE_SIZE + (C_CUBE_SIZE div 2) - (tmp.Canvas.TextWidth(faceName) div 2),
+            //C_FACE_GRID_POS[i, j, k].Y * C_CUBE_SIZE + (C_CUBE_SIZE div 2) - (tmp.Canvas.TextHeight(faceName) div 2),
+            //faceName);
         end;
       end;
     end;
@@ -272,7 +302,7 @@ begin
   tmp := tbitmap.Create;
   tmp.Width := p.Width;
   tmp.Height := p.Height;
-  tmp.Canvas.Brush.color := clbtnface;
+  tmp.Canvas.Brush.color := clAppWorkspace;
   tmp.canvas.FillRect(p.ClientRect);
   dx := tmp.Width div 2;
   dy := tmp.Height div 2;

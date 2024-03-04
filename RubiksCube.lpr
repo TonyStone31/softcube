@@ -33,6 +33,7 @@ uses
   //{$R *.res}
 
 begin
+  Application.Title:='SoftCube';
   Application.Initialize;
   Application.CreateForm(TfrmMain, frmMain);
   Application.Run;

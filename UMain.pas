@@ -31,14 +31,16 @@ uses
   LCLIntf,
   LCLType,
   SysUtils,
-
   ExtCtrls,
   Menus,
   Spin,
-  StdCtrls, ComCtrls,
+  ComCtrls,
+  StdCtrls,
   strutils,
   UConst,
   UDraw,
+  process,
+  Types,
   URubik;
 
 type
@@ -48,8 +50,10 @@ type
   TfrmMain = class(TForm)
     btnBackClock: TButton;
     btnBackCounter: TButton;
-    btnCurrentStateRandomize: TButton;
+    btnScrampleState: TButton;
+    btnScrambleTarget: TButton;
     btnCurrentStateReset: TButton;
+    btnTargetSolveReset: TButton;
     btnDownClock: TButton;
     btnDownCounter: TButton;
     btnFrontClock: TButton;
@@ -57,46 +61,52 @@ type
     btnLeftClock: TButton;
     btnLeftCounter: TButton;
     btnReset3Dview: TButton;
-    btnPerformMoves: TButton;
+    btnExecute: TButton;
     btnRightClock: TButton;
     btnRightCounter: TButton;
     btnSearchForSolution: TButton;
     btnUpClock: TButton;
     btnUpCounter: TButton;
+    btn2phaseSolve: TButton;
     edtMoveString: TEdit;
     imgFilters: TImage;
-    Label1: TLabel;
+    lblSpeedControl: TLabel;
     lblClickExplainer: TLabel;
     lblClickExplainer1: TLabel;
     lblControlDirections: TLabel;
-    lblFaceCode: TLabel;
+    lblCurrentMove: TLabel;
     lblNoticeTarget: TLabel;
     memMoveSum: TMemo;
-    pcOneDviews: TPageControl;
+    ts2DViews: TPageControl;
     pnlDestination: TPanel;
     pnlSetState: TPanel;
     pntBox3Dview: TPaintBox;
     pnl3Dview: TPanel;
     pnlSolution: TPanel;
     pntBoxCurrentState: TPaintBox;
-    pntBoxDestination: TPaintBox;
+    pntBoxTargetSolve: TPaintBox;
     spinEdtAnimationSpeed: TSpinEdit;
     TabSheet1: TTabSheet;
     TabSheet2: TTabSheet;
-    procedure btnCurrentStateRandomizeClick(Sender: TObject);
-    procedure btnPerformMovesClick(Sender: TObject);
+    tglKeyBoardControl: TCheckBox;
+    procedure btnScrambleTargetClick(Sender: TObject);
+    procedure btnScrampleStateClick(Sender: TObject);
+    procedure btnTargetSolveResetClick(Sender: TObject);
+    procedure btnExecuteClick(Sender: TObject);
     procedure btnCurrentStateResetClick(Sender: TObject);
     procedure btnReset3DviewClick(Sender: TObject);
     procedure btnRightClockClick(Sender: TObject);
+    procedure btn2phaseSolveClick(Sender: TObject);
+    procedure edtMoveStringKeyUp(Sender: TObject; var Key: word; Shift: TShiftState);
     procedure FormCreate(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: word; Shift: TShiftState);
     procedure FormKeyPress(Sender: TObject; var Key: char);
     procedure FormKeyUp(Sender: TObject; var Key: word; Shift: TShiftState);
-    procedure lblClickExplainerClick(Sender: TObject);
+    procedure ts2DViewsChange(Sender: TObject);
     procedure pntBox3DviewMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: integer);
-    procedure pntBoxDestinationPaint(Sender: TObject);
+    procedure pntBoxTargetSolveMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: integer);
+    procedure pntBoxTargetSolvePaint(Sender: TObject);
     procedure pntBoxCurrentStateMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: integer);
-    procedure pntBoxCurrentStateMouseMove(Sender: TObject; Shift: TShiftState; X, Y: integer);
     procedure pntBoxCurrentStatePaint(Sender: TObject);
     procedure pntBox3DviewMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: integer);
     procedure pntBox3DviewMouseMove(Sender: TObject; Shift: TShiftState; X, Y: integer);
@@ -104,31 +114,59 @@ type
     procedure btnSearchForSolutionClick(Sender: TObject);
     procedure ManualRotateFace(Face: integer; clockWise: boolean);
     procedure SetInitialCubeView;
-    procedure Timer1Timer(Sender: TObject);
+    procedure tglKeyBoardControlChange(Sender: TObject);
   private
+    procedure ActiveSleep(ms: cardinal);
+    procedure ExecuteSolverAndParseOutput(const faceString: string; aMemo: TMemo; MoveString: TEdit);
+    procedure ToggleButtonsExcept(Form: TForm; ExceptButton: TButton; Enable: boolean);
 
 
-    { Déclarations privées }
+
   public
-    { Déclarations publiques }
+
   end;
 
 var
   frmMain: TfrmMain;
-
   tmx: integer = 0;
   tmy: integer = 0;
   IsRunning: boolean = False;
   mouseDrag3D: boolean;
   FaceCodeMover: integer = 0;
-  //InitialCube3D: TCube3D;
+  keyBoardControlActive: boolean;
 
 implementation
 
 {$R *.lfm}
 
 
+procedure TfrmMain.ToggleButtonsExcept(Form: TForm; ExceptButton: TButton; Enable: boolean);
+var
+  i: integer;
+  comp: TComponent;
+begin
+  for i := 0 to Form.ComponentCount - 1 do
+  begin
+    comp := Form.Components[i];
+    if (comp is TButton) and (comp <> ExceptButton) then
+    begin
+      TButton(comp).Enabled := Enable;
+    end;
+  end;
+  Application.ProcessMessages;
+end;
 
+procedure TfrmMain.ActiveSleep(ms: cardinal);
+var
+  TargetTime: cardinal;
+begin
+  TargetTime := GetTickCount64 + ms;
+  while GetTickCount64 < TargetTime do
+  begin
+    Application.ProcessMessages;
+    Sleep(5);
+  end;
+end;
 
 procedure TfrmMain.FormCreate(Sender: TObject);
 var
@@ -136,30 +174,20 @@ var
 begin
   Randomize;
   DoubleBuffered := True;
-  original := C_CUBE_COMPLETE;
-  for i := 0 to 50 do rotateface(TUnitRubik(original), random(6) + 1, random(2) * 2 + 1);
-  destination := C_CUBE_COMPLETE;
+  CurrentCubeState := C_CUBE_COMPLETE;
+  TargetCubeState := C_CUBE_COMPLETE;
   Cube3D := VIEW_OF_3D_CUBE;
-
+  lblCurrentMove.Caption := ' ';
   SetInitialCubeView;
-
 end;
 
 procedure TfrmMain.FormKeyDown(Sender: TObject; var Key: word; Shift: TShiftState);
 begin
-
+  //if keyBoardControlActive then Key:=0;
 end;
 
 procedure TfrmMain.FormKeyPress(Sender: TObject; var Key: char);
 begin
-  // Check if the key is between '1' and '6'
-  //if (Key >= '1') and (Key <= '6') then
-  //begin
-  //  // Subtract '0' to convert char to its numerical value and then subtract 1
-  //  // to make it zero-based as it seems your FaceCodeMover starts from 0 for key '1'
-  //  FaceCodeMover := Ord(Key) - Ord('0') - 1;
-  //  lblFaceCode.Caption := IntToStr(FaceCodeMover);
-  //end;
   case Key of
     'a', 'A': FaceCodeMover := 4;
     's', 'S': FaceCodeMover := 5;
@@ -168,13 +196,11 @@ begin
     'r', 'R': FaceCodeMover := 3;
     'f', 'F': FaceCodeMover := 1;
   end;
-  lblFaceCode.Caption := IntToStr(FaceCodeMover);
 end;
-
 
 procedure TfrmMain.FormKeyUp(Sender: TObject; var Key: word; Shift: TShiftState);
 begin
-
+  if IsRunning or (not keyBoardControlActive) then Exit;
   if (FaceCodeMover <> 2) and (FaceCodeMover <> 4) then
   begin
 
@@ -190,14 +216,14 @@ begin
   end;
 end;
 
-procedure TfrmMain.lblClickExplainerClick(Sender: TObject);
+procedure TfrmMain.ts2DViewsChange(Sender: TObject);
 begin
-
+  pntBox3Dview.Refresh;
 end;
 
-procedure TfrmMain.pntBoxDestinationPaint(Sender: TObject);
+procedure TfrmMain.pntBoxTargetSolvePaint(Sender: TObject);
 begin
-  DrawCube(pntBoxDestination, destination);
+  DrawCube(pntBoxTargetSolve, TargetCubeState);
 end;
 
 procedure TfrmMain.pntBoxCurrentStateMouseDown(Sender: TObject; Button: TMouseButton;
@@ -206,9 +232,8 @@ var
   colorIndex: integer;
 begin
   if IsRunning then Exit;
-  colorIndex := GetCubeyColor(original, Point(x, y));
-  // Assume GetColor returns the current color index at the clicked position
- // WriteLn(colorIndex);
+  colorIndex := GetCubeyColor(CurrentCubeState, Point(x, y));
+
   if Button = mbLeft then
   begin
     // Cycles colors 2 to 5 with left mouse button
@@ -227,29 +252,53 @@ begin
       colorIndex := 6;
   end;
 
-  PlaceColorClicker(original, point(x, y), colorIndex); // Set the new color for the clicked cube part
+  PlaceColorClicker(CurrentCubeState, point(x, y), colorIndex);
 
-  // Redraw the cube and refresh the 3D view
-  DrawCube(pntBoxCurrentState, original);
+  DrawCube(pntBoxCurrentState, CurrentCubeState);
   pntBox3Dview.Refresh;
 end;
 
-procedure TfrmMain.pntBoxCurrentStateMouseMove(Sender: TObject; Shift: TShiftState; X, Y: integer);
+procedure TfrmMain.pntBoxTargetSolveMouseDown(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: integer);
+var
+  colorIndex: integer;
 begin
+  if IsRunning then Exit;
+  colorIndex := GetCubeyColor(TargetCubeState, Point(x, y));
 
+  if Button = mbLeft then
+  begin
+    // Cycles colors 2 to 5 with left mouse button
+    if (colorIndex >= 2) and (colorIndex < 5) then
+      Inc(colorIndex) // Move to the next color
+    else if colorIndex = 5 then
+      colorIndex := 2 // Wrap back to color 2
+    else
+      colorIndex := 2; // Default to 2 if outside range
+  end else if Button = mbRight then
+  begin
+    // Toggles between colors 1 and 6 with right mouse button
+    if colorIndex = 6 then
+      colorIndex := 1
+    else
+      colorIndex := 6;
+  end;
+
+  PlaceColorClicker(TargetCubeState, point(x, y), colorIndex);
+
+  DrawCube(pntBoxTargetSolve, TargetCubeState);
+  pntBox3Dview.Refresh;
 end;
 
 procedure TfrmMain.pntBoxCurrentStatePaint(Sender: TObject);
 begin
-  DrawCube(pntBoxCurrentState, original);
+  DrawCube(pntBoxCurrentState, CurrentCubeState);
 end;
-
 
 procedure TfrmMain.SetInitialCubeView;
 var
   AngleX, AngleY: double;
 begin
-
   axeX[0] := -1;
   axeX[1] := 0;
   axeX[2] := 0; // Reset X axis
@@ -269,22 +318,17 @@ begin
 
   AngleX := -34 * Pi / 180; // Rotate 45 degrees around the X-axis to see the top
   Rotate3d(cube3d, AngleX, 0, 0);
-  DrawCube3d(pntBox3Dview, original, Cube3D);
-
+  DrawCube3d(pntBox3Dview, CurrentCubeState, Cube3D);
 end;
 
-procedure TfrmMain.Timer1Timer(Sender: TObject);
+procedure TfrmMain.tglKeyBoardControlChange(Sender: TObject);
 begin
-  //WriteLn('x: ' + IntToStr(tmx));
-  //WriteLn('y: ' + IntToStr(tmy));
-  //
+  keyBoardControlActive := tglKeyBoardControl.Checked;
 end;
 
 procedure TfrmMain.btnReset3DviewClick(Sender: TObject);
 begin
-
   SetInitialCubeView;
-
 end;
 
 procedure TfrmMain.pntBox3DviewMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: integer);
@@ -309,60 +353,87 @@ begin
   tmx := x;
   tmy := y;
 
-
-  DrawCube3d(pntBox3Dview, original, cube3d);
+  if ts2DViews.ActivePageIndex = 0 then
+    DrawCube3d(pntBox3Dview, CurrentCubeState, cube3d)
+  else
+    DrawCube3d(pntBox3Dview, TargetCubeState, cube3d);
 
 end;
 
 procedure TfrmMain.pntBox3DviewPaint(Sender: TObject);
 begin
-  //if radiobutton1.Checked then
-  DrawCube3d(pntBox3Dview, original, cube3d);
-  //else
-  //DrawCube3d(pntBox3Dview, destination, cube3d);
+  if ts2DViews.ActivePageIndex = 0 then
+    DrawCube3d(pntBox3Dview, CurrentCubeState, cube3d)
+  else
+    DrawCube3d(pntBox3Dview, TargetCubeState, cube3d);
 end;
 
-procedure TfrmMain.btnCurrentStateRandomizeClick(Sender: TObject);
+procedure TfrmMain.btnScrampleStateClick(Sender: TObject);
 var
   i: integer;
 begin
-  original := C_CUBE_COMPLETE;
-  for i := 0 to 50 do rotateface(TUnitRubik(original), random(6) + 1, random(3) + 1);
-  DrawCube(pntBoxCurrentState, original);
-  DrawCube3d(pntBox3Dview, original, cube3d);
+  CurrentCubeState := C_CUBE_COMPLETE;
+  for i := 0 to 50 do rotateface(TUnitRubik(CurrentCubeState), random(6) + 1, random(3) + 1);
+  DrawCube(pntBoxCurrentState, CurrentCubeState);
+  DrawCube3d(pntBox3Dview, CurrentCubeState, cube3d);
 end;
 
-procedure TfrmMain.btnPerformMovesClick(Sender: TObject);
+procedure TfrmMain.btnScrambleTargetClick(Sender: TObject);
+var
+  i: integer;
+begin
+  TargetCubeState := C_CUBE_COMPLETE;
+  for i := 0 to 50 do rotateface(TUnitRubik(TargetCubeState), random(6) + 1, random(3) + 1);
+  DrawCube(pntBoxTargetSolve, TargetCubeState);
+  DrawCube3d(pntBox3Dview, TargetCubeState, cube3d);
+
+end;
+
+procedure TfrmMain.btnExecuteClick(Sender: TObject);
 var
   f, i, ii, j, v: integer;
-  s: string;
+  s, lbl: string;
   tmp: tcube3d;
-  sleepDuration: int64;
 begin
   if IsRunning then
   begin
-    btnPerformMoves.Caption := 'Execute';
+    btnExecute.Caption := 'Execute';
+    ToggleButtonsExcept(Self, btnExecute, True);
     IsRunning := False;
     exit;
   end;
   IsRunning := True;
-  btnPerformMoves.Caption := 'Stop';
+  btnExecute.Caption := 'Stop';
+  ToggleButtonsExcept(Self, btnExecute, False);
 
   s := AnsiUpperCase(edtMoveString.Text);
+  LFDstringCorrection(s); //Really think what I did here is hackish because I will need to invert the 3 sides
+                          //anywhere and anytime you want to use signmaster notation.  Need to rethink this
+                          //however for now it does do the trick.
   i := 1;
-  //v := spinEdtAnimationSpeed.Value;
-  //sleepDuration := Round(26 - 2.5 * v);
-
 
   while i <= length(s) do
   begin
     v := spinEdtAnimationSpeed.Value;
-    sleepDuration := Round(-2 * v + 20);
-    application.ProcessMessages;
+
     if not IsRunning then exit;
+
     j := 1;
-    if (i < length(s)) and (s[i + 1] = '''') then j := 3;
-    if (i < length(s)) and (s[i + 1] = '2') then j := 2;
+    lblCurrentMove.Caption := s[i];
+
+    if (i < length(s)) and (s[i + 1] = '''') then
+    begin
+      j := 3;
+      lblCurrentMove.Caption := s[i] + s[i + 1];
+    end;
+    if (i < length(s)) and (s[i + 1] = '2') then
+    begin
+      j := 2;
+      lblCurrentMove.Caption := s[i] + s[i + 1];
+    end;
+
+    Application.ProcessMessages;
+
     case s[i] of
       'L': f := CUBE_LEFT;
       'R': f := CUBE_RIGHT;
@@ -381,39 +452,51 @@ begin
     tmp := cube3d;
     for ii := 0 to 90 do
     begin
-      if not IsRunning then break;
-      if v <= 10 then application.ProcessMessages;
-      case j of
-        1: Rotate3dface(cube3d, f, -ii * pi / 180);
-        2: Rotate3dface(cube3d, f, -ii * pi / 90);
-        3: Rotate3dface(cube3d, f, ii * pi / 180);
+      if (v > 7) and (ii mod 4 <> 0) then Continue;
+      if not IsRunning then Break;
+      if ii mod v = 0 then ActiveSleep(Round(-2 * v) + 20);
+
+      if j = 1 then
+      begin
+        Rotate3dface(cube3d, f, -ii * pi / 180);
+      end else if j = 2 then
+      begin
+        Rotate3dface(cube3d, f, -ii * pi / 90);
+      end else if j = 3 then
+      begin
+        Rotate3dface(cube3d, f, ii * pi / 180);
       end;
-
-      DrawCube3d(pntBox3Dview, original, cube3d);
-
-      Sleep(sleepDuration);
-
+      DrawCube3d(pntBox3Dview, CurrentCubeState, cube3d);
       cube3d := tmp;
     end;
 
-    RotateFace(TUnitRubik(original), f, j);
-    DrawCube3d(pntBox3Dview, original, cube3d);
-    DrawCube(pntBoxCurrentState, original);
-    Sleep(Round(-50 * v + 600));
+    RotateFace(TUnitRubik(CurrentCubeState), f, j);
+    DrawCube3d(pntBox3Dview, CurrentCubeState, cube3d);
+    DrawCube(pntBoxCurrentState, CurrentCubeState);
+
+    ActiveSleep(Round(-300 * v) + 3200);
 
     if j > 1 then Inc(i, 2)
     else
       Inc(i);
+    lblCurrentMove.Caption := ' ';
   end;
   IsRunning := False;
-  btnPerformMoves.Caption := 'Execute';
+  btnExecute.Caption := 'Execute';
+  ToggleButtonsExcept(Self, btnExecute, True);
+end;
 
+procedure TfrmMain.btnTargetSolveResetClick(Sender: TObject);
+begin
+  TargetCubeState := C_CUBE_COMPLETE;
+  DrawCube(pntBoxTargetSolve, TargetCubeState);
+  pntBox3Dview.Refresh;
 end;
 
 procedure TfrmMain.btnCurrentStateResetClick(Sender: TObject);
 begin
-  original := C_CUBE_COMPLETE;
-  DrawCube(pntBoxCurrentState, original);
+  CurrentCubeState := C_CUBE_COMPLETE;
+  DrawCube(pntBoxCurrentState, CurrentCubeState);
   pntBox3Dview.Refresh;
 end;
 
@@ -424,55 +507,105 @@ var
   i, v: integer;
 begin
   n := TButton(Sender).Tag;
-  //RadioButton1.Checked := True;
   v := spinEdtAnimationSpeed.Value;
-
-  // animation 3D
 
   tmp := cube3d;
   for i := 0 to 90 do
   begin
+    if (v > 7) and (i mod 4 <> 0) then Continue;
+    if i mod v = 0 then ActiveSleep(Round(-2 * v) + 20);
+
     Rotate3dface(cube3d, n mod 10 + 1, (((n div 10) * 2 - 1) * i) * pi / 180);
     pntBox3Dview.Refresh;
-    sleep(50 - v * 5);
     cube3d := tmp;
   end;
 
-
-  Rotateface(TUnitRubik(original), n mod 10 + 1, (n div 10) * 2 + 1);
-  DrawCube(pntBoxCurrentState, original);
+  Rotateface(TUnitRubik(CurrentCubeState), n mod 10 + 1, (n div 10) * 2 + 1);
+  DrawCube(pntBoxCurrentState, CurrentCubeState);
   pntBox3Dview.Refresh;
+end;
 
+procedure TfrmMain.btn2phaseSolveClick(Sender: TObject);
+begin
+  ExecuteSolverAndParseOutput(CubeToDefinitionString(CurrentCubeState), memMoveSum, edtMoveString);
+end;
+
+procedure TfrmMain.ExecuteSolverAndParseOutput(const faceString: string; aMemo: TMemo; MoveString: TEdit);
+var
+  Process: TProcess;
+  OutputLines: TStringList;
+  i, dotCount: integer;
+begin
+  Screen.Cursor := crHourGlass;
+  MoveString.Text := 'External solver running... Please Wait';
+  dotCount := 0;
+
+  Process := TProcess.Create(nil);
+  OutputLines := TStringList.Create;
+  try
+    Process.Executable := './linux-2phase';
+    Process.Parameters.Add(faceString);
+    Process.Options := Process.Options + [poUsePipes];
+    Process.Execute;
+
+    while Process.Running do
+    begin
+      Application.ProcessMessages;
+      Inc(dotCount);
+      if dotCount > 20 then dotCount := 1;
+      MoveString.Text := 'External solver running... Please Wait' + StringOfChar('.', dotCount);
+      Sleep(200);
+    end;
+
+    OutputLines.LoadFromStream(Process.Output);
+
+    aMemo.Lines.Clear;
+    for i := 0 to OutputLines.Count - 1 do
+      aMemo.Lines.Add(OutputLines[i]);
+
+    // Assume the solution is on the second line and display it in MoveString
+    if OutputLines.Count >= 2 then
+      MoveString.Text := OutputLines[1]
+    else
+      MoveString.Text := 'Error: No solution found.';
+  finally
+    OutputLines.Free;
+    Process.Free;
+    Screen.Cursor := crDefault;
+  end;
+end;
+
+procedure TfrmMain.edtMoveStringKeyUp(Sender: TObject; var Key: word; Shift: TShiftState);
+begin
+  if Key = VK_RETURN then btnExecuteClick(Sender);
 end;
 
 procedure TfrmMain.ManualRotateFace(Face: integer; clockWise: boolean);
 var
-
   tmp: tcube3d;
   i, v, n: integer;
 begin
-
+  ToggleButtonsExcept(Self, btnReset3Dview, False);
   if clockWise then n := Face + 10
   else
     n := Face;
   v := spinEdtAnimationSpeed.Value;
 
-  // animation 3D
-
   tmp := cube3d;
   for i := 0 to 90 do
   begin
+    if (v > 7) and (i mod 4 <> 0) then Continue;
+    if i mod v = 0 then ActiveSleep(Round(-2 * v) + 20);
+
     Rotate3dface(cube3d, n mod 10 + 1, (((n div 10) * 2 - 1) * i) * pi / 180);
     pntBox3Dview.Refresh;
-    sleep(50 - v * 5);
     cube3d := tmp;
   end;
 
-
-  Rotateface(TUnitRubik(original), face mod 10 + 1, (n div 10) * 2 + 1);
-  DrawCube(pntBoxCurrentState, original);
+  Rotateface(TUnitRubik(CurrentCubeState), face mod 10 + 1, (n div 10) * 2 + 1);
+  DrawCube(pntBoxCurrentState, CurrentCubeState);
   pntBox3Dview.Refresh;
-
+  ToggleButtonsExcept(Self, btnReset3Dview, True);
 end;
 
 procedure TfrmMain.btnSearchForSolutionClick(Sender: TObject);
@@ -482,7 +615,7 @@ var
 begin
   memMoveSum.Clear;
   s := '';
-  if not VerifyCube(original, s) then
+  if not VerifyCube(CurrentCubeState, s) then
   begin
     memMoveSum.Lines.add('The cube has been disassembled or tampered with:');
     memMoveSum.Lines.add(s);
@@ -490,58 +623,66 @@ begin
   end;
 
   solu := '';
-  tmp := original;
+  tmp := CurrentCubeState;
 
   // Step 1
   placeWhiteEdges(tmp);
   memMoveSum.Lines.Add('---> placeWhiteEdges');
   memMoveSum.Lines.Add(AnsiReplaceText(solu, '/', sLineBreak));
+  LFDstringCorrection(solu);
   s := solu;
   solu := '';
   // Step 2
   placeWhiteCorners(tmp);
   memMoveSum.Lines.Add('---> placeWhiteCorners');
   memMoveSum.Lines.Add(AnsiReplaceText(solu, '/', sLineBreak));
+  LFDstringCorrection(solu);
   s := s + solu;
   solu := '';
   // Step 3
   placeSecondLayerEdges(tmp);
   memMoveSum.Lines.Add('---> placeSecondLayerEdges');
   memMoveSum.Lines.Add(AnsiReplaceText(solu, '/', sLineBreak));
+  LFDstringCorrection(solu);
   s := s + solu;
   solu := '';
   // Step 4
   PlaceYellowEdges(tmp);
   memMoveSum.Lines.Add('---> PlaceYellowEdges');
   memMoveSum.Lines.Add(AnsiReplaceText(solu, '/', sLineBreak));
+  LFDstringCorrection(solu);
   s := s + solu;
   solu := '';
   // Step 5
   OrientYellowEdges(tmp);
   memMoveSum.Lines.Add('---> OrientYellowEdges');
   memMoveSum.Lines.Add(AnsiReplaceText(solu, '/', sLineBreak));
+  LFDstringCorrection(solu);
   s := s + solu;
   solu := '';
   // Step 6
   PlaceYellowCorners(tmp);
   memMoveSum.Lines.Add('---> PlaceYellowCorners');
   memMoveSum.Lines.Add(AnsiReplaceText(solu, '/', sLineBreak));
+  LFDstringCorrection(solu);
   s := s + solu;
   solu := '';
   // Step 7
   OrientYellowCorners(tmp);
   memMoveSum.Lines.Add('---> OrientYellowCorners');
   memMoveSum.Lines.Add(AnsiReplaceText(solu, '/', sLineBreak));
+  LFDstringCorrection(solu);
   s := s + solu;
   solu := '';
 
   memMoveSum.Lines.Add('movements ' + IntToStr(CountMoves(s)));
-  filtre(s, original, imgFilters.canvas);
+  FilterMoves(s, CurrentCubeState, imgFilters.canvas);
   pntBoxCurrentState.Refresh;
   memMoveSum.Lines.Add('movements after filter ' + IntToStr(CountMoves(s)) + ')');
   memMoveSum.Lines.Add('');
   memMoveSum.Lines.Add('---> Filter');
   memMoveSum.Lines.Add(s);
+  UpperCase(s);
   edtMoveString.Text := s;
 end;
 

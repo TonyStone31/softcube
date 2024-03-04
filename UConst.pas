@@ -30,67 +30,110 @@ uses
 const
   C_FACE_GRID_POS: array[1..6, 0..2, 0..2] of TPoint =
     (
-    // White face (top, above Green)
+    // White face (top, above Green)              U 1
     (((x: 3; y: 0), (x: 4; y: 0), (x: 5; y: 0)),
     ((x: 3; y: 1), (x: 4; y: 1), (x: 5; y: 1)),   //1?
-    ((x: 3; y: 2), (x: 4; y: 2), (x: 5; y: 2)))
+    ((x: 3; y: 2), (x: 4; y: 2), (x: 5; y: 2)))   //we need these to be in the numberical order of other
+                                                  //program so we can pass state to solvers
+
     ,
-    // Green face (center)
+
+
+    // Green face (center) Front                  F 3
     (((x: 3; y: 3), (x: 4; y: 3), (x: 5; y: 3)),
     ((x: 3; y: 4), (x: 4; y: 4), (x: 5; y: 4)),   //2?
     ((x: 3; y: 5), (x: 4; y: 5), (x: 5; y: 5)))
+
+
     ,
-    // Red face (right of Green)
+
+
+    // Red face (right of Green)                  R  2
     (((x: 6; y: 3), (x: 7; y: 3), (x: 8; y: 3)),
     ((x: 6; y: 4), (x: 7; y: 4), (x: 8; y: 4)),   //3?
     ((x: 6; y: 5), (x: 7; y: 5), (x: 8; y: 5)))
+
     ,
-    // Blue face (far right)
+
+
+    // Blue face (far right)                      B 6
     (((x: 9; y: 3), (x: 10; y: 3), (x: 11; y: 3)),
     ((x: 9; y: 4), (x: 10; y: 4), (x: 11; y: 4)), //4?
     ((x: 9; y: 5), (x: 10; y: 5), (x: 11; y: 5)))
+
     ,
-    //ORANGE  face (left-center)
+
+    //ORANGE  face (left-center)                  L 5
     (((x: 0; y: 3), (x: 1; y: 3), (x: 2; y: 3)),
     ((x: 0; y: 4), (x: 1; y: 4), (x: 2; y: 4)),   //5?
     ((x: 0; y: 5), (x: 1; y: 5), (x: 2; y: 5)))
+
     ,
-    // Yellow face (bottom, below Green)
+
+    // Yellow face (bottom, below Green)          D 4
     (((x: 3; y: 6), (x: 4; y: 6), (x: 5; y: 6)),
     ((x: 3; y: 7), (x: 4; y: 7), (x: 5; y: 7)),   //6?
     ((x: 3; y: 8), (x: 4; y: 8), (x: 5; y: 8)))
+
+
+
     );
 
   CFacePlace: array[1..6, 0..8] of TPoint = (
-    // White face (top, above Green)
+    // White face (top, above Green)           U
     ((x: 3; y: 0), (x: 4; y: 0), (x: 5; y: 0),
-     (x: 3; y: 1), (x: 4; y: 1), (x: 5; y: 1),    //1?
-     (x: 3; y: 2), (x: 4; y: 2), (x: 5; y: 2)),
-    // Green face (center)
+    (x: 3; y: 1), (x: 4; y: 1), (x: 5; y: 1),    //1?
+    (x: 3; y: 2), (x: 4; y: 2), (x: 5; y: 2))
+
+
+    ,
+
+
+
+    // Green face (center)                     F
     ((x: 3; y: 3), (x: 4; y: 3), (x: 5; y: 3),
-     (x: 3; y: 4), (x: 4; y: 4), (x: 5; y: 4),    //2?
-     (x: 3; y: 5), (x: 4; y: 5), (x: 5; y: 5)),
-    // Red face (right of Green)
+    (x: 3; y: 4), (x: 4; y: 4), (x: 5; y: 4),    //2?
+    (x: 3; y: 5), (x: 4; y: 5), (x: 5; y: 5))
+
+
+    ,
+
+
+
+    // Red face (right of Green)                R
     ((x: 6; y: 3), (x: 7; y: 3), (x: 8; y: 3),
-     (x: 6; y: 4), (x: 7; y: 4), (x: 8; y: 4),    //3?
-     (x: 6; y: 5), (x: 7; y: 5), (x: 8; y: 5)),
-    // Blue face (far right)
+    (x: 6; y: 4), (x: 7; y: 4), (x: 8; y: 4),    //3?
+    (x: 6; y: 5), (x: 7; y: 5), (x: 8; y: 5))
+
+
+    ,
+
+
+    // Blue face (far right)                     B
     ((x: 9; y: 3), (x: 10; y: 3), (x: 11; y: 3),
-     (x: 9; y: 4), (x: 10; y: 4), (x: 11; y: 4),  //4?
-     (x: 9; y: 5), (x: 10; y: 5), (x: 11; y: 5)),
-    // Orange face (left of Green)
+    (x: 9; y: 4), (x: 10; y: 4), (x: 11; y: 4),  //4?
+    (x: 9; y: 5), (x: 10; y: 5), (x: 11; y: 5))
+
+
+
+    ,
+    // Orange face (left of Green)                L
     ((x: 0; y: 3), (x: 1; y: 3), (x: 2; y: 3),
-     (x: 0; y: 4), (x: 1; y: 4), (x: 2; y: 4),    //5?
-     (x: 0; y: 5), (x: 1; y: 5), (x: 2; y: 5)),
-    // Yellow face (bottom, below Green)
+    (x: 0; y: 4), (x: 1; y: 4), (x: 2; y: 4),    //5?
+    (x: 0; y: 5), (x: 1; y: 5), (x: 2; y: 5))
+
+
+
+    ,
+    // Yellow face (bottom, below Green)           D
     ((x: 3; y: 6), (x: 4; y: 6), (x: 5; y: 6),
-     (x: 3; y: 7), (x: 4; y: 7), (x: 5; y: 7),    //6?
-     (x: 3; y: 8), (x: 4; y: 8), (x: 5; y: 8))
-  );
+    (x: 3; y: 7), (x: 4; y: 7), (x: 5; y: 7),    //6?
+    (x: 3; y: 8), (x: 4; y: 8), (x: 5; y: 8))
+    );
 
 
 
-  ConvertNumber = 31;
+    ConvertNumber = 31;
   StrFrom_To: array[0..ConvertNumber * 2 - 1] of string =
     ('/', ''
     , 'U2', 'UU'
@@ -129,6 +172,47 @@ const
     , 'FF', 'F2'
     );
 
+
+  //  ConvertNumber = 31;
+  //StrFrom_To: array[0..ConvertNumber * 2 - 1] of string =
+  //  ('/', ''
+  //  , 'U2', 'UU'
+  //  , 'D2', 'DD'
+  //  , 'L2', 'LL'
+  //  , 'R2', 'RR'
+  //  , 'B2', 'BB'
+  //  , 'F2', 'FF'
+  //
+  //  , 'U''', 'UUU'
+  //  , 'D''', 'DDD'
+  //  , 'L''', 'LLL' // L rotates counter-clockwise 3 times instead of clockwise once
+  //  , 'R''', 'RRR'
+  //  , 'B''', 'BBB'
+  //  , 'F''', 'FFF' // F rotates counter-clockwise 3 times instead of clockwise once
+  //
+  //  , 'UUUU', ''
+  //  , 'DDDD', ''
+  //  , 'LLLL', ''
+  //  , 'RRRR', ''
+  //  , 'BBBB', ''
+  //  , 'FFFF', ''
+  //
+  //  , 'UUU', 'U'''
+  //  , 'DDD', 'D'''
+  //  , 'LLL', 'L''' // L rotates clockwise once instead of counter-clockwise 3 times
+  //  , 'RRR', 'R'''
+  //  , 'BBB', 'B'''
+  //  , 'FFF', 'F''' // F rotates clockwise once instead of counter-clockwise 3 times
+  //
+  //  , 'UU', 'U2'
+  //  , 'DD', 'D2'
+  //  , 'LL', 'L2'
+  //  , 'RR', 'R2'
+  //  , 'BB', 'B2'
+  //  , 'FF', 'F2'
+  //  );
+
+
   EDGE_POSITIONS: array[0..23, 0..4] of integer =
     ((1, 7, 2, 1, 12), (1, 5, 3, 1, 13), (1, 1, 4, 1, 14), (1, 3, 5, 1, 15),
     (2, 1, 1, 7, 21), (2, 5, 3, 3, 23), (2, 3, 5, 5, 25), (2, 7, 6, 1, 26),
@@ -166,7 +250,7 @@ const
 
 
 const
-  FACE_NAMES: array[0..6] of string = ('void', 'U', 'L', 'F', 'R', 'B', 'D');
+  FACE_NAMES: array[0..6] of string = ('void', 'U', 'F', 'R', 'B', 'L', 'D');
 
 type
   T3dPoint = array[0..2] of single;
@@ -207,17 +291,17 @@ const
 
  {
 
-   00 01 02
-   03 04 05
-   06 07 08
+              U00 U01 U02
+              U03 U04 U05
+              U06 U07 U08
 
-   09 10 11   18 19 20    27 28 29    36 37 38
-   12 13 14   21 22 23    30 31 32    39 40 41
-   15 16 17   24 25 26    33 34 35    42 43 44
+   L09 L10 L11   F18 F19 F20  R27 R28 R29    B36 B37 B38
+   L12 L13 L14   F21 F22 F23  R30 R31 R32    B39 B40 B41
+   L15 L16 L17   F24 F25 F26  R33 R34 R35    B42 B43 B44
 
-   45 46 47
-   48 49 50
-   51 52 53
+              D45 D46 D47
+              D48 D49 D50
+              D51 D52 D53
 
  }
 

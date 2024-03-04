@@ -79,3 +79,10 @@ lib/x86_64-win64/UDraw.ppu
 lib/x86_64-win64/UMain.lfm
 lib/x86_64-win64/UMain.ppu
 lib/x86_64-win64/URubik.ppu
+lib/x86_64-linux/URubik.ppu
+lib/x86_64-linux/UMain.ppu
+lib/x86_64-linux/UMain.lfm
+lib/x86_64-linux/UDraw.ppu
+lib/x86_64-linux/UConst.ppu
+lib/x86_64-linux/RubiksCube.or
+lib/x86_64-linux/RubiksCube.compiled
