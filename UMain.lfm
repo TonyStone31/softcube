@@ -322,6 +322,8 @@ object frmMain: TfrmMain
           Color = clWhite
           ParentColor = False
           OnMouseDown = pntBoxCurrentStateMouseDown
+          OnMouseMove = pntBoxCurrentStateMouseMove
+          OnMouseWheelDown = pntBoxCurrentStateMouseWheelDown
           OnPaint = pntBoxCurrentStatePaint
         end
         object btnCurrentStateReset: TButton

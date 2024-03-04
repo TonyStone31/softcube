@@ -102,6 +102,9 @@ type
     procedure FormKeyDown(Sender: TObject; var Key: word; Shift: TShiftState);
     procedure FormKeyPress(Sender: TObject; var Key: char);
     procedure FormKeyUp(Sender: TObject; var Key: word; Shift: TShiftState);
+    procedure pntBoxCurrentStateMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
+    procedure pntBoxCurrentStateMouseWheelDown(Sender: TObject; Shift: TShiftState;
+      MousePos: TPoint; var Handled: Boolean);
     procedure ts2DViewsChange(Sender: TObject);
     procedure pntBox3DviewMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: integer);
     procedure pntBoxTargetSolveMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: integer);
@@ -214,6 +217,17 @@ begin
     if (Key = VK_DOWN) then
       ManualRotateFace(FaceCodeMover, True);
   end;
+end;
+
+procedure TfrmMain.pntBoxCurrentStateMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
+begin
+
+end;
+
+procedure TfrmMain.pntBoxCurrentStateMouseWheelDown(Sender: TObject; Shift: TShiftState;
+  MousePos: TPoint; var Handled: Boolean);
+begin
+
 end;
 
 procedure TfrmMain.ts2DViewsChange(Sender: TObject);

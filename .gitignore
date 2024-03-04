@@ -86,3 +86,4 @@ lib/x86_64-linux/UDraw.ppu
 lib/x86_64-linux/UConst.ppu
 lib/x86_64-linux/RubiksCube.or
 lib/x86_64-linux/RubiksCube.compiled
+*.res

@@ -2,7 +2,7 @@
 <CONFIG>
   <ProjectSession>
     <Version Value="12"/>
-    <BuildModes Active="Release"/>
+    <BuildModes Active="Debug"/>
     <Units>
       <Unit>
         <Filename Value="RubiksCube.lpr"/>
@@ -19,8 +19,8 @@
         <ResourceBaseClass Value="Form"/>
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="3"/>
-        <TopLine Value="635"/>
-        <CursorPos Y="199"/>
+        <TopLine Value="211"/>
+        <CursorPos X="3" Y="230"/>
         <UsageCount Value="200"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -37,8 +37,8 @@
         <Filename Value="UDraw.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="2"/>
-        <TopLine Value="110"/>
-        <CursorPos X="40" Y="133"/>
+        <TopLine Value="87"/>
+        <CursorPos X="3" Y="106"/>
         <UsageCount Value="200"/>
         <Loaded Value="True"/>
       </Unit>
@@ -62,22 +62,6 @@
       </Unit>
     </Units>
     <JumpHistory HistoryIndex="29">
-      <Position>
-        <Filename Value="UMain.pas"/>
-        <Caret Line="699" Column="5" TopLine="667"/>
-      </Position>
-      <Position>
-        <Filename Value="UMain.pas"/>
-        <Caret Line="695" TopLine="678"/>
-      </Position>
-      <Position>
-        <Filename Value="UMain.pas"/>
-        <Caret Line="692" Column="7" TopLine="677"/>
-      </Position>
-      <Position>
-        <Filename Value="UMain.pas"/>
-        <Caret Line="687" Column="10" TopLine="664"/>
-      </Position>
       <Position>
         <Filename Value="UMain.pas"/>
         <Caret Line="724" Column="31" TopLine="677"/>
@@ -181,6 +165,22 @@
       <Position>
         <Filename Value="UMain.pas"/>
         <Caret Line="103" Column="24" TopLine="84"/>
+      </Position>
+      <Position>
+        <Filename Value="UMain.pas"/>
+        <Caret Line="243" Column="21" TopLine="200"/>
+      </Position>
+      <Position>
+        <Filename Value="UMain.pas"/>
+        <Caret Line="230" Column="3" TopLine="201"/>
+      </Position>
+      <Position>
+        <Filename Value="UMain.pas"/>
+        <Caret Line="270" Column="15" TopLine="219"/>
+      </Position>
+      <Position>
+        <Filename Value="UMain.pas"/>
+        <Caret Line="441" Column="70" TopLine="413"/>
       </Position>
     </JumpHistory>
     <RunParams>
