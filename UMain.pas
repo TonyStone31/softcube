@@ -50,33 +50,37 @@ type
   TfrmMain = class(TForm)
     btnBackClock: TButton;
     btnBackCounter: TButton;
-    btnScrampleState: TButton;
-    btnScrambleTarget: TButton;
-    btnCurrentStateReset: TButton;
-    btnTargetSolveReset: TButton;
+    btnControlHelp: TButton;
     btnDownClock: TButton;
     btnDownCounter: TButton;
     btnFrontClock: TButton;
     btnFrontCounter: TButton;
     btnLeftClock: TButton;
     btnLeftCounter: TButton;
-    btnReset3Dview: TButton;
-    btnExecute: TButton;
     btnRightClock: TButton;
     btnRightCounter: TButton;
+    btnScrampleState: TButton;
+    btnScrambleTarget: TButton;
+    btnCurrentStateReset: TButton;
+    btnTargetSolveReset: TButton;
+    btnReset3Dview: TButton;
+    btnExecute: TButton;
     btnSearchForSolution: TButton;
+    btn2phaseSolve: TButton;
     btnUpClock: TButton;
     btnUpCounter: TButton;
-    btn2phaseSolve: TButton;
     edtMoveString: TEdit;
     imgFilters: TImage;
+    lblCurrentMove: TLabel;
     lblSpeedControl: TLabel;
     lblClickExplainer: TLabel;
     lblClickExplainer1: TLabel;
-    lblControlDirections: TLabel;
-    lblCurrentMove: TLabel;
     lblNoticeTarget: TLabel;
     memMoveSum: TMemo;
+    Panel1: TPanel;
+    Splitter1: TSplitter;
+    Splitter3: TSplitter;
+    tglKeyBoardControl: TCheckBox;
     ts2DViews: TPageControl;
     pnlDestination: TPanel;
     pnlSetState: TPanel;
@@ -88,7 +92,7 @@ type
     spinEdtAnimationSpeed: TSpinEdit;
     TabSheet1: TTabSheet;
     TabSheet2: TTabSheet;
-    tglKeyBoardControl: TCheckBox;
+    procedure btnControlHelpClick(Sender: TObject);
     procedure btnScrambleTargetClick(Sender: TObject);
     procedure btnScrampleStateClick(Sender: TObject);
     procedure btnTargetSolveResetClick(Sender: TObject);
@@ -102,9 +106,9 @@ type
     procedure FormKeyDown(Sender: TObject; var Key: word; Shift: TShiftState);
     procedure FormKeyPress(Sender: TObject; var Key: char);
     procedure FormKeyUp(Sender: TObject; var Key: word; Shift: TShiftState);
-    procedure pntBoxCurrentStateMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
+    procedure pntBoxCurrentStateMouseMove(Sender: TObject; Shift: TShiftState; X, Y: integer);
     procedure pntBoxCurrentStateMouseWheelDown(Sender: TObject; Shift: TShiftState;
-      MousePos: TPoint; var Handled: Boolean);
+      MousePos: TPoint; var Handled: boolean);
     procedure ts2DViewsChange(Sender: TObject);
     procedure pntBox3DviewMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: integer);
     procedure pntBoxTargetSolveMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: integer);
@@ -122,9 +126,6 @@ type
     procedure ActiveSleep(ms: cardinal);
     procedure ExecuteSolverAndParseOutput(const faceString: string; aMemo: TMemo; MoveString: TEdit);
     procedure ToggleButtonsExcept(Form: TForm; ExceptButton: TButton; Enable: boolean);
-
-
-
   public
 
   end;
@@ -219,13 +220,13 @@ begin
   end;
 end;
 
-procedure TfrmMain.pntBoxCurrentStateMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
+procedure TfrmMain.pntBoxCurrentStateMouseMove(Sender: TObject; Shift: TShiftState; X, Y: integer);
 begin
 
 end;
 
 procedure TfrmMain.pntBoxCurrentStateMouseWheelDown(Sender: TObject; Shift: TShiftState;
-  MousePos: TPoint; var Handled: Boolean);
+  MousePos: TPoint; var Handled: boolean);
 begin
 
 end;
@@ -403,10 +404,15 @@ begin
 
 end;
 
+procedure TfrmMain.btnControlHelpClick(Sender: TObject);
+begin
+
+end;
+
 procedure TfrmMain.btnExecuteClick(Sender: TObject);
 var
   f, i, ii, j, v: integer;
-  s, lbl: string;
+  s, lbl, lblS: string;
   tmp: tcube3d;
 begin
   if IsRunning then
@@ -422,8 +428,8 @@ begin
 
   s := AnsiUpperCase(edtMoveString.Text);
   LFDstringCorrection(s); //Really think what I did here is hackish because I will need to invert the 3 sides
-                          //anywhere and anytime you want to use signmaster notation.  Need to rethink this
-                          //however for now it does do the trick.
+  //anywhere and anytime you want to use signmaster notation.  Need to rethink this
+  //however for now it does do the trick.
   i := 1;
 
   while i <= length(s) do
@@ -433,19 +439,21 @@ begin
     if not IsRunning then exit;
 
     j := 1;
-    lblCurrentMove.Caption := s[i];
-
     if (i < length(s)) and (s[i + 1] = '''') then
     begin
       j := 3;
-      lblCurrentMove.Caption := s[i] + s[i + 1];
-    end;
-    if (i < length(s)) and (s[i + 1] = '2') then
+      lblS := s[i] + s[i + 1];
+      LFDstringCorrection(lblS);
+    end else if (i < length(s)) and (s[i + 1] = '2') then
     begin
       j := 2;
-      lblCurrentMove.Caption := s[i] + s[i + 1];
-    end;
+      lblS := s[i] + s[i + 1];
 
+    end else begin
+      lblS := s[i];
+      LFDstringCorrection(lblS);
+    end;
+    lblCurrentMove.Caption := lblS;
     Application.ProcessMessages;
 
     case s[i] of
@@ -551,7 +559,7 @@ var
   i, dotCount: integer;
 begin
   Screen.Cursor := crHourGlass;
-  MoveString.Text := 'External solver running... Please Wait';
+  MoveString.Text := '2-Phase solver running... Please Wait';
   dotCount := 0;
 
   Process := TProcess.Create(nil);
@@ -567,7 +575,7 @@ begin
       Application.ProcessMessages;
       Inc(dotCount);
       if dotCount > 20 then dotCount := 1;
-      MoveString.Text := 'External solver running... Please Wait' + StringOfChar('.', dotCount);
+      MoveString.Text := '2-Phase solver running... Please Wait' + StringOfChar('.', dotCount);
       Sleep(200);
     end;
 

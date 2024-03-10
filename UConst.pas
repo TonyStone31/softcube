@@ -173,45 +173,6 @@ const
     );
 
 
-  //  ConvertNumber = 31;
-  //StrFrom_To: array[0..ConvertNumber * 2 - 1] of string =
-  //  ('/', ''
-  //  , 'U2', 'UU'
-  //  , 'D2', 'DD'
-  //  , 'L2', 'LL'
-  //  , 'R2', 'RR'
-  //  , 'B2', 'BB'
-  //  , 'F2', 'FF'
-  //
-  //  , 'U''', 'UUU'
-  //  , 'D''', 'DDD'
-  //  , 'L''', 'LLL' // L rotates counter-clockwise 3 times instead of clockwise once
-  //  , 'R''', 'RRR'
-  //  , 'B''', 'BBB'
-  //  , 'F''', 'FFF' // F rotates counter-clockwise 3 times instead of clockwise once
-  //
-  //  , 'UUUU', ''
-  //  , 'DDDD', ''
-  //  , 'LLLL', ''
-  //  , 'RRRR', ''
-  //  , 'BBBB', ''
-  //  , 'FFFF', ''
-  //
-  //  , 'UUU', 'U'''
-  //  , 'DDD', 'D'''
-  //  , 'LLL', 'L''' // L rotates clockwise once instead of counter-clockwise 3 times
-  //  , 'RRR', 'R'''
-  //  , 'BBB', 'B'''
-  //  , 'FFF', 'F''' // F rotates clockwise once instead of counter-clockwise 3 times
-  //
-  //  , 'UU', 'U2'
-  //  , 'DD', 'D2'
-  //  , 'LL', 'L2'
-  //  , 'RR', 'R2'
-  //  , 'BB', 'B2'
-  //  , 'FF', 'F2'
-  //  );
-
 
   EDGE_POSITIONS: array[0..23, 0..4] of integer =
     ((1, 7, 2, 1, 12), (1, 5, 3, 1, 13), (1, 1, 4, 1, 14), (1, 3, 5, 1, 15),
@@ -280,7 +241,7 @@ const
 
 
   C_COLOR: array[0..6] of tcolor = (ClSilver, ClWhite, ClLime, ClRed, ClBlue, $0080FF, ClYellow);
-  C_CUBE_SIZE = 30;
+  //C_CUBE_SIZE = 24;
   C_CUBE_COMPLETE: TRubik =
     ((1, 1, 1, 1, 1, 1, 1, 1, 1),
     (2, 2, 2, 2, 2, 2, 2, 2, 2),

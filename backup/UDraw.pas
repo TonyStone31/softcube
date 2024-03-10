@@ -32,6 +32,7 @@ uses
   LCLType,
   LMessages,
   Messages,
+  Math,
   SysUtils,
   Variants,
   Dialogs,
@@ -58,7 +59,7 @@ var
   axeX: T3dPoint = (-1, 0, 0);
   axeY: T3dPoint = (0, -1, 0);
   axeZ: T3dPoint = (0, 0, -1);
-
+  C_CUBE_SIZE: integer = 24;
 
 
 implementation
@@ -120,6 +121,7 @@ var
   i, j, k: integer;
   tmp: TBitmap;
   centerPoint: TPoint;
+  SpaceForWidth, SpaceForHeight: integer;
   faceName: string;
 begin
   tmp := TBitmap.Create;
@@ -129,8 +131,27 @@ begin
     tmp.Canvas.Brush.Color := clAppWorkspace;
     tmp.Canvas.FillRect(P.ClientRect);
 
+    // Considering the layout of 12 cubes wide (with a bit of spacing between each cube and on the sides)
+    // and 9 cubes high (also with spacing), calculate the space available for each dimension
+    SpaceForWidth := P.Width div 12; // Available space per cube, horizontally
+    SpaceForHeight := P.Height div 9; // Available space per cube, vertically
+
+    // Choose the smaller of the two to ensure the cube fits in both dimensions while maintaining the aspect ratio
+    C_CUBE_SIZE := Min(SpaceForWidth, SpaceForHeight);
+
+
+    // Dynamically adjust the size of the cube based on the PaintBox size
+    // and ensure it doesn't exceed the desired size using C_CUBE_SIZE as a reference
+    //ScaleFactor := C_CUBE_SIZE div C_CUBE_SIZE;
+    //C_CUBE_SIZE := C_CUBE_SIZE * ScaleFactor;
+
+    tmp.Width := P.Width;
+    tmp.Height := P.Height;
+    tmp.Canvas.Brush.Color := clAppWorkspace;
+    tmp.Canvas.FillRect(P.ClientRect);
+
     // Optionally draw a black outline around each cube face for clarity
-    tmp.Canvas.Brush.Color := clBtnFace; // Outline color
+    tmp.Canvas.Brush.Color := clMenuBar; // Outline color
     // Drawing outlines for each cube face
 
     // Background for Orange face
@@ -177,20 +198,20 @@ begin
             C_FACE_GRID_POS[i, j, k].x * C_CUBE_SIZE + C_CUBE_SIZE - 3,
             C_FACE_GRID_POS[i, j, k].Y * C_CUBE_SIZE + C_CUBE_SIZE - 3);
 
-          centerPoint := C_FACE_GRID_POS[i, j, k];
-          faceName := faceName
+          //centerPoint := C_FACE_GRID_POS[i, j, k];
+          //faceName := faceName
           //+ IntToStr(C_FACE_GRID_POS[i, j, k].X)
           //+ IntToStr(C_FACE_GRID_POS[i, j, k].Y) // Constructs name like U1, L2, etc.
           // Needs more thought
-          ;
+
           tmp.Canvas.Font.Size := 7;
           tmp.Canvas.Font.Color := clBlack;
 
           // Draw face name in the center of each cubelet
-            //tmp.Canvas.TextOut(
-            //C_FACE_GRID_POS[i, j, k].x * C_CUBE_SIZE + (C_CUBE_SIZE div 2) - (tmp.Canvas.TextWidth(faceName) div 2),
-            //C_FACE_GRID_POS[i, j, k].Y * C_CUBE_SIZE + (C_CUBE_SIZE div 2) - (tmp.Canvas.TextHeight(faceName) div 2),
-            //faceName);
+          //tmp.Canvas.TextOut(
+          //C_FACE_GRID_POS[i, j, k].x * C_CUBE_SIZE + (C_CUBE_SIZE div 2) - (tmp.Canvas.TextWidth(faceName) div 2),
+          //C_FACE_GRID_POS[i, j, k].Y * C_CUBE_SIZE + (C_CUBE_SIZE div 2) - (tmp.Canvas.TextHeight(faceName) div 2),
+          //faceName);
         end;
       end;
     end;
@@ -279,11 +300,11 @@ begin
     end;
 end;
 
-function Pt3dTo2D(x, y, z: single; dx, dy: integer): tpoint;
+function Pt3dTo2D(x, y, z: single; dx, dy, scalingFactor: integer): TPoint;
 begin
-  z := z + 10;
-  Result.x := round((x * 8 / z) * 20) + dx;
-  Result.y := -round((y * 8 / z) * 20) + dy;
+  z := z + 10; // Adjusts depth positioning
+  Result.x := Round((x * scalingFactor / z) * 20) + dx; // Applies dynamic scaling based on PaintBox size
+  Result.y := -Round((y * scalingFactor / z) * 20) + dy; // Negative to flip Y-axis for screen coordinates
 end;
 
 var
@@ -293,7 +314,7 @@ procedure DrawCube3d(P: TPaintBox; c: TRubik; C3D: TCube3D);
 var
   i, j: integer;
   pt: T2DArray;
-  dx, dy: integer;
+  dx, dy, BaseScale, ScalingFactor: integer;
   ux, uy: single;
   vx, vy: single;
   tmp: tbitmap;
@@ -307,10 +328,17 @@ begin
   dx := tmp.Width div 2;
   dy := tmp.Height div 2;
 
+      // Calculate the scaling factor based on PaintBox size.
+    // BaseScale is a baseline size adjustment, adjust as needed for your cube's dimensions and desired appearance.
+    //BaseScale := 16; // Original scale used in Pt3dTo2D, consider adjusting based on your cube size and PaintBox dimensions.
+    // The scaling factor adjusts the cube size relative to the PaintBox size.
+    ScalingFactor := Min(P.Width, P.Height) div 16; // Adjust '10' as needed to fit your cube appropriately within the PaintBox.
+
+
   for i := 0 to 269 do
   begin
     PolyOrder[i].order := -1;
-    for j := 0 to 3 do pt[j] := Pt3dTo2D(C3D[i, j + 1, 0], C3D[i, j + 1, 1], C3D[i, j + 1, 2], dx, dy);
+    for j := 0 to 3 do pt[j] := Pt3dTo2D(C3D[i, j + 1, 0], C3D[i, j + 1, 1], C3D[i, j + 1, 2], dx, dy,ScalingFactor);
     ux := pt[0].X - pt[1].X;
     uy := pt[0].y - pt[1].y;
     vx := pt[2].X - pt[1].X;
