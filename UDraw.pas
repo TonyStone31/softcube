@@ -59,62 +59,75 @@ var
   axeX: T3dPoint = (-1, 0, 0);
   axeY: T3dPoint = (0, -1, 0);
   axeZ: T3dPoint = (0, 0, -1);
-  C_CUBE_SIZE: integer = 24;
+  CubeySize: integer = 30;
 
+const
+  C_FACE_GRID_POS: array[1..6, 0..2, 0..2] of TPoint =
+    (
+    // White face (top, above Green)              U 1
+    (((x: 3; y: 0), (x: 4; y: 0), (x: 5; y: 0)),
+    ((x: 3; y: 1), (x: 4; y: 1), (x: 5; y: 1)),   //1?
+    ((x: 3; y: 2), (x: 4; y: 2), (x: 5; y: 2)))   //we need these to be in the numberical order of other
+    ,                                              //program so we can pass state to solvers
+    // Green face (center) Front                  F 3
+    (((x: 3; y: 3), (x: 4; y: 3), (x: 5; y: 3)),
+    ((x: 3; y: 4), (x: 4; y: 4), (x: 5; y: 4)),   //2?
+    ((x: 3; y: 5), (x: 4; y: 5), (x: 5; y: 5)))
+    ,
+    // Red face (right of Green)                  R  2
+    (((x: 6; y: 3), (x: 7; y: 3), (x: 8; y: 3)),
+    ((x: 6; y: 4), (x: 7; y: 4), (x: 8; y: 4)),   //3?
+    ((x: 6; y: 5), (x: 7; y: 5), (x: 8; y: 5)))
+    ,
+    // Blue face (far right)                      B 6
+    (((x: 9; y: 3), (x: 10; y: 3), (x: 11; y: 3)),
+    ((x: 9; y: 4), (x: 10; y: 4), (x: 11; y: 4)), //4?
+    ((x: 9; y: 5), (x: 10; y: 5), (x: 11; y: 5)))
+    ,
+    //ORANGE  face (left-center)                  L 5
+    (((x: 0; y: 3), (x: 1; y: 3), (x: 2; y: 3)),
+    ((x: 0; y: 4), (x: 1; y: 4), (x: 2; y: 4)),   //5?
+    ((x: 0; y: 5), (x: 1; y: 5), (x: 2; y: 5)))
+    ,
+    // Yellow face (bottom, below Green)          D 4
+    (((x: 3; y: 6), (x: 4; y: 6), (x: 5; y: 6)),
+    ((x: 3; y: 7), (x: 4; y: 7), (x: 5; y: 7)),   //6?
+    ((x: 3; y: 8), (x: 4; y: 8), (x: 5; y: 8)))
+    );
+
+  CFacePlace: array[1..6, 0..8] of TPoint = (
+    // White face (top, above Green)           U
+    ((x: 3; y: 0), (x: 4; y: 0), (x: 5; y: 0),
+    (x: 3; y: 1), (x: 4; y: 1), (x: 5; y: 1),    //1?
+    (x: 3; y: 2), (x: 4; y: 2), (x: 5; y: 2))
+    ,
+    // Green face (center)                     F
+    ((x: 3; y: 3), (x: 4; y: 3), (x: 5; y: 3),
+    (x: 3; y: 4), (x: 4; y: 4), (x: 5; y: 4),    //2?
+    (x: 3; y: 5), (x: 4; y: 5), (x: 5; y: 5))
+    ,
+    // Red face (right of Green)                R
+    ((x: 6; y: 3), (x: 7; y: 3), (x: 8; y: 3),
+    (x: 6; y: 4), (x: 7; y: 4), (x: 8; y: 4),    //3?
+    (x: 6; y: 5), (x: 7; y: 5), (x: 8; y: 5))
+    ,
+    // Blue face (far right)                     B
+    ((x: 9; y: 3), (x: 10; y: 3), (x: 11; y: 3),
+    (x: 9; y: 4), (x: 10; y: 4), (x: 11; y: 4),  //4?
+    (x: 9; y: 5), (x: 10; y: 5), (x: 11; y: 5))
+    ,
+    // Orange face (left of Green)                L
+    ((x: 0; y: 3), (x: 1; y: 3), (x: 2; y: 3),
+    (x: 0; y: 4), (x: 1; y: 4), (x: 2; y: 4),    //5?
+    (x: 0; y: 5), (x: 1; y: 5), (x: 2; y: 5))
+    ,
+    // Yellow face (bottom, below Green)           D
+    ((x: 3; y: 6), (x: 4; y: 6), (x: 5; y: 6),
+    (x: 3; y: 7), (x: 4; y: 7), (x: 5; y: 7),    //6?
+    (x: 3; y: 8), (x: 4; y: 8), (x: 5; y: 8))
+    );
 
 implementation
-
-
-function GetCubeyColor(const cube: TRubik; pt: TPoint): integer;
-var
-  i, j: integer;
-begin
-  Result := -1; // Default value indicating no color found
-  for i := 1 to 6 do
-    for j := 0 to 8 do
-      if j <> 4 then // Skipping the center piece as it's fixed
-      begin
-        if PtInRect(Rect(CFacePlace[i, j].x * C_CUBE_SIZE, CFacePlace[i, j].Y * C_CUBE_SIZE,
-          CFacePlace[i, j].x * C_CUBE_SIZE + C_CUBE_SIZE - 3, CFacePlace[i, j].Y * C_CUBE_SIZE +
-          C_CUBE_SIZE - 3), pt) then
-        begin
-          Result := cube[i, j]; // Return the color index at the clicked position
-          Exit; // Exit as soon as the color is found
-        end;
-      end;
-end;
-
-procedure PlaceColor(var cube: TRubik; pt: tpoint);
-var
-  i, j: integer;
-begin
-  for i := 1 to 6 do for j := 0 to 8 do
-      if j <> 4 then
-      begin
-        if PtInRect(Rect(CFacePlace[i, j].x * C_CUBE_SIZE, CFacePlace[i, j].Y * C_CUBE_SIZE,
-          CFacePlace[i, j].x * C_CUBE_SIZE + C_CUBE_SIZE - 3, CFacePlace[i, j].Y * C_CUBE_SIZE +
-          C_CUBE_SIZE - 3), pt) then
-        begin
-          cube[i, j] := SelectedColor;
-        end;
-      end;
-end;
-
-procedure PlaceColorClicker(var cube: TRubik; pt: tpoint; colindex: integer);
-var
-  i, j: integer;
-begin
-  for i := 1 to 6 do for j := 0 to 8 do
-      if j <> 4 then
-      begin
-        if PtInRect(Rect(CFacePlace[i, j].x * C_CUBE_SIZE, CFacePlace[i, j].Y * C_CUBE_SIZE,
-          CFacePlace[i, j].x * C_CUBE_SIZE + C_CUBE_SIZE - 3, CFacePlace[i, j].Y * C_CUBE_SIZE +
-          C_CUBE_SIZE - 3), pt) then
-        begin
-          cube[i, j] := colindex;
-        end;
-      end;
-end;
 
 procedure DrawCube(P: TPaintBox; c: TRubik);
 var
@@ -131,46 +144,33 @@ begin
     tmp.Canvas.Brush.Color := clAppWorkspace;
     tmp.Canvas.FillRect(P.ClientRect);
 
-    // Considering the layout of 12 cubes wide (with a bit of spacing between each cube and on the sides)
-    // and 9 cubes high (also with spacing), calculate the space available for each dimension
     SpaceForWidth := P.Width div 12; // Available space per cube, horizontally
     SpaceForHeight := P.Height div 9; // Available space per cube, vertically
 
-    // Choose the smaller of the two to ensure the cube fits in both dimensions while maintaining the aspect ratio
-    C_CUBE_SIZE := Min(SpaceForWidth, SpaceForHeight);
 
-
-    // Dynamically adjust the size of the cube based on the PaintBox size
-    // and ensure it doesn't exceed the desired size using C_CUBE_SIZE as a reference
-    //ScaleFactor := C_CUBE_SIZE div C_CUBE_SIZE;
-    //C_CUBE_SIZE := C_CUBE_SIZE * ScaleFactor;
-
-    tmp.Width := P.Width;
-    tmp.Height := P.Height;
-    tmp.Canvas.Brush.Color := clAppWorkspace;
-    tmp.Canvas.FillRect(P.ClientRect);
+    CubeySize := Min(SpaceForWidth, SpaceForHeight);
 
     // Optionally draw a black outline around each cube face for clarity
-    tmp.Canvas.Brush.Color := clMenuBar; // Outline color
+    tmp.Canvas.Brush.Color := clSilver;//clMenuBar; // Outline color
     // Drawing outlines for each cube face
 
     // Background for Orange face
-    tmp.Canvas.Rectangle(0 * C_CUBE_SIZE + 2, 3 * C_CUBE_SIZE + 2, 3 * C_CUBE_SIZE - 4, 6 * C_CUBE_SIZE - 4);
+    tmp.Canvas.Rectangle(0 * CubeySize + 2, 3 * CubeySize + 2, 3 * CubeySize - 4, 6 * CubeySize - 4);
 
     //Background for Green face
-    tmp.Canvas.Rectangle(3 * C_CUBE_SIZE + 2, 3 * C_CUBE_SIZE + 2, 6 * C_CUBE_SIZE - 4, 6 * C_CUBE_SIZE - 4);
+    tmp.Canvas.Rectangle(3 * CubeySize + 2, 3 * CubeySize + 2, 6 * CubeySize - 4, 6 * CubeySize - 4);
 
     //Background for Red face
-    tmp.Canvas.Rectangle(6 * C_CUBE_SIZE + 2, 3 * C_CUBE_SIZE + 2, 9 * C_CUBE_SIZE - 4, 6 * C_CUBE_SIZE - 4);
+    tmp.Canvas.Rectangle(6 * CubeySize + 2, 3 * CubeySize + 2, 9 * CubeySize - 4, 6 * CubeySize - 4);
 
     //Background for Blue face
-    tmp.Canvas.Rectangle(9 * C_CUBE_SIZE + 2, 3 * C_CUBE_SIZE + 2, 12 * C_CUBE_SIZE - 4, 6 * C_CUBE_SIZE - 4);
+    tmp.Canvas.Rectangle(9 * CubeySize + 2, 3 * CubeySize + 2, 12 * CubeySize - 4, 6 * CubeySize - 4);
 
     //Background for White face
-    tmp.Canvas.Rectangle(3 * C_CUBE_SIZE + 2, 0 * C_CUBE_SIZE + 2, 6 * C_CUBE_SIZE - 4, 3 * C_CUBE_SIZE - 4);
+    tmp.Canvas.Rectangle(3 * CubeySize + 2, 0 * CubeySize + 2, 6 * CubeySize - 4, 3 * CubeySize - 4);
 
     //Background for Yellow face
-    tmp.Canvas.Rectangle(3 * C_CUBE_SIZE + 2, 6 * C_CUBE_SIZE + 2, 6 * C_CUBE_SIZE - 4, 9 * C_CUBE_SIZE - 4);
+    tmp.Canvas.Rectangle(3 * CubeySize + 2, 6 * CubeySize + 2, 6 * CubeySize - 4, 9 * CubeySize - 4);
 
 
     //    for face := 1 to 6 do
@@ -193,10 +193,10 @@ begin
           tmp.Canvas.Brush.Color := C_COLOR[TUnitRubik(c)[i, j, k]];
           faceName := FACE_NAMES[TUnitRubik(c)[i, j, k]];
 
-          tmp.Canvas.Rectangle(C_FACE_GRID_POS[i, j, k].x * C_CUBE_SIZE + 1,
-            C_FACE_GRID_POS[i, j, k].Y * C_CUBE_SIZE + 1,
-            C_FACE_GRID_POS[i, j, k].x * C_CUBE_SIZE + C_CUBE_SIZE - 3,
-            C_FACE_GRID_POS[i, j, k].Y * C_CUBE_SIZE + C_CUBE_SIZE - 3);
+          tmp.Canvas.Rectangle(C_FACE_GRID_POS[i, j, k].x * CubeySize + 0,
+            C_FACE_GRID_POS[i, j, k].Y * CubeySize + 0,
+            C_FACE_GRID_POS[i, j, k].x * CubeySize + CubeySize - 2,
+            C_FACE_GRID_POS[i, j, k].Y * CubeySize + CubeySize - 2);
 
           //centerPoint := C_FACE_GRID_POS[i, j, k];
           //faceName := faceName
@@ -209,8 +209,8 @@ begin
 
           // Draw face name in the center of each cubelet
           //tmp.Canvas.TextOut(
-          //C_FACE_GRID_POS[i, j, k].x * C_CUBE_SIZE + (C_CUBE_SIZE div 2) - (tmp.Canvas.TextWidth(faceName) div 2),
-          //C_FACE_GRID_POS[i, j, k].Y * C_CUBE_SIZE + (C_CUBE_SIZE div 2) - (tmp.Canvas.TextHeight(faceName) div 2),
+          //C_FACE_GRID_POS[i, j, k].x * CubeySize + (CubeySize div 2) - (tmp.Canvas.TextWidth(faceName) div 2),
+          //C_FACE_GRID_POS[i, j, k].Y * CubeySize + (CubeySize div 2) - (tmp.Canvas.TextHeight(faceName) div 2),
           //faceName);
         end;
       end;
@@ -221,6 +221,58 @@ begin
     tmp.Free;
   end;
 end;
+
+function GetCubeyColor(const cube: TRubik; pt: TPoint): integer;
+var
+  i, j: integer;
+begin
+  Result := -1; // Default value indicating no color found
+  for i := 1 to 6 do
+    for j := 0 to 8 do
+      if j <> 4 then // Skipping the center piece as it's fixed
+      begin
+        if PtInRect(Rect(CFacePlace[i, j].x * CubeySize, CFacePlace[i, j].Y * CubeySize,
+          CFacePlace[i, j].x * CubeySize + CubeySize - 3, CFacePlace[i, j].Y * CubeySize +
+          CubeySize - 3), pt) then
+        begin
+          Result := cube[i, j]; // Return the color index at the clicked position
+          Exit; // Exit as soon as the color is found
+        end;
+      end;
+end;
+
+procedure PlaceColor(var cube: TRubik; pt: tpoint);
+var
+  i, j: integer;
+begin
+  for i := 1 to 6 do for j := 0 to 8 do
+      if j <> 4 then
+      begin
+        if PtInRect(Rect(CFacePlace[i, j].x * CubeySize, CFacePlace[i, j].Y * CubeySize,
+          CFacePlace[i, j].x * CubeySize + CubeySize - 3, CFacePlace[i, j].Y * CubeySize +
+          CubeySize - 3), pt) then
+        begin
+          cube[i, j] := SelectedColor;
+        end;
+      end;
+end;
+
+procedure PlaceColorClicker(var cube: TRubik; pt: tpoint; colindex: integer);
+var
+  i, j: integer;
+begin
+  for i := 1 to 6 do for j := 0 to 8 do
+      if j <> 4 then
+      begin
+        if PtInRect(Rect(CFacePlace[i, j].x * CubeySize, CFacePlace[i, j].Y * CubeySize,
+          CFacePlace[i, j].x * CubeySize + CubeySize - 3, CFacePlace[i, j].Y * CubeySize +
+          CubeySize - 3), pt) then
+        begin
+          cube[i, j] := colindex;
+        end;
+      end;
+end;
+
 
 
 // RENDU 3D RENDU 3D RENDU 3D RENDU 3D RENDU 3D RENDU 3D RENDU 3D RENDU 3D RENDU
@@ -303,7 +355,7 @@ end;
 function Pt3dTo2D(x, y, z: single; dx, dy, scalingFactor: integer): TPoint;
 begin
   z := z + 10; // Adjusts depth positioning
-  Result.x := Round((x * scalingFactor / z) * 20) + dx; // Applies dynamic scaling based on PaintBox size
+  Result.x := Round((x * scalingFactor / z) * 20) + dx;
   Result.y := -Round((y * scalingFactor / z) * 20) + dy; // Negative to flip Y-axis for screen coordinates
 end;
 
@@ -328,17 +380,12 @@ begin
   dx := tmp.Width div 2;
   dy := tmp.Height div 2;
 
-      // Calculate the scaling factor based on PaintBox size.
-    // BaseScale is a baseline size adjustment, adjust as needed for your cube's dimensions and desired appearance.
-    //BaseScale := 16; // Original scale used in Pt3dTo2D, consider adjusting based on your cube size and PaintBox dimensions.
-    // The scaling factor adjusts the cube size relative to the PaintBox size.
-    ScalingFactor := Min(P.Width, P.Height) div 24; // Adjust '10' as needed to fit your cube appropriately within the PaintBox.
-
+  ScalingFactor := Min(P.Width, P.Height) div 24;
 
   for i := 0 to 269 do
   begin
     PolyOrder[i].order := -1;
-    for j := 0 to 3 do pt[j] := Pt3dTo2D(C3D[i, j + 1, 0], C3D[i, j + 1, 1], C3D[i, j + 1, 2], dx, dy,ScalingFactor);
+    for j := 0 to 3 do pt[j] := Pt3dTo2D(C3D[i, j + 1, 0], C3D[i, j + 1, 1], C3D[i, j + 1, 2], dx, dy, ScalingFactor);
     ux := pt[0].X - pt[1].X;
     uy := pt[0].y - pt[1].y;
     vx := pt[2].X - pt[1].X;
@@ -347,7 +394,6 @@ begin
     // ne dessine pas les faces arrières
     // does not draw the back faces
     //if ux*vy-uy*vx>=0 then continue;
-
 
 
     PolyOrder[i].pt := pt;

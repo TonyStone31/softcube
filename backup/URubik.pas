@@ -100,7 +100,6 @@ var
   faceName: string;
 begin
   Result := '';
-
   // remap so string matches expected input in other solvers
   faceOrder[1] := 1; // UP
   faceOrder[2] := 3; // FRONT
@@ -109,7 +108,6 @@ begin
   faceOrder[5] := 5; // LEFT
   faceOrder[6] := 4; // DOWN
 
-  // Iterate through each face according to the custom order
   for face := 1 to 6 do
   begin
     // Use faceOrder array to access the faces in the desired order
@@ -144,8 +142,7 @@ begin
       Inc(i);
   end;
 end;
-
-
+         // French still... I think it is just comparing two cubes.  Will rename
 function MemeCubes(c1, c2: TRubik): boolean;
 var
   i: integer;
@@ -154,8 +151,6 @@ begin
   for i := 0 to 53 do if TLinRubik(c1)[i] <> TLinRubik(c2)[i] then exit;
   Result := True;
 end;
-
-
 
 procedure RotateFace(var cube: TUnitRubik; face, rotation: integer);
 var
@@ -279,8 +274,6 @@ begin
       Inc(i);
   end;
 end;
-
-
 
 function RotateEdge(cube: TFaceRubik; c, ref: integer): integer;
 var
@@ -744,7 +737,7 @@ begin
   end;
 end;
 
-const
+const //from french translates to Actions... may rename to MoveActions ?
   QuoiFaire1: array[1..24, 1..7] of integer =
     ((2345, 0, 0, 0, 0, 0, 0), (2354, 4, 1, 1, 4, 9, 0), (2435, 2, 1, 4, 0, 0, 0),
     (2453, 3, 4, 1, 1, 0, 0), (2534, 3, 9, 4, 1, 0, 0), (2543, 3, 4, 9, 4, 0, 0), (3245, 2, 4, 1, 0, 0, 0),
@@ -922,7 +915,7 @@ end;
 // Supressions de deux mouvements opposés consécutifs
 // Removal of two consecutive opposite movements
 
-function FilterMoves(var s: string; cube: TFaceRubik; can: tcanvas): string;
+function FilterMoves(var s: string; cube: TFaceRubik): string;
 var
   tmp: TLinRubik;
   tab: array of string;
@@ -930,14 +923,14 @@ var
   f: string;
 begin
   Result := '';
-  can.FillRect(can.ClipRect);
+
   for i := 0 to ConvertNumber - 1 do s := AnsiReplaceText(s, StrFrom_To[i * 2], StrFrom_To[i * 2 + 1]);
   tmp := TLinRubik(cube);
   n := CountMoves(s);
   setlength(tab, n + 1);
   p := 1;
   tab[0] := RubikToStr(tmp);
-  for j := 0 to 53 do can.Pixels[0, j] := C_COLOR[tmp[j]];
+
   for i := 1 to n do
   begin
     f := s[p];
@@ -953,7 +946,7 @@ begin
       Inc(p);
     end;
     ApplyFormula(tfacerubik(tmp), f);
-    for j := 0 to 53 do can.Pixels[i, j] := C_COLOR[tmp[j]];
+
     tab[i] := RubikToStr(tmp);
   end;
   for j := n downto 1 do

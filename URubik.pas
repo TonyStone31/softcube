@@ -43,7 +43,7 @@ procedure PlaceYellowEdges(var cube: TRubik);
 procedure OrientYellowEdges(var cube: TRubik);
 procedure PlaceYellowCorners(var cube: TRubik);
 procedure OrientYellowCorners(var cube: TRubik);
-function FilterMoves(var s: string; cube: TFaceRubik; can: tcanvas): string;
+function FilterMoves(var s: string; cube: TFaceRubik): string;
 function CountMoves(s: string): integer;
 function VerifyCube(original: TFaceRubik; var s: string): boolean;
 
@@ -915,7 +915,7 @@ end;
 // Supressions de deux mouvements opposés consécutifs
 // Removal of two consecutive opposite movements
 
-function FilterMoves(var s: string; cube: TFaceRubik; can: tcanvas): string;
+function FilterMoves(var s: string; cube: TFaceRubik): string;
 var
   tmp: TLinRubik;
   tab: array of string;
@@ -923,14 +923,14 @@ var
   f: string;
 begin
   Result := '';
-  can.FillRect(can.ClipRect);
+
   for i := 0 to ConvertNumber - 1 do s := AnsiReplaceText(s, StrFrom_To[i * 2], StrFrom_To[i * 2 + 1]);
   tmp := TLinRubik(cube);
   n := CountMoves(s);
   setlength(tab, n + 1);
   p := 1;
   tab[0] := RubikToStr(tmp);
-  for j := 0 to 53 do can.Pixels[0, j] := C_COLOR[tmp[j]];
+
   for i := 1 to n do
   begin
     f := s[p];
@@ -946,7 +946,7 @@ begin
       Inc(p);
     end;
     ApplyFormula(tfacerubik(tmp), f);
-    for j := 0 to 53 do can.Pixels[i, j] := C_COLOR[tmp[j]];
+
     tab[i] := RubikToStr(tmp);
   end;
   for j := n downto 1 do

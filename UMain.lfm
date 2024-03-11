@@ -1,244 +1,362 @@
 object frmMain: TfrmMain
-  Left = 290
-  Height = 725
-  Top = 2879
-  Width = 688
+  Left = 2485
+  Height = 947
+  Top = 35
+  Width = 1015
   Anchors = [akTop]
   Caption = 'Rubik''s Cube'
-  ClientHeight = 725
-  ClientWidth = 688
+  ClientHeight = 947
+  ClientWidth = 1015
   Color = clAppWorkspace
   Constraints.MinHeight = 623
   Constraints.MinWidth = 623
   DesignTimePPI = 115
+  DoubleBuffered = True
   Font.Color = clWindowText
   Font.Height = -13
   Font.Name = 'MS Sans Serif'
   KeyPreview = True
+  ParentDoubleBuffered = False
   Position = poScreenCenter
+  ShowHint = True
   LCLVersion = '3.99.0.0'
   OnCreate = FormCreate
   OnKeyDown = FormKeyDown
   OnKeyPress = FormKeyPress
   OnKeyUp = FormKeyUp
   object pnl3Dview: TPanel
-    AnchorSideLeft.Control = Splitter1
+    AnchorSideLeft.Control = SplitterVerticalMain
     AnchorSideLeft.Side = asrBottom
     AnchorSideTop.Control = Owner
     AnchorSideRight.Control = Owner
     AnchorSideRight.Side = asrBottom
-    AnchorSideBottom.Control = Panel1
-    Left = 345
-    Height = 224
+    AnchorSideBottom.Control = pnlCubeControls
+    Left = 508
+    Height = 382
     Top = 0
-    Width = 343
+    Width = 507
     Anchors = [akTop, akLeft, akRight, akBottom]
-    ClientHeight = 224
-    ClientWidth = 343
+    ClientHeight = 382
+    ClientWidth = 507
     ParentBackground = False
     TabOrder = 0
+    object btnDefault3Dview: TSpeedButton
+      AnchorSideLeft.Control = pnl3Dview
+      AnchorSideBottom.Control = pnl3Dview
+      AnchorSideBottom.Side = asrBottom
+      Left = 11
+      Height = 30
+      Hint = 'Reset 3D View'
+      Top = 341
+      Width = 60
+      Anchors = [akLeft, akBottom]
+      BorderSpacing.Around = 10
+      Glyph.Data = {
+        FA090000424DFA09000000000000360000002800000019000000190000000100
+        200000000000C409000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        00000B0B0A12514D457760584D965A544D841514132100000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000001B1A
+        182666605595958875F06A5A47FF37281DFF594A3BFF918472F8827A6FBB2725
+        2238000000000000000000000000000000000000000000000000000000000000
+        000000000000000000000000000000000000000000000000000011110F196963
+        59959F9480F9746550FF34271AFF0C3505FF0D0A02FF150447FF281B1CFF6656
+        44FF9C8F7CFD7B756AB11E1D1B2C000000000000000000000000000000000000
+        000000000000000000000000000000000000000000000A0A090F5D584F83A095
+        82F37B6D58FF3C2E22FF112006FF037602FF009802FF0C1602FF1F02A0FF1F04
+        99FF140437FF31241AFF6F604CFF9F9380FB6E685E9D1615131F000000000000
+        00000000000000000000000000000000000005050508545048769E9381EB8273
+        5DFF433426FF142608FF075604FF075102FF009A00FF009C00FF0E1704FF2205
+        AAFF2103ACFF1A0376FF16035CFF16063AFF38291FFF7A6954FFA29581F6605B
+        52870B0A0A1000000000000000000000000032302C449A9281DF8A7C66FF4B3D
+        2CFF1A0E09FF075102FF009602FF018702FF1F5818FF10A110FF3E7C31FF0F04
+        02FF34216BFF3013BBFF190377FF1D0282FF2201A9FF1B027BFF130708FF3F2F
+        24FF83725DFFA09582EC42403A5B00000000000000001B1A18255E574BBB201F
+        0EFF065502FF075302FF047E03FF009B01FF0F850AFF282A1DFF364A2DFF075E
+        05FF0C0F02FF190572FF251750FF1D103AFF270D8DFF2504BBFF2102A3FF1401
+        4DFF1B027AFF1B0D24FF5F5448D4252320330000000000000000000000001512
+        0AA5029003FF009C03FF075D03FF1F8C1DFF3E993CFF2E3120FF16280DFF04A2
+        0EFF01B617FF0D1A04FF2806BCFF2303B7FF15034BFF211523FF4028A2FF2A09
+        B9FF160254FF2202ADFF2102A8FF160B1FC60000000000000000000000000000
+        0000191A0EA507B00BFF03A905FF254F16FF2C2820FF0C5108FF047208FF3167
+        33FF00C322FF02C220FF111A07FF2C0AC5FF2A06D2FF1E0387FF1A0674FF1805
+        66FF1C1030FF211242FF2A0BBBFF2302AEFF190D29CA00000000000000000000
+        000000000000241B17AB4EAD4BFF415C38FF0F0F04FF1D741DFF02B61AFF03A1
+        1CFF346B37FF26C13FFF426F41FF120403FF2F2152FF3D21C6FF1F058FFF2107
+        9AFF2506C0FF1D058DFF0D010DFF332458FF3B21A8FF190F28CA000000000000
+        00000000000000000000160F0B970F3E06FF069108FF076309FF2EA243FF02C1
+        27FF1D8D28FF231B18FF20461CFF048B0DFF0E1804FF2207A8FF1D0C5BFF1C10
+        2AFF301A89FF2A05D2FF2504BDFF160353FF2004A3FF160352FF150D0DB80000
+        0000000000000000000000000000231C17A51FBD31FF02C123FF097214FF489D
+        55FF408447FF212417FF1E451CFF03BA17FF01BB19FF0F1C05FF2806C8FF2804
+        D1FF19036BFF190D1CFF3B2A7FFF3417C0FF1A0661FF2405B9FF2103B0FF190F
+        28C60000000000000000000000000000000028201BA81FC944FF13C235FF2A49
+        21FF121A07FF08780EFF049416FF346D38FF01BE22FF16BF32FF141608FF3617
+        BEFF2A04D7FF1F038FFF220599FF2005A2FF12052EFF231638FF391BCEFF2404
+        BCFF190E2ACA000000000000000000000000000000001F1714A64C9658FF304B
+        2DFF0D1D05FF258F30FF04C126FF04A720FF406B41FF409448FF595440FF5A4C
+        3CFF332424FF3B2586FF2D168EFF2505A1FF2A05D2FF2204B7FF10021DFF2718
+        4FFF362193FF170E22CA00000000000000000000000000000000140E0B910F61
+        10FF03AE18FF086C14FF30A749FF0FC335FF367E38FF3A2F25FF695B48FFB1A7
+        9AFFF2EEE5FFB7AFA4FF524434FF20120CFF311E69FF3615D3FF2806C8FF1804
+        61FF2306B7FF1A0574FF160E12B5000000000000000000000000000000002822
+        1BA81FC53DFF01C529FF0C721BFF497649FF585C44FF5F513DFF615648FF6F66
+        5AFFF2EEE9FFFEFBF5FFF9F6F0FF8D857BFF5B4F44FF4D3F31FF372934FF3723
+        85FF1D0764FF2A06CFFF2305B7FF1A0F29CA0000000000000000000000000000
+        000028221CA822C844FF33B248FF323E23FF514538FF9E9486FFEBE8E4FFFDFE
+        FEFFD4D0C7FF655B4DFF817A70FF5E5347FFC1B9B0FFFDF9F2FFF4EEE7FF9E95
+        87FF312417FF2A1F2FFF3C24AEFF2908C9FF1C0F2BCA00000000000000000000
+        000000000000201A12A85B6E50FF5C4F3FFF8C8272FF7F766AFF7F776DFFE8E7
+        E5FFFEFEFEFFC6C4BEFF655B4DFF8E8578FF63594BFFB0A9A1FFFDF8F2FFF1EC
+        E6FF8C857BFF746C60FF897D6FFF34261BFF352659FF1D111DCA000000000000
+        000000000000000000001E191389655A4AFFCECAC3FFFDFDFDFFFEFEFEFFE0DE
+        D7FF4F4436FF4B4135FF7F7569FFF5F2EBFFFEFCF5FFF9F7EFFFA09889FF4439
+        2AFF423729FFD4CDC4FFFEFAF3FFFEFAF4FFDDD7CCFF4E402EFF231A13B10000
+        00000000000000000000000000000101010217120D63665C52E7D7D4CFFFE0DF
+        DCFF7D7569FF898174FFADA79DFF6E6353FFA8A299FFF8F6F0FFBBB7AFFF675F
+        51FFA39C91FF978E82FF72685CFFD2CBC4FFE2DDD7FF746D62F31C17117B0404
+        04090000000000000000000000000000000000000000000000000505040E2019
+        11892B1C0DF7CCC6BFFFFEFEFEFFFDFEFEFFFAFAF7FF766C5CFF271B09FF5247
+        39FFF6F2EBFFFEFAF4FFFEFBF5FFE4DFD6FF322617FC231B13A00908071B0000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000A09082132281FA9968D84FDCFCBC7FF7D7469FF948C7EFFE8E3
+        DAFFA9A193FF726858FFC5BFB6FFA19B92FE373027BF0F0D0B33000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        000000000000000000000000000000000000110F0C38261B0FBC817769FEFBF9
+        F3FFFEFCF6FFFCFAF5FFA19B90FF271F12D51815115300000001000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000001512
+        0E4C52483CD8A49D93FF5E574DE6181510670202020400000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        00000000000002020205151210480504040C0000000000000000000000000000
+        000000000000000000000000000000000000000000000000000000000000
+      }
+      OnClick = btnDefault3DviewClick
+    end
+    object btn3DViewRotateRight: TSpeedButton
+      Tag = 5
+      AnchorSideLeft.Control = btn3DViewRotate90Up
+      AnchorSideLeft.Side = asrBottom
+      AnchorSideBottom.Control = pnl3Dview
+      AnchorSideBottom.Side = asrBottom
+      Left = 278
+      Height = 30
+      Top = 341
+      Width = 30
+      Anchors = [akLeft, akBottom]
+      BorderSpacing.Around = 10
+      Caption = '↺'
+      OnClick = btn3DViewRotateRightClick
+    end
+    object btn3DViewRotate90Up: TSpeedButton
+      Tag = 4
+      AnchorSideLeft.Control = pnl3Dview
+      AnchorSideLeft.Side = asrCenter
+      AnchorSideRight.Control = pntBoxCurrentState
+      AnchorSideBottom.Control = pnl3Dview
+      AnchorSideBottom.Side = asrBottom
+      Left = 238
+      Height = 30
+      Top = 341
+      Width = 30
+      Anchors = [akLeft, akBottom]
+      BorderSpacing.Around = 10
+      Caption = '↑'
+      OnClick = btn3DViewRotate90UpClick
+    end
+    object btn3DViewRotate90Left: TSpeedButton
+      Tag = 3
+      AnchorSideRight.Control = btn3DViewRotate90Up
+      AnchorSideBottom.Control = pnl3Dview
+      AnchorSideBottom.Side = asrBottom
+      Left = 198
+      Height = 30
+      Top = 341
+      Width = 30
+      Anchors = [akRight, akBottom]
+      BorderSpacing.Around = 10
+      Caption = '↻'
+      OnClick = btn3DViewRotate90LeftClick
+    end
     object pntBox3Dview: TPaintBox
       AnchorSideLeft.Control = pnl3Dview
       AnchorSideTop.Control = pnl3Dview
       AnchorSideRight.Control = pnl3Dview
       AnchorSideRight.Side = asrBottom
-      AnchorSideBottom.Control = pnl3Dview
-      AnchorSideBottom.Side = asrBottom
+      AnchorSideBottom.Control = btnDefault3Dview
       Left = 11
-      Height = 202
+      Height = 320
       Top = 11
-      Width = 321
+      Width = 485
       Anchors = [akTop, akLeft, akRight, akBottom]
       BorderSpacing.Around = 10
+      Color = clWhite
+      ParentColor = False
       OnMouseDown = pntBox3DviewMouseDown
       OnMouseMove = pntBox3DviewMouseMove
       OnMouseUp = pntBox3DviewMouseUp
       OnPaint = pntBox3DviewPaint
     end
-    object btnReset3Dview: TButton
-      AnchorSideLeft.Control = pntBox3Dview
-      AnchorSideBottom.Control = pntBox3Dview
-      AnchorSideBottom.Side = asrBottom
-      Left = 21
-      Height = 25
-      Top = 178
-      Width = 72
-      Anchors = [akLeft, akBottom]
-      BorderSpacing.Around = 10
-      Caption = 'Reset'
-      TabOrder = 0
-      OnClick = btnReset3DviewClick
-    end
   end
   object pnlSolution: TPanel
     AnchorSideLeft.Control = Owner
-    AnchorSideTop.Control = Splitter3
+    AnchorSideTop.Control = SplitterHorizontalMain
     AnchorSideTop.Side = asrBottom
     AnchorSideRight.Control = Owner
     AnchorSideRight.Side = asrBottom
     AnchorSideBottom.Control = Owner
     AnchorSideBottom.Side = asrBottom
     Left = 0
-    Height = 362
-    Top = 363
-    Width = 688
+    Height = 453
+    Top = 494
+    Width = 1015
     Anchors = [akTop, akLeft, akRight, akBottom]
-    ClientHeight = 362
-    ClientWidth = 688
+    ClientHeight = 453
+    ClientWidth = 1015
     Constraints.MinHeight = 175
     ParentBackground = False
     TabOrder = 1
     object lblSpeedControl: TLabel
-      AnchorSideLeft.Control = btnExecute
       AnchorSideLeft.Side = asrBottom
-      AnchorSideTop.Control = btnExecute
+      AnchorSideTop.Control = spinEdtAnimationSpeed
       AnchorSideTop.Side = asrCenter
       AnchorSideRight.Control = spinEdtAnimationSpeed
-      Left = 564
+      Left = 891
       Height = 17
-      Top = 49
+      Top = 60
       Width = 44
       Anchors = [akTop, akRight]
       BorderSpacing.Left = 10
       BorderSpacing.Right = 5
       Caption = 'Speed:'
     end
-    object edtMoveString: TEdit
-      AnchorSideLeft.Control = pnlSolution
-      AnchorSideTop.Control = imgFilters
-      AnchorSideTop.Side = asrBottom
-      AnchorSideRight.Control = btnExecute
-      AnchorSideBottom.Control = pnlSolution
-      AnchorSideBottom.Side = asrBottom
-      Left = 11
-      Height = 29
-      Top = 43
-      Width = 461
-      Anchors = [akTop, akLeft, akRight]
-      BorderSpacing.Left = 10
-      BorderSpacing.Right = 10
-      TabOrder = 0
-      OnKeyUp = edtMoveStringKeyUp
-    end
-    object btnExecute: TButton
-      AnchorSideLeft.Control = edtMoveString
-      AnchorSideLeft.Side = asrBottom
-      AnchorSideTop.Control = edtMoveString
-      AnchorSideTop.Side = asrCenter
-      AnchorSideRight.Control = lblSpeedControl
-      AnchorSideBottom.Control = pnlSolution
-      AnchorSideBottom.Side = asrBottom
-      Left = 482
-      Height = 25
-      Top = 45
-      Width = 72
-      Anchors = [akTop, akRight]
-      BorderSpacing.Around = 10
-      Caption = 'Execute'
-      TabOrder = 1
-      OnClick = btnExecuteClick
-    end
     object spinEdtAnimationSpeed: TSpinEdit
       AnchorSideLeft.Control = lblSpeedControl
       AnchorSideLeft.Side = asrBottom
-      AnchorSideTop.Control = lblSpeedControl
-      AnchorSideTop.Side = asrCenter
+      AnchorSideTop.Control = btnExecute
+      AnchorSideTop.Side = asrBottom
       AnchorSideRight.Control = pnlSolution
       AnchorSideRight.Side = asrBottom
       AnchorSideBottom.Control = pnlSolution
       AnchorSideBottom.Side = asrBottom
-      Left = 618
+      Left = 945
       Height = 29
-      Top = 43
+      Top = 54
       Width = 59
       Anchors = [akTop, akRight]
       BorderSpacing.Left = 10
+      BorderSpacing.Top = 10
       BorderSpacing.Right = 10
       BorderSpacing.Bottom = 10
       MaxValue = 10
       MinValue = 1
-      TabOrder = 2
+      TabOrder = 0
       Value = 10
-    end
-    object imgFilters: TImage
-      AnchorSideLeft.Control = btn2phaseSolve
-      AnchorSideLeft.Side = asrBottom
-      AnchorSideTop.Control = pnlSolution
-      AnchorSideRight.Control = pnlSolution
-      AnchorSideRight.Side = asrBottom
-      Left = 175
-      Height = 27
-      Top = 11
-      Width = 502
-      Anchors = [akTop, akLeft, akRight]
-      BorderSpacing.Left = 10
-      BorderSpacing.Top = 10
-      BorderSpacing.Right = 10
-      BorderSpacing.Bottom = 5
     end
     object memMoveSum: TMemo
       AnchorSideLeft.Control = pnlSolution
-      AnchorSideTop.Control = edtMoveString
+      AnchorSideTop.Control = btnSearchForSolution
       AnchorSideTop.Side = asrBottom
       AnchorSideRight.Control = pnlSolution
       AnchorSideRight.Side = asrBottom
       AnchorSideBottom.Control = pnlSolution
       AnchorSideBottom.Side = asrBottom
       Left = 11
-      Height = 274
-      Top = 77
-      Width = 666
-      Anchors = [akTop, akLeft, akRight, akBottom]
-      BorderSpacing.Left = 10
-      BorderSpacing.Top = 5
-      BorderSpacing.Right = 10
-      BorderSpacing.Bottom = 10
+      Height = 388
+      Top = 54
+      Width = 297
+      Anchors = [akTop, akLeft, akBottom]
+      BorderSpacing.Around = 10
       ReadOnly = True
       ScrollBars = ssBoth
-      TabOrder = 3
+      TabOrder = 1
     end
-    object btnSearchForSolution: TButton
+    object btnSearchForSolution: TSpeedButton
       AnchorSideLeft.Control = pnlSolution
-      AnchorSideTop.Control = pnlSolution
-      AnchorSideRight.Control = pnlSetState
+      AnchorSideRight.Control = pnlSolution
       AnchorSideRight.Side = asrBottom
-      AnchorSideBottom.Control = pnlSetState
       AnchorSideBottom.Side = asrBottom
       Left = 11
-      Height = 25
+      Height = 33
+      Hint = 'Finds a solution using beginners method.'
       Top = 11
-      Width = 72
+      Width = 80
       BorderSpacing.Left = 10
-      BorderSpacing.Top = 10
-      Caption = 'Solve'
-      TabOrder = 4
+      Caption = '🧩 Solve'
       OnClick = btnSearchForSolutionClick
     end
-    object btn2phaseSolve: TButton
-      AnchorSideLeft.Control = btnSearchForSolution
+    object btn2phaseSolve: TSpeedButton
       AnchorSideLeft.Side = asrBottom
-      AnchorSideTop.Control = pnlSolution
+      AnchorSideRight.Control = pnlSolution
+      AnchorSideBottom.Side = asrBottom
       Left = 93
-      Height = 25
+      Height = 33
+      Hint = 'Uses 2-Phase computer program to solve cube.  Method is not humanly possible.'
       Top = 11
-      Width = 72
-      BorderSpacing.Around = 10
-      Caption = '2-Phase'
-      TabOrder = 5
+      Width = 80
+      Caption = '🧩 2-Phase'
       OnClick = btn2phaseSolveClick
     end
+    object btnExecute: TSpeedButton
+      AnchorSideLeft.Side = asrBottom
+      AnchorSideRight.Control = pnlSolution
+      AnchorSideRight.Side = asrBottom
+      AnchorSideBottom.Side = asrBottom
+      Left = 924
+      Height = 33
+      Hint = 'Execut all Singmaster commands below.'
+      Top = 11
+      Width = 80
+      Anchors = [akTop, akRight]
+      BorderSpacing.Right = 10
+      Caption = '🚀 Execute'
+      OnClick = btnExecuteClick
+    end
+    object edtMoveString: TMemo
+      AnchorSideLeft.Control = memMoveSum
+      AnchorSideLeft.Side = asrBottom
+      AnchorSideTop.Control = lblSingMaster
+      AnchorSideTop.Side = asrBottom
+      AnchorSideRight.Control = pnlSolution
+      AnchorSideRight.Side = asrBottom
+      AnchorSideBottom.Control = pnlSolution
+      AnchorSideBottom.Side = asrBottom
+      Left = 318
+      Height = 351
+      Top = 91
+      Width = 686
+      Anchors = [akTop, akLeft, akRight, akBottom]
+      BorderSpacing.Around = 10
+      ScrollBars = ssBoth
+      TabOrder = 2
+      OnKeyPress = edtMoveStringKeyPress
+      OnKeyUp = edtMoveStringKeyUp
+    end
+    object lblSingMaster: TLabel
+      AnchorSideLeft.Control = memMoveSum
+      AnchorSideLeft.Side = asrBottom
+      AnchorSideTop.Control = memMoveSum
+      Left = 318
+      Height = 17
+      Top = 64
+      Width = 78
+      BorderSpacing.Top = 10
+      Caption = 'Commands:'
+    end
   end
-  object Splitter1: TSplitter
+  object SplitterVerticalMain: TSplitter
     AnchorSideLeft.Side = asrBottom
-    AnchorSideBottom.Control = Splitter3
-    Left = 340
-    Height = 398
+    AnchorSideBottom.Control = SplitterHorizontalMain
+    Left = 503
+    Height = 529
     Top = -40
     Width = 5
     Align = alNone
     Anchors = [akTop, akBottom]
   end
-  object Splitter3: TSplitter
+  object SplitterHorizontalMain: TSplitter
     AnchorSideLeft.Control = Owner
     AnchorSideRight.Control = Owner
     AnchorSideRight.Side = asrBottom
@@ -246,214 +364,56 @@ object frmMain: TfrmMain
     Cursor = crVSplit
     Left = 0
     Height = 5
-    Top = 358
-    Width = 688
+    Top = 489
+    Width = 1015
     Align = alNone
     Anchors = [akLeft, akRight]
     ResizeAnchor = akBottom
   end
-  object Panel1: TPanel
-    AnchorSideLeft.Control = Splitter1
+  object pnlCubeControls: TPanel
+    AnchorSideLeft.Control = SplitterVerticalMain
     AnchorSideLeft.Side = asrBottom
     AnchorSideRight.Control = Owner
     AnchorSideRight.Side = asrBottom
-    AnchorSideBottom.Control = Splitter3
-    Left = 345
-    Height = 134
-    Top = 224
-    Width = 343
+    AnchorSideBottom.Control = SplitterHorizontalMain
+    Left = 508
+    Height = 107
+    Top = 382
+    Width = 507
     Anchors = [akLeft, akRight, akBottom]
-    ClientHeight = 134
-    ClientWidth = 343
+    ClientHeight = 107
+    ClientWidth = 507
     Constraints.MinWidth = 250
     ParentBackground = False
     TabOrder = 5
-    object btnDownClock: TButton
-      Tag = 5
-      AnchorSideRight.Control = pntBoxCurrentState
-      Left = 206
-      Height = 30
-      Top = 16
-      Width = 30
-      Caption = 'D'
-      TabOrder = 0
-      OnClick = btnRightClockClick
-    end
-    object btnDownCounter: TButton
-      Tag = 15
-      AnchorSideRight.Control = pntBoxCurrentState
-      Left = 206
-      Height = 30
-      Top = 48
-      Width = 30
-      Caption = 'D'''
-      TabOrder = 1
-      OnClick = btnRightClockClick
-    end
-    object btnUpCounter: TButton
-      Tag = 10
-      AnchorSideRight.Control = pntBoxCurrentState
-      Left = 92
-      Height = 30
-      Top = 48
-      Width = 30
-      Caption = 'U'''
-      TabOrder = 3
-      OnClick = btnRightClockClick
-    end
-    object btnUpClock: TButton
-      AnchorSideRight.Control = pntBoxCurrentState
-      Left = 92
-      Height = 30
-      Top = 16
-      Width = 30
-      Caption = 'U'
-      TabOrder = 4
-      OnClick = btnRightClockClick
-    end
-    object btnBackClock: TButton
-      Tag = 3
-      AnchorSideRight.Control = pntBoxCurrentState
-      AnchorSideBottom.Control = pntBoxCurrentState
-      AnchorSideBottom.Side = asrBottom
-      Left = 130
-      Height = 30
-      Top = 16
-      Width = 30
-      Caption = 'B'
-      TabOrder = 5
-      OnClick = btnRightClockClick
-    end
-    object btnBackCounter: TButton
-      Tag = 13
-      AnchorSideRight.Control = pntBoxCurrentState
-      AnchorSideBottom.Control = pntBoxCurrentState
-      AnchorSideBottom.Side = asrBottom
-      Left = 130
-      Height = 30
-      Top = 48
-      Width = 30
-      Caption = 'B'''
-      TabOrder = 6
-      OnClick = btnRightClockClick
-    end
-    object btnFrontClock: TButton
-      Tag = 1
-      AnchorSideRight.Control = pntBoxCurrentState
-      AnchorSideBottom.Control = pntBoxCurrentState
-      AnchorSideBottom.Side = asrBottom
-      Left = 16
-      Height = 30
-      Top = 16
-      Width = 30
-      BorderSpacing.Bottom = 38
-      Caption = 'F'
-      TabOrder = 7
-      OnClick = btnRightClockClick
-    end
-    object btnFrontCounter: TButton
-      Tag = 11
-      AnchorSideRight.Control = pntBoxCurrentState
-      AnchorSideBottom.Control = pntBoxCurrentState
-      AnchorSideBottom.Side = asrBottom
-      Left = 16
-      Height = 30
-      Top = 48
-      Width = 30
-      BorderSpacing.Bottom = 38
-      Caption = 'F'''
-      TabOrder = 8
-      OnClick = btnRightClockClick
-    end
-    object btnLeftClock: TButton
-      Tag = 4
-      AnchorSideRight.Control = pntBoxCurrentState
-      Left = 168
-      Height = 30
-      Top = 16
-      Width = 30
-      Caption = 'L'
-      TabOrder = 9
-      OnClick = btnRightClockClick
-    end
-    object btnRightClock: TButton
-      Tag = 2
-      AnchorSideRight.Control = pntBoxCurrentState
-      AnchorSideBottom.Control = pntBoxCurrentState
-      AnchorSideBottom.Side = asrBottom
-      Left = 54
-      Height = 30
-      Top = 16
-      Width = 30
-      BorderSpacing.Bottom = 50
-      Caption = 'R'
-      TabOrder = 10
-      OnClick = btnRightClockClick
-    end
-    object btnRightCounter: TButton
-      Tag = 12
-      AnchorSideRight.Control = pntBoxCurrentState
-      Left = 54
-      Height = 30
-      Top = 48
-      Width = 30
-      Caption = 'R'''
-      TabOrder = 11
-      OnClick = btnRightClockClick
-    end
-    object btnLeftCounter: TButton
-      Tag = 14
-      AnchorSideRight.Control = pntBoxCurrentState
-      AnchorSideBottom.Control = pntBoxCurrentState
-      AnchorSideBottom.Side = asrBottom
-      Left = 168
-      Height = 30
-      Top = 48
-      Width = 30
-      BorderSpacing.Bottom = 50
-      Caption = 'L'''
-      TabOrder = 12
-      OnClick = btnRightClockClick
-    end
     object tglKeyBoardControl: TCheckBox
-      AnchorSideTop.Control = pntBoxCurrentState
-      AnchorSideRight.Control = Panel1
+      AnchorSideRight.Control = pnlCubeControls
       AnchorSideRight.Side = asrBottom
-      AnchorSideBottom.Control = Panel1
+      AnchorSideBottom.Control = pnlCubeControls
       AnchorSideBottom.Side = asrBottom
-      Left = 245
+      Left = 409
       Height = 23
-      Top = 100
+      Top = 73
       Width = 87
       Anchors = [akRight, akBottom]
       BorderSpacing.Around = 10
       Caption = 'Keyboard'
-      TabOrder = 2
+      TabOrder = 0
       TabStop = False
       OnChange = tglKeyBoardControlChange
     end
-    object btnControlHelp: TButton
-      Left = 16
-      Height = 25
-      Top = 95
-      Width = 30
-      Caption = '?'
-      TabOrder = 13
-      OnClick = btnControlHelpClick
-    end
     object lblCurrentMove: TLabel
-      AnchorSideLeft.Control = Panel1
-      AnchorSideLeft.Side = asrCenter
-      AnchorSideTop.Control = Panel1
-      AnchorSideRight.Control = Panel1
+      AnchorSideLeft.Control = pnlCubeControls
+      AnchorSideTop.Control = pnlCubeControls
+      AnchorSideTop.Side = asrCenter
+      AnchorSideRight.Control = pnlCubeControls
       AnchorSideRight.Side = asrCenter
-      AnchorSideBottom.Control = Panel1
+      AnchorSideBottom.Control = pnlCubeControls
       AnchorSideBottom.Side = asrBottom
-      Left = 161
+      Left = 11
       Height = 34
-      Top = 89
+      Top = 36
       Width = 20
-      Anchors = [akLeft, akBottom]
       BorderSpacing.Around = 10
       Caption = '0'
       Font.Color = clWindowText
@@ -462,16 +422,212 @@ object frmMain: TfrmMain
       Font.Style = [fsBold]
       ParentFont = False
     end
+    object btnControlHelp: TSpeedButton
+      AnchorSideLeft.Control = pnlFaceControls
+      AnchorSideLeft.Side = asrBottom
+      AnchorSideTop.Control = pnlFaceControls
+      AnchorSideTop.Side = asrCenter
+      Left = 388
+      Height = 25
+      Top = 37
+      Width = 30
+      BorderSpacing.Around = 10
+      Caption = '❓'
+      OnClick = btnControlHelpClick
+    end
+    object pnlFaceControls: TPanel
+      AnchorSideLeft.Control = pnlCubeControls
+      AnchorSideLeft.Side = asrCenter
+      AnchorSideTop.Control = pnlCubeControls
+      Left = 129
+      Height = 96
+      Top = 1
+      Width = 249
+      BevelOuter = bvNone
+      ClientHeight = 96
+      ClientWidth = 249
+      ParentBackground = False
+      TabOrder = 1
+      object btnDownClock: TSpeedButton
+        Tag = 5
+        AnchorSideLeft.Control = btnLeftClock
+        AnchorSideLeft.Side = asrBottom
+        AnchorSideTop.Control = pnlFaceControls
+        Left = 210
+        Height = 30
+        Top = 10
+        Width = 30
+        BorderSpacing.Around = 10
+        Caption = 'D'
+        OnClick = btnRightClockClick
+      end
+      object btnDownCounter: TSpeedButton
+        Tag = 15
+        AnchorSideLeft.Control = btnLeftClock
+        AnchorSideLeft.Side = asrBottom
+        AnchorSideBottom.Control = pnlFaceControls
+        AnchorSideBottom.Side = asrBottom
+        Left = 210
+        Height = 30
+        Top = 56
+        Width = 30
+        Anchors = [akLeft, akBottom]
+        BorderSpacing.Around = 10
+        Caption = 'D'''
+        OnClick = btnRightClockClick
+      end
+      object btnLeftCounter: TSpeedButton
+        Tag = 14
+        AnchorSideLeft.Control = btnBackClock
+        AnchorSideLeft.Side = asrBottom
+        AnchorSideBottom.Control = pnlFaceControls
+        AnchorSideBottom.Side = asrBottom
+        Left = 170
+        Height = 30
+        Top = 56
+        Width = 30
+        Anchors = [akLeft, akBottom]
+        BorderSpacing.Around = 10
+        Caption = 'L'''
+        OnClick = btnRightClockClick
+      end
+      object btnLeftClock: TSpeedButton
+        Tag = 4
+        AnchorSideLeft.Control = btnBackClock
+        AnchorSideLeft.Side = asrBottom
+        AnchorSideTop.Control = pnlFaceControls
+        Left = 170
+        Height = 30
+        Top = 10
+        Width = 30
+        BorderSpacing.Around = 10
+        Caption = 'L'
+        OnClick = btnRightClockClick
+      end
+      object btnBackCounter: TSpeedButton
+        Tag = 13
+        AnchorSideLeft.Control = btnUpClock
+        AnchorSideLeft.Side = asrBottom
+        AnchorSideBottom.Control = pnlFaceControls
+        AnchorSideBottom.Side = asrBottom
+        Left = 130
+        Height = 30
+        Top = 56
+        Width = 30
+        Anchors = [akLeft, akBottom]
+        BorderSpacing.Around = 10
+        Caption = 'B'''
+        OnClick = btnRightClockClick
+      end
+      object btnBackClock: TSpeedButton
+        Tag = 3
+        AnchorSideLeft.Control = btnUpClock
+        AnchorSideLeft.Side = asrBottom
+        AnchorSideTop.Control = pnlFaceControls
+        AnchorSideBottom.Side = asrBottom
+        Left = 130
+        Height = 30
+        Top = 10
+        Width = 30
+        BorderSpacing.Around = 10
+        Caption = 'B'
+        OnClick = btnRightClockClick
+      end
+      object btnUpCounter: TSpeedButton
+        Tag = 10
+        AnchorSideLeft.Control = btnRightClock
+        AnchorSideLeft.Side = asrBottom
+        AnchorSideBottom.Control = pnlFaceControls
+        AnchorSideBottom.Side = asrBottom
+        Left = 90
+        Height = 30
+        Top = 56
+        Width = 30
+        Anchors = [akLeft, akBottom]
+        BorderSpacing.Around = 10
+        Caption = 'U'''
+        OnClick = btnRightClockClick
+      end
+      object btnUpClock: TSpeedButton
+        AnchorSideLeft.Control = btnRightClock
+        AnchorSideLeft.Side = asrBottom
+        AnchorSideTop.Control = pnlFaceControls
+        Left = 90
+        Height = 30
+        Top = 10
+        Width = 30
+        BorderSpacing.Around = 10
+        Caption = 'U'
+        OnClick = btnRightClockClick
+      end
+      object btnRightCounter: TSpeedButton
+        Tag = 12
+        AnchorSideLeft.Control = btnFrontClock
+        AnchorSideLeft.Side = asrBottom
+        AnchorSideBottom.Control = pnlFaceControls
+        AnchorSideBottom.Side = asrBottom
+        Left = 50
+        Height = 30
+        Top = 56
+        Width = 30
+        Anchors = [akLeft, akBottom]
+        BorderSpacing.Around = 10
+        Caption = 'R'''
+        OnClick = btnRightClockClick
+      end
+      object btnRightClock: TSpeedButton
+        Tag = 2
+        AnchorSideLeft.Control = btnFrontClock
+        AnchorSideLeft.Side = asrBottom
+        AnchorSideTop.Control = pnlFaceControls
+        AnchorSideBottom.Side = asrBottom
+        Left = 50
+        Height = 30
+        Top = 10
+        Width = 30
+        BorderSpacing.Bottom = 50
+        BorderSpacing.Around = 10
+        Caption = 'R'
+        OnClick = btnRightClockClick
+      end
+      object btnFrontCounter: TSpeedButton
+        Tag = 11
+        AnchorSideLeft.Control = pnlFaceControls
+        AnchorSideBottom.Control = pnlFaceControls
+        AnchorSideBottom.Side = asrBottom
+        Left = 10
+        Height = 30
+        Top = 56
+        Width = 30
+        Anchors = [akLeft, akBottom]
+        BorderSpacing.Around = 10
+        Caption = 'F'''
+        OnClick = btnRightClockClick
+      end
+      object btnFrontClock: TSpeedButton
+        Tag = 1
+        AnchorSideLeft.Control = pnlFaceControls
+        AnchorSideTop.Control = pnlFaceControls
+        AnchorSideBottom.Side = asrBottom
+        Left = 10
+        Height = 30
+        Top = 10
+        Width = 30
+        BorderSpacing.Around = 10
+        Caption = 'F'
+        OnClick = btnRightClockClick
+      end
+    end
   end
   object ts2DViews: TPageControl
     AnchorSideLeft.Control = Owner
     AnchorSideTop.Control = Owner
-    AnchorSideRight.Control = Splitter1
-    AnchorSideBottom.Control = Splitter3
+    AnchorSideRight.Control = SplitterVerticalMain
+    AnchorSideBottom.Control = SplitterHorizontalMain
     Left = 0
-    Height = 358
+    Height = 489
     Top = 0
-    Width = 340
+    Width = 503
     ActivePage = TabSheet1
     Anchors = [akTop, akLeft, akRight, akBottom]
     Constraints.MinHeight = 300
@@ -480,37 +636,36 @@ object frmMain: TfrmMain
     TabOrder = 2
     OnChange = ts2DViewsChange
     object TabSheet1: TTabSheet
-      Caption = 'Set State'
-      ClientHeight = 327
-      ClientWidth = 330
+      Caption = '🛠 Set State'
+      ClientHeight = 452
+      ClientWidth = 493
       object pnlSetState: TPanel
         Left = 0
-        Height = 327
+        Height = 452
         Top = 0
-        Width = 330
+        Width = 493
         Align = alClient
         Anchors = [akTop, akLeft, akBottom]
         BevelOuter = bvNone
-        ClientHeight = 327
-        ClientWidth = 330
+        ClientHeight = 452
+        ClientWidth = 493
         ParentBackground = False
         TabOrder = 0
         object pntBoxCurrentState: TPaintBox
           Left = 35
-          Height = 257
+          Height = 382
+          Hint = 'Right Click'#10'(Yellow\White)'#10#10'Left Click'#10'(Green\Red\Blue\Orange)'
           Top = 35
-          Width = 260
+          Width = 423
           Align = alClient
           Anchors = []
           BorderSpacing.Around = 35
           Color = clWhite
           ParentColor = False
           OnMouseDown = pntBoxCurrentStateMouseDown
-          OnMouseMove = pntBoxCurrentStateMouseMove
-          OnMouseWheelDown = pntBoxCurrentStateMouseWheelDown
           OnPaint = pntBoxCurrentStatePaint
         end
-        object btnCurrentStateReset: TButton
+        object btnCurrentStateReset: TSpeedButton
           AnchorSideLeft.Control = pnlSetState
           AnchorSideTop.Control = pntBoxCurrentState
           AnchorSideRight.Control = pntBoxCurrentState
@@ -518,53 +673,198 @@ object frmMain: TfrmMain
           AnchorSideBottom.Control = pnlSetState
           AnchorSideBottom.Side = asrBottom
           Left = 5
-          Height = 25
-          Top = 297
-          Width = 72
+          Height = 30
+          Hint = 'Reset'
+          Top = 417
+          Width = 60
           Anchors = [akLeft, akBottom]
           BorderSpacing.Around = 5
-          Caption = 'Reset'
-          TabOrder = 0
+          Glyph.Data = {
+            FA090000424DFA09000000000000360000002800000019000000190000000100
+            200000000000C409000000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            00000B0B0A12514D457760584D965A544D841514132100000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000001B1A
+            182666605595958875F06A5A47FF37281DFF594A3BFF918472F8827A6FBB2725
+            2238000000000000000000000000000000000000000000000000000000000000
+            000000000000000000000000000000000000000000000000000011110F196963
+            59959F9480F9746550FF34271AFF0C3505FF0D0A02FF150447FF281B1CFF6656
+            44FF9C8F7CFD7B756AB11E1D1B2C000000000000000000000000000000000000
+            000000000000000000000000000000000000000000000A0A090F5D584F83A095
+            82F37B6D58FF3C2E22FF112006FF037602FF009802FF0C1602FF1F02A0FF1F04
+            99FF140437FF31241AFF6F604CFF9F9380FB6E685E9D1615131F000000000000
+            00000000000000000000000000000000000005050508545048769E9381EB8273
+            5DFF433426FF142608FF075604FF075102FF009A00FF009C00FF0E1704FF2205
+            AAFF2103ACFF1A0376FF16035CFF16063AFF38291FFF7A6954FFA29581F6605B
+            52870B0A0A1000000000000000000000000032302C449A9281DF8A7C66FF4B3D
+            2CFF1A0E09FF075102FF009602FF018702FF1F5818FF10A110FF3E7C31FF0F04
+            02FF34216BFF3013BBFF190377FF1D0282FF2201A9FF1B027BFF130708FF3F2F
+            24FF83725DFFA09582EC42403A5B00000000000000001B1A18255E574BBB201F
+            0EFF065502FF075302FF047E03FF009B01FF0F850AFF282A1DFF364A2DFF075E
+            05FF0C0F02FF190572FF251750FF1D103AFF270D8DFF2504BBFF2102A3FF1401
+            4DFF1B027AFF1B0D24FF5F5448D4252320330000000000000000000000001512
+            0AA5029003FF009C03FF075D03FF1F8C1DFF3E993CFF2E3120FF16280DFF04A2
+            0EFF01B617FF0D1A04FF2806BCFF2303B7FF15034BFF211523FF4028A2FF2A09
+            B9FF160254FF2202ADFF2102A8FF160B1FC60000000000000000000000000000
+            0000191A0EA507B00BFF03A905FF254F16FF2C2820FF0C5108FF047208FF3167
+            33FF00C322FF02C220FF111A07FF2C0AC5FF2A06D2FF1E0387FF1A0674FF1805
+            66FF1C1030FF211242FF2A0BBBFF2302AEFF190D29CA00000000000000000000
+            000000000000241B17AB4EAD4BFF415C38FF0F0F04FF1D741DFF02B61AFF03A1
+            1CFF346B37FF26C13FFF426F41FF120403FF2F2152FF3D21C6FF1F058FFF2107
+            9AFF2506C0FF1D058DFF0D010DFF332458FF3B21A8FF190F28CA000000000000
+            00000000000000000000160F0B970F3E06FF069108FF076309FF2EA243FF02C1
+            27FF1D8D28FF231B18FF20461CFF048B0DFF0E1804FF2207A8FF1D0C5BFF1C10
+            2AFF301A89FF2A05D2FF2504BDFF160353FF2004A3FF160352FF150D0DB80000
+            0000000000000000000000000000231C17A51FBD31FF02C123FF097214FF489D
+            55FF408447FF212417FF1E451CFF03BA17FF01BB19FF0F1C05FF2806C8FF2804
+            D1FF19036BFF190D1CFF3B2A7FFF3417C0FF1A0661FF2405B9FF2103B0FF190F
+            28C60000000000000000000000000000000028201BA81FC944FF13C235FF2A49
+            21FF121A07FF08780EFF049416FF346D38FF01BE22FF16BF32FF141608FF3617
+            BEFF2A04D7FF1F038FFF220599FF2005A2FF12052EFF231638FF391BCEFF2404
+            BCFF190E2ACA000000000000000000000000000000001F1714A64C9658FF304B
+            2DFF0D1D05FF258F30FF04C126FF04A720FF406B41FF409448FF595440FF5A4C
+            3CFF332424FF3B2586FF2D168EFF2505A1FF2A05D2FF2204B7FF10021DFF2718
+            4FFF362193FF170E22CA00000000000000000000000000000000140E0B910F61
+            10FF03AE18FF086C14FF30A749FF0FC335FF367E38FF3A2F25FF695B48FFB1A7
+            9AFFF2EEE5FFB7AFA4FF524434FF20120CFF311E69FF3615D3FF2806C8FF1804
+            61FF2306B7FF1A0574FF160E12B5000000000000000000000000000000002822
+            1BA81FC53DFF01C529FF0C721BFF497649FF585C44FF5F513DFF615648FF6F66
+            5AFFF2EEE9FFFEFBF5FFF9F6F0FF8D857BFF5B4F44FF4D3F31FF372934FF3723
+            85FF1D0764FF2A06CFFF2305B7FF1A0F29CA0000000000000000000000000000
+            000028221CA822C844FF33B248FF323E23FF514538FF9E9486FFEBE8E4FFFDFE
+            FEFFD4D0C7FF655B4DFF817A70FF5E5347FFC1B9B0FFFDF9F2FFF4EEE7FF9E95
+            87FF312417FF2A1F2FFF3C24AEFF2908C9FF1C0F2BCA00000000000000000000
+            000000000000201A12A85B6E50FF5C4F3FFF8C8272FF7F766AFF7F776DFFE8E7
+            E5FFFEFEFEFFC6C4BEFF655B4DFF8E8578FF63594BFFB0A9A1FFFDF8F2FFF1EC
+            E6FF8C857BFF746C60FF897D6FFF34261BFF352659FF1D111DCA000000000000
+            000000000000000000001E191389655A4AFFCECAC3FFFDFDFDFFFEFEFEFFE0DE
+            D7FF4F4436FF4B4135FF7F7569FFF5F2EBFFFEFCF5FFF9F7EFFFA09889FF4439
+            2AFF423729FFD4CDC4FFFEFAF3FFFEFAF4FFDDD7CCFF4E402EFF231A13B10000
+            00000000000000000000000000000101010217120D63665C52E7D7D4CFFFE0DF
+            DCFF7D7569FF898174FFADA79DFF6E6353FFA8A299FFF8F6F0FFBBB7AFFF675F
+            51FFA39C91FF978E82FF72685CFFD2CBC4FFE2DDD7FF746D62F31C17117B0404
+            04090000000000000000000000000000000000000000000000000505040E2019
+            11892B1C0DF7CCC6BFFFFEFEFEFFFDFEFEFFFAFAF7FF766C5CFF271B09FF5247
+            39FFF6F2EBFFFEFAF4FFFEFBF5FFE4DFD6FF322617FC231B13A00908071B0000
+            0000000000000000000000000000000000000000000000000000000000000000
+            0000000000000A09082132281FA9968D84FDCFCBC7FF7D7469FF948C7EFFE8E3
+            DAFFA9A193FF726858FFC5BFB6FFA19B92FE373027BF0F0D0B33000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            000000000000000000000000000000000000110F0C38261B0FBC817769FEFBF9
+            F3FFFEFCF6FFFCFAF5FFA19B90FF271F12D51815115300000001000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000001512
+            0E4C52483CD8A49D93FF5E574DE6181510670202020400000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            00000000000002020205151210480504040C0000000000000000000000000000
+            000000000000000000000000000000000000000000000000000000000000
+          }
           OnClick = btnCurrentStateResetClick
         end
-        object btnScrampleState: TButton
+        object btnScrampleState: TSpeedButton
           AnchorSideRight.Control = pnlSetState
           AnchorSideRight.Side = asrBottom
           AnchorSideBottom.Control = pnlSetState
           AnchorSideBottom.Side = asrBottom
-          Left = 253
-          Height = 25
-          Top = 297
-          Width = 72
+          Left = 428
+          Height = 30
+          Hint = 'Scramble'
+          Top = 417
+          Width = 60
           Anchors = [akRight, akBottom]
           BorderSpacing.Around = 5
-          Caption = 'Scramble'
-          TabOrder = 1
+          Glyph.Data = {
+            FA090000424DFA09000000000000360000002800000019000000190000000100
+            200000000000C409000000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            000000000000000000001312121A403635605A514F7D71676596756F6E964344
+            4554111212150000000000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            0000000000001C1A1A285444459C482F2FF12A1313FF452927FF846360FFAE92
+            8CFFBBA7A2FBA09999CE52535366111212160000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000101
+            0101201D1D30574545A5483130F91B0B23FF24177CFF120407FF353603FF1C0C
+            05FF391E1DFF7B5A58FFAA8F8BFFBDA9A5FDA39C99D36465657C1617181C0000
+            0000000000000000000000000000000000000000000000000000030303042C27
+            2643574443B3422B2AFC2C2020FF190B38FF3B2DF5FF3A2CF6FF160C0EFF5B6E
+            03FF566204FF1A1102FF210A04FF351919FF765452FFA78A86FFBCA6A2FDA99F
+            9ED84E4E4F610808090A00000000000000000000000004040405322B2A4F5441
+            40BF3A2423FE332727FFAAAEAEFFDAE3E4FF201254FF4234FFFF473AF7FF1208
+            09FF587004FF586C03FF241F03FFA24903FF6C2E01FF1E0702FF2E1515FF6B4A
+            4AFFA48783FFBCA59FFC7A71709E0203030300000000000000001C19193A3420
+            20FE534D4DFF686363FF868585FFE8F3F4FFDBE4E5FF25193DFF5F56B6FF372E
+            3BFF0D0000FF242605FF495F07FF221C03FFAC4F02FFA84B00FF481B01FF210C
+            53FF180622FF3B1F20FFA5918DE5514A496A0000000000000000000000000C05
+            05849D9E9EFFE7F2F3FFA2A4A5FF888686FFE6F0F1FF8A8A8AFF0E0105FF2215
+            67FF3326D5FF100618FF082E9EFF0D1646FF110002FF803E04FFB15201FF4A1D
+            01FF2F1597FF3316A4FF1E0940FF100D0D420000000000000000000000000000
+            00000D060690BCC0C1FFE8F3F4FF98999AFF372D2CFF3D3434FF5D5959FF1E10
+            4DFF4434FEFF4031FEFF100820FF033AD1FF0235CAFF0D0E32FF0E1342FF361B
+            0AFF240C01FF2F1799FF3418ACFF220C55FF0502024100000000000000000000
+            0000000000000B04048F9D9D9CFF807E7EFF1C100FFF534E4EFFDEE7E8FFDBE5
+            E6FF211253FF4434FEFF4C3DE0FF0F040FFF0440C7FF003BD5FF0A123CFF0634
+            C5FF092EA6FF0D0A23FF14061DFF281679FF1E0C4AFF05020241000000000000
+            000000000000000000000A03048F331902FFA15C03FF975303FF888889FFE8F4
+            F5FFD7E1E1FF291D2AFF4E456FFF181D31FF0D0001FF221111FF0A2970FF0E0B
+            23FF043BCFFF0337CAFF0B154CFF2B148CFF220E5DFF11020DFF050202410000
+            00000000000000000000000000000A04048FC27A05FFF09601FFA26002FF8584
+            82FFC4CBCAFF4E4747FF0E0C17FF075CB3FF0176FBFF1C0D10FFB75602FF7934
+            02FF1A0501FF0D1D4DFF0740BDFF0B194CFF3018A3FF3418AFFF220D55FF0502
+            0241000000000000000000000000000000000A03048FC59337FFF5A911FF815A
+            1AFF120708FF0D3E58FF0876A8FF0E2A50FF0085FEFF0180FEFF1F0F0FFFC15F
+            01FFB65400FF3A1502FF897473FF3D2E2EFF0E0203FF2C188DFF371DBCFF220E
+            5BFF06030342000000000000000000000000000000000B03048F756147FF483C
+            35FF0E0F1DFF0D5D7AFF01BEFEFF03AFEFFF44464FFF2C95F3FF466B91FF2C1E
+            1CFF884803FFC35F01FF3E1904FFBFA8A6FFC0A6A3FF483635FF191006FF2012
+            4CFF1B0B37FF0E0A0A4B000000000000000000000000000000000B03048F1833
+            55FF0376DFFF0658A8FF35798BFF01CBFEFF29AED2FF1B0E0EFF515254FF50AE
+            C4FF18BAEAFF0C5D87FF2C1F18FF190702FFB3A1A0FFBDA5A3FF524140FF4C5F
+            06FF455605FF1C1503FF0B080848000000000000000000000000000000000C05
+            068F3E85C8FF0084FEFF0758A9FF455B61FF466E7AFF635851FF4C2D12FF475A
+            60FF38C0E0FF03CDFEFF05AAD4FF0F3344FF263912FF2A2417FF756868FF3E30
+            30FF4D6304FF536B03FF323704FF050202410000000000000000000000000000
+            00000E0606904085C7FF3A92E5FF2D3C51FF261B1BFFCEB069FFF9AC19FFF79B
+            03FFBE7303FF361D09FF272E31FF3A3E30FF54C147FF5DE34DFF5CCC40FF3B69
+            1CFF0D0000FF354006FF597506FF333903FF0602024100000000000000000000
+            0000000000000B04048F423B3DFF5F5761FF6A63BCFF23135CFF54453EFFC095
+            45FFD89110FF744704FF261548FF2C1A85FF281A3AFF617D58FF75D46AFF4696
+            39FF273D1AFF387129FF395B1AFF1E1A05FF1B1403FF08050545000000000000
+            00000000000000000000120C0C6C8A898AFF726DEBFF4539FEFF4337FEFF3727
+            C1FF0F0003FF0E0000FF66619EFF493CFDFF4636FEFF4431F7FF21115AFF0E00
+            00FF2B2120FF73D76CFF5DE54DFF5DE348FF4EA22FFF140906F8060505230000
+            0000000000000000000000000000000000010E0B0B4B261C1DC9534A77FF281B
+            69FF4A414AFFACB2B4FFB6BEBFFF585554FF4D4460FF40349DFF20174DFF0E5E
+            73FF06A8D4FF096E9DFF252E3DFF56764BFF305024FC130B0BA4080707250000
+            000000000000000000000000000000000000000000000000000000000001100C
+            0C4F1A0E0FD28A8684FFE2EDEEFFE8F8FBFFBCC3C4FF2D2427FF101122FF3B42
+            46FF39BEDCFF03D1FEFF06B6DEFF11445AFC120909A809070729000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            00000000000003030304130F0F552B2121D53F3434FF2B415CFF0476E2FF0081
+            FDFF0762C2FF151D32FF313C3FFD120D0FAB0B09092F00000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            00000000000000000000000000000000000001010102130F0F5A312A2BD9456A
+            91FF1D7CD1FF0D3D6DFD130E12AB0604042B0000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000404
+            04061410115D120B0B850C0A0A31000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            000000000000000000000000000000000000000000000000000000000000
+          }
           OnClick = btnScrampleStateClick
-        end
-        object lblClickExplainer: TLabel
-          Left = 13
-          Height = 34
-          Top = 0
-          Width = 161
-          Caption = 'Left Click'#10'(Green\Red\Blue\Orange)'
-        end
-        object lblClickExplainer1: TLabel
-          AnchorSideLeft.Control = lblClickExplainer
-          AnchorSideLeft.Side = asrBottom
-          Left = 224
-          Height = 34
-          Top = 0
-          Width = 93
-          BorderSpacing.Left = 50
-          Caption = 'Right Click'#10'(Yellow\White)'
         end
       end
     end
     object TabSheet2: TTabSheet
-      Caption = 'Target State'
-      ClientHeight = 327
-      ClientWidth = 330
+      Caption = '🛠 Target State'
+      ClientHeight = 452
+      ClientWidth = 493
       object pnlDestination: TPanel
         AnchorSideLeft.Control = TabSheet2
         AnchorSideTop.Control = TabSheet2
@@ -573,72 +873,230 @@ object frmMain: TfrmMain
         AnchorSideBottom.Control = TabSheet2
         AnchorSideBottom.Side = asrBottom
         Left = 0
-        Height = 327
+        Height = 452
         Top = 0
-        Width = 330
+        Width = 493
         Anchors = [akTop, akLeft, akRight, akBottom]
         BevelOuter = bvNone
-        ClientHeight = 327
-        ClientWidth = 330
+        ClientHeight = 452
+        ClientWidth = 493
         ParentBackground = False
         TabOrder = 0
         object pntBoxTargetSolve: TPaintBox
-          AnchorSideLeft.Control = pnlDestination
-          AnchorSideLeft.Side = asrCenter
-          Left = -15
-          Height = 270
-          Top = 32
-          Width = 360
+          Left = 35
+          Height = 382
+          Top = 35
+          Width = 423
+          Align = alClient
+          Anchors = []
+          BorderSpacing.Around = 35
           OnMouseDown = pntBoxTargetSolveMouseDown
           OnPaint = pntBoxTargetSolvePaint
         end
         object lblNoticeTarget: TLabel
           AnchorSideLeft.Control = pntBoxTargetSolve
           AnchorSideLeft.Side = asrCenter
-          AnchorSideTop.Control = pntBoxTargetSolve
-          AnchorSideTop.Side = asrBottom
-          Left = 27
-          Height = 42
-          Top = 302
-          Width = 276
-          Caption = '(Partially Working)'#10'CUBE MUST START IN A STANDARD SOLVED STATE'#10'in order to solve to a custom pattern.'
+          AnchorSideTop.Control = pnlDestination
+          AnchorSideBottom.Control = pntBoxTargetSolve
+          Left = 115
+          Height = 14
+          Top = 0
+          Width = 262
+          Caption = 'NOT WORKING YET - (Partially Working(kind of))'
           Font.Color = clWindowText
           Font.Height = -11
           Font.Name = 'Sans'
           ParentFont = False
         end
-        object btnTargetSolveReset: TButton
-          AnchorSideLeft.Control = pntBoxTargetSolve
-          AnchorSideTop.Control = pntBoxCurrentState
-          AnchorSideRight.Control = pntBoxCurrentState
+        object btnTargetSolveReset: TSpeedButton
+          AnchorSideLeft.Control = pnlDestination
           AnchorSideRight.Side = asrBottom
-          AnchorSideBottom.Control = pntBoxTargetSolve
+          AnchorSideBottom.Control = pnlDestination
           AnchorSideBottom.Side = asrBottom
-          Left = -5
-          Height = 25
-          Top = 267
-          Width = 72
+          Left = 5
+          Height = 30
+          Top = 417
+          Width = 60
           Anchors = [akLeft, akBottom]
-          BorderSpacing.Around = 10
-          Caption = 'Reset'
-          TabOrder = 0
-          Visible = False
+          BorderSpacing.Around = 5
+          Glyph.Data = {
+            FA090000424DFA09000000000000360000002800000019000000190000000100
+            200000000000C409000000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            00000B0B0A12514D457760584D965A544D841514132100000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000001B1A
+            182666605595958875F06A5A47FF37281DFF594A3BFF918472F8827A6FBB2725
+            2238000000000000000000000000000000000000000000000000000000000000
+            000000000000000000000000000000000000000000000000000011110F196963
+            59959F9480F9746550FF34271AFF0C3505FF0D0A02FF150447FF281B1CFF6656
+            44FF9C8F7CFD7B756AB11E1D1B2C000000000000000000000000000000000000
+            000000000000000000000000000000000000000000000A0A090F5D584F83A095
+            82F37B6D58FF3C2E22FF112006FF037602FF009802FF0C1602FF1F02A0FF1F04
+            99FF140437FF31241AFF6F604CFF9F9380FB6E685E9D1615131F000000000000
+            00000000000000000000000000000000000005050508545048769E9381EB8273
+            5DFF433426FF142608FF075604FF075102FF009A00FF009C00FF0E1704FF2205
+            AAFF2103ACFF1A0376FF16035CFF16063AFF38291FFF7A6954FFA29581F6605B
+            52870B0A0A1000000000000000000000000032302C449A9281DF8A7C66FF4B3D
+            2CFF1A0E09FF075102FF009602FF018702FF1F5818FF10A110FF3E7C31FF0F04
+            02FF34216BFF3013BBFF190377FF1D0282FF2201A9FF1B027BFF130708FF3F2F
+            24FF83725DFFA09582EC42403A5B00000000000000001B1A18255E574BBB201F
+            0EFF065502FF075302FF047E03FF009B01FF0F850AFF282A1DFF364A2DFF075E
+            05FF0C0F02FF190572FF251750FF1D103AFF270D8DFF2504BBFF2102A3FF1401
+            4DFF1B027AFF1B0D24FF5F5448D4252320330000000000000000000000001512
+            0AA5029003FF009C03FF075D03FF1F8C1DFF3E993CFF2E3120FF16280DFF04A2
+            0EFF01B617FF0D1A04FF2806BCFF2303B7FF15034BFF211523FF4028A2FF2A09
+            B9FF160254FF2202ADFF2102A8FF160B1FC60000000000000000000000000000
+            0000191A0EA507B00BFF03A905FF254F16FF2C2820FF0C5108FF047208FF3167
+            33FF00C322FF02C220FF111A07FF2C0AC5FF2A06D2FF1E0387FF1A0674FF1805
+            66FF1C1030FF211242FF2A0BBBFF2302AEFF190D29CA00000000000000000000
+            000000000000241B17AB4EAD4BFF415C38FF0F0F04FF1D741DFF02B61AFF03A1
+            1CFF346B37FF26C13FFF426F41FF120403FF2F2152FF3D21C6FF1F058FFF2107
+            9AFF2506C0FF1D058DFF0D010DFF332458FF3B21A8FF190F28CA000000000000
+            00000000000000000000160F0B970F3E06FF069108FF076309FF2EA243FF02C1
+            27FF1D8D28FF231B18FF20461CFF048B0DFF0E1804FF2207A8FF1D0C5BFF1C10
+            2AFF301A89FF2A05D2FF2504BDFF160353FF2004A3FF160352FF150D0DB80000
+            0000000000000000000000000000231C17A51FBD31FF02C123FF097214FF489D
+            55FF408447FF212417FF1E451CFF03BA17FF01BB19FF0F1C05FF2806C8FF2804
+            D1FF19036BFF190D1CFF3B2A7FFF3417C0FF1A0661FF2405B9FF2103B0FF190F
+            28C60000000000000000000000000000000028201BA81FC944FF13C235FF2A49
+            21FF121A07FF08780EFF049416FF346D38FF01BE22FF16BF32FF141608FF3617
+            BEFF2A04D7FF1F038FFF220599FF2005A2FF12052EFF231638FF391BCEFF2404
+            BCFF190E2ACA000000000000000000000000000000001F1714A64C9658FF304B
+            2DFF0D1D05FF258F30FF04C126FF04A720FF406B41FF409448FF595440FF5A4C
+            3CFF332424FF3B2586FF2D168EFF2505A1FF2A05D2FF2204B7FF10021DFF2718
+            4FFF362193FF170E22CA00000000000000000000000000000000140E0B910F61
+            10FF03AE18FF086C14FF30A749FF0FC335FF367E38FF3A2F25FF695B48FFB1A7
+            9AFFF2EEE5FFB7AFA4FF524434FF20120CFF311E69FF3615D3FF2806C8FF1804
+            61FF2306B7FF1A0574FF160E12B5000000000000000000000000000000002822
+            1BA81FC53DFF01C529FF0C721BFF497649FF585C44FF5F513DFF615648FF6F66
+            5AFFF2EEE9FFFEFBF5FFF9F6F0FF8D857BFF5B4F44FF4D3F31FF372934FF3723
+            85FF1D0764FF2A06CFFF2305B7FF1A0F29CA0000000000000000000000000000
+            000028221CA822C844FF33B248FF323E23FF514538FF9E9486FFEBE8E4FFFDFE
+            FEFFD4D0C7FF655B4DFF817A70FF5E5347FFC1B9B0FFFDF9F2FFF4EEE7FF9E95
+            87FF312417FF2A1F2FFF3C24AEFF2908C9FF1C0F2BCA00000000000000000000
+            000000000000201A12A85B6E50FF5C4F3FFF8C8272FF7F766AFF7F776DFFE8E7
+            E5FFFEFEFEFFC6C4BEFF655B4DFF8E8578FF63594BFFB0A9A1FFFDF8F2FFF1EC
+            E6FF8C857BFF746C60FF897D6FFF34261BFF352659FF1D111DCA000000000000
+            000000000000000000001E191389655A4AFFCECAC3FFFDFDFDFFFEFEFEFFE0DE
+            D7FF4F4436FF4B4135FF7F7569FFF5F2EBFFFEFCF5FFF9F7EFFFA09889FF4439
+            2AFF423729FFD4CDC4FFFEFAF3FFFEFAF4FFDDD7CCFF4E402EFF231A13B10000
+            00000000000000000000000000000101010217120D63665C52E7D7D4CFFFE0DF
+            DCFF7D7569FF898174FFADA79DFF6E6353FFA8A299FFF8F6F0FFBBB7AFFF675F
+            51FFA39C91FF978E82FF72685CFFD2CBC4FFE2DDD7FF746D62F31C17117B0404
+            04090000000000000000000000000000000000000000000000000505040E2019
+            11892B1C0DF7CCC6BFFFFEFEFEFFFDFEFEFFFAFAF7FF766C5CFF271B09FF5247
+            39FFF6F2EBFFFEFAF4FFFEFBF5FFE4DFD6FF322617FC231B13A00908071B0000
+            0000000000000000000000000000000000000000000000000000000000000000
+            0000000000000A09082132281FA9968D84FDCFCBC7FF7D7469FF948C7EFFE8E3
+            DAFFA9A193FF726858FFC5BFB6FFA19B92FE373027BF0F0D0B33000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            000000000000000000000000000000000000110F0C38261B0FBC817769FEFBF9
+            F3FFFEFCF6FFFCFAF5FFA19B90FF271F12D51815115300000001000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000001512
+            0E4C52483CD8A49D93FF5E574DE6181510670202020400000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            00000000000002020205151210480504040C0000000000000000000000000000
+            000000000000000000000000000000000000000000000000000000000000
+          }
           OnClick = btnTargetSolveResetClick
         end
-        object btnScrambleTarget: TButton
-          AnchorSideRight.Control = pntBoxTargetSolve
+        object btnScrambleTarget: TSpeedButton
+          AnchorSideRight.Control = pnlDestination
           AnchorSideRight.Side = asrBottom
-          AnchorSideBottom.Control = pntBoxTargetSolve
+          AnchorSideBottom.Control = pnlDestination
           AnchorSideBottom.Side = asrBottom
-          Left = 263
-          Height = 25
-          Top = 267
-          Width = 72
+          Left = 428
+          Height = 30
+          Hint = 'Scramble'
+          Top = 417
+          Width = 60
           Anchors = [akRight, akBottom]
-          BorderSpacing.Around = 10
-          Caption = 'Scramble'
-          TabOrder = 1
-          Visible = False
+          BorderSpacing.Around = 5
+          Glyph.Data = {
+            FA090000424DFA09000000000000360000002800000019000000190000000100
+            200000000000C409000000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            000000000000000000001312121A403635605A514F7D71676596756F6E964344
+            4554111212150000000000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            0000000000001C1A1A285444459C482F2FF12A1313FF452927FF846360FFAE92
+            8CFFBBA7A2FBA09999CE52535366111212160000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000101
+            0101201D1D30574545A5483130F91B0B23FF24177CFF120407FF353603FF1C0C
+            05FF391E1DFF7B5A58FFAA8F8BFFBDA9A5FDA39C99D36465657C1617181C0000
+            0000000000000000000000000000000000000000000000000000030303042C27
+            2643574443B3422B2AFC2C2020FF190B38FF3B2DF5FF3A2CF6FF160C0EFF5B6E
+            03FF566204FF1A1102FF210A04FF351919FF765452FFA78A86FFBCA6A2FDA99F
+            9ED84E4E4F610808090A00000000000000000000000004040405322B2A4F5441
+            40BF3A2423FE332727FFAAAEAEFFDAE3E4FF201254FF4234FFFF473AF7FF1208
+            09FF587004FF586C03FF241F03FFA24903FF6C2E01FF1E0702FF2E1515FF6B4A
+            4AFFA48783FFBCA59FFC7A71709E0203030300000000000000001C19193A3420
+            20FE534D4DFF686363FF868585FFE8F3F4FFDBE4E5FF25193DFF5F56B6FF372E
+            3BFF0D0000FF242605FF495F07FF221C03FFAC4F02FFA84B00FF481B01FF210C
+            53FF180622FF3B1F20FFA5918DE5514A496A0000000000000000000000000C05
+            05849D9E9EFFE7F2F3FFA2A4A5FF888686FFE6F0F1FF8A8A8AFF0E0105FF2215
+            67FF3326D5FF100618FF082E9EFF0D1646FF110002FF803E04FFB15201FF4A1D
+            01FF2F1597FF3316A4FF1E0940FF100D0D420000000000000000000000000000
+            00000D060690BCC0C1FFE8F3F4FF98999AFF372D2CFF3D3434FF5D5959FF1E10
+            4DFF4434FEFF4031FEFF100820FF033AD1FF0235CAFF0D0E32FF0E1342FF361B
+            0AFF240C01FF2F1799FF3418ACFF220C55FF0502024100000000000000000000
+            0000000000000B04048F9D9D9CFF807E7EFF1C100FFF534E4EFFDEE7E8FFDBE5
+            E6FF211253FF4434FEFF4C3DE0FF0F040FFF0440C7FF003BD5FF0A123CFF0634
+            C5FF092EA6FF0D0A23FF14061DFF281679FF1E0C4AFF05020241000000000000
+            000000000000000000000A03048F331902FFA15C03FF975303FF888889FFE8F4
+            F5FFD7E1E1FF291D2AFF4E456FFF181D31FF0D0001FF221111FF0A2970FF0E0B
+            23FF043BCFFF0337CAFF0B154CFF2B148CFF220E5DFF11020DFF050202410000
+            00000000000000000000000000000A04048FC27A05FFF09601FFA26002FF8584
+            82FFC4CBCAFF4E4747FF0E0C17FF075CB3FF0176FBFF1C0D10FFB75602FF7934
+            02FF1A0501FF0D1D4DFF0740BDFF0B194CFF3018A3FF3418AFFF220D55FF0502
+            0241000000000000000000000000000000000A03048FC59337FFF5A911FF815A
+            1AFF120708FF0D3E58FF0876A8FF0E2A50FF0085FEFF0180FEFF1F0F0FFFC15F
+            01FFB65400FF3A1502FF897473FF3D2E2EFF0E0203FF2C188DFF371DBCFF220E
+            5BFF06030342000000000000000000000000000000000B03048F756147FF483C
+            35FF0E0F1DFF0D5D7AFF01BEFEFF03AFEFFF44464FFF2C95F3FF466B91FF2C1E
+            1CFF884803FFC35F01FF3E1904FFBFA8A6FFC0A6A3FF483635FF191006FF2012
+            4CFF1B0B37FF0E0A0A4B000000000000000000000000000000000B03048F1833
+            55FF0376DFFF0658A8FF35798BFF01CBFEFF29AED2FF1B0E0EFF515254FF50AE
+            C4FF18BAEAFF0C5D87FF2C1F18FF190702FFB3A1A0FFBDA5A3FF524140FF4C5F
+            06FF455605FF1C1503FF0B080848000000000000000000000000000000000C05
+            068F3E85C8FF0084FEFF0758A9FF455B61FF466E7AFF635851FF4C2D12FF475A
+            60FF38C0E0FF03CDFEFF05AAD4FF0F3344FF263912FF2A2417FF756868FF3E30
+            30FF4D6304FF536B03FF323704FF050202410000000000000000000000000000
+            00000E0606904085C7FF3A92E5FF2D3C51FF261B1BFFCEB069FFF9AC19FFF79B
+            03FFBE7303FF361D09FF272E31FF3A3E30FF54C147FF5DE34DFF5CCC40FF3B69
+            1CFF0D0000FF354006FF597506FF333903FF0602024100000000000000000000
+            0000000000000B04048F423B3DFF5F5761FF6A63BCFF23135CFF54453EFFC095
+            45FFD89110FF744704FF261548FF2C1A85FF281A3AFF617D58FF75D46AFF4696
+            39FF273D1AFF387129FF395B1AFF1E1A05FF1B1403FF08050545000000000000
+            00000000000000000000120C0C6C8A898AFF726DEBFF4539FEFF4337FEFF3727
+            C1FF0F0003FF0E0000FF66619EFF493CFDFF4636FEFF4431F7FF21115AFF0E00
+            00FF2B2120FF73D76CFF5DE54DFF5DE348FF4EA22FFF140906F8060505230000
+            0000000000000000000000000000000000010E0B0B4B261C1DC9534A77FF281B
+            69FF4A414AFFACB2B4FFB6BEBFFF585554FF4D4460FF40349DFF20174DFF0E5E
+            73FF06A8D4FF096E9DFF252E3DFF56764BFF305024FC130B0BA4080707250000
+            000000000000000000000000000000000000000000000000000000000001100C
+            0C4F1A0E0FD28A8684FFE2EDEEFFE8F8FBFFBCC3C4FF2D2427FF101122FF3B42
+            46FF39BEDCFF03D1FEFF06B6DEFF11445AFC120909A809070729000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            00000000000003030304130F0F552B2121D53F3434FF2B415CFF0476E2FF0081
+            FDFF0762C2FF151D32FF313C3FFD120D0FAB0B09092F00000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            00000000000000000000000000000000000001010102130F0F5A312A2BD9456A
+            91FF1D7CD1FF0D3D6DFD130E12AB0604042B0000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000404
+            04061410115D120B0B850C0A0A31000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            000000000000000000000000000000000000000000000000000000000000
+          }
           OnClick = btnScrambleTargetClick
         end
       end
