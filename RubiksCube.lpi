@@ -96,9 +96,6 @@
     </RunParams>
     <RequiredPackages>
       <Item>
-        <PackageName Value="bgracontrols"/>
-      </Item>
-      <Item>
         <PackageName Value="FCL"/>
       </Item>
       <Item>

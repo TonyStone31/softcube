@@ -89,3 +89,4 @@ lib/x86_64-linux/RubiksCube.compiled
 *.res
 softcube.dbg
 softcube
+softcube.dbg

@@ -36,7 +36,7 @@ uses
   Spin,
   ComCtrls,
   Buttons,
-  StdCtrls,
+  StdCtrls, Dialogs,
   strutils,
   UConst,
   UDraw,
@@ -77,11 +77,13 @@ type
     btnUpClock: TSpeedButton;
     btnUpCounter: TSpeedButton;
     edtMoveString: TMemo;
+    memRandScramble: TMemo;
     lblCurrentMove: TLabel;
     lblSingMaster: TLabel;
+    lblSingMaster1: TLabel;
     lblSpeedControl: TLabel;
     lblNoticeTarget: TLabel;
-    memMoveSum: TMemo;
+    memSolveSummary: TMemo;
     pnlCubeControls: TPanel;
     pnlFaceControls: TPanel;
     pntBox3Dview: TPaintBox;
@@ -132,6 +134,8 @@ type
   private
     procedure ActiveSleep(ms: cardinal);
     procedure ExecuteSolverAndParseOutput(const faceString: string; aMemo: TMemo; MoveString: TMemo);
+    procedure FastRotateFace(Face: integer; clockWise: boolean);
+    function GenerateRandomMovesString(MoveCount: Integer): string;
     procedure RandomRotateFaces(Count: integer);
     procedure RotateCubeLeft;
     procedure RotateCubeUp();
@@ -449,10 +453,23 @@ end;
 
 procedure TfrmMain.btnScrampleStateClick(Sender: TObject);
 var
-  i: integer;
+  NumMoves, i: integer;
+  InputStr: string;
 begin
   Randomize;
-  RandomRotateFaces(10);
+
+  // Prompt the user for the number of scramble moves
+  InputStr := InputBox('Scramble Cube', 'Enter the number of scramble moves:', '15');
+
+  // Verify the input is a valid number and not more than 100
+  if TryStrToInt(InputStr, NumMoves) then
+  begin
+    if NumMoves > 100 then
+      NumMoves := 100; // Cap the number of moves at 100
+    RandomRotateFaces(NumMoves);
+  end
+  else
+    ShowMessage('Please enter a valid number.'); // Display error message if input is not a number
 end;
 
 procedure TfrmMain.btnScrambleTargetClick(Sender: TObject);
@@ -538,17 +555,19 @@ begin
     begin
       if (v > 7) and (ii mod 4 <> 0) then Continue;
       if not IsRunning then Break;
-      if ii mod v = 0 then ActiveSleep(Round(-2 * v) + 20);
+
 
       if j = 1 then
       begin
+        ActiveSleep(Round(-2 * v) + 20);
         Rotate3dface(cube3d, f, -ii * pi / 180);
       end else if j = 2 then
       begin
-        ActiveSleep(20); // Trying to make full 180 flips look more aparent
+        ActiveSleep(Round(-2 * v) + 40);
         Rotate3dface(cube3d, f, -ii * pi / 90);
       end else if j = 3 then
       begin
+        ActiveSleep(Round(-2 * v) + 20);
         Rotate3dface(cube3d, f, ii * pi / 180);
       end;
       DrawCube3d(pntBox3Dview, CurrentCubeState, cube3d);
@@ -612,7 +631,7 @@ end;
 
 procedure TfrmMain.btn2phaseSolveClick(Sender: TObject);
 begin
-  ExecuteSolverAndParseOutput(CubeToDefinitionString(CurrentCubeState), memMoveSum, edtMoveString);
+  ExecuteSolverAndParseOutput(CubeToDefinitionString(CurrentCubeState), memSolveSummary, edtMoveString);
 end;
 
 procedure TfrmMain.edtMoveStringKeyPress(Sender: TObject; var Key: char);
@@ -698,7 +717,7 @@ begin
   tmp := cube3d;
   for i := 0 to 90 do
   begin
-    if (v > 7) and (i mod 4 <> 0) then Continue;
+    if (v > 7) and (i mod 10 <> 0) then Continue;
     if i mod v = 0 then ActiveSleep(Round(-2 * v) + 20);
 
     Rotate3dface(cube3d, n mod 10 + 1, (((n div 10) * 2 - 1) * i) * pi / 180);
@@ -712,22 +731,127 @@ begin
 
 end;
 
+procedure TfrmMain.FastRotateFace(Face: integer; clockWise: boolean);
+var
+  tmp: tcube3d;
+  i, v, n: integer;
+begin
+
+  if clockWise then n := Face + 10
+  else
+    n := Face;
+  v := spinEdtAnimationSpeed.Value;
+
+  tmp := cube3d;
+  for i := 0 to 90 do
+  begin
+    if (v > 7) and (i mod 10 <> 0) then Continue;
+    Rotate3dface(cube3d, n mod 10 + 1, (((n div 10) * 2 - 1) * i) * pi / 180);
+    pntBox3Dview.Refresh;
+    cube3d := tmp;
+  end;
+
+  Rotateface(TUnitRubik(CurrentCubeState), face mod 10 + 1, (n div 10) * 2 + 1);
+  DrawCube(pntBoxCurrentState, CurrentCubeState);
+  pntBox3Dview.Refresh;
+
+end;
+
 procedure TfrmMain.RandomRotateFaces(Count: integer);
 var
-  i, RandomFace: integer;
-  ClockWise: boolean;
+  i, RandomFace, LastFace: integer;
+  ClockWise, LastClockWise: boolean;
+  MoveStr, Moves: string;
+  FaceStr: array[0..5] of string = ('U', 'F', 'R', 'B', 'L', 'D');
 begin
-  Count := Count + Random(15);
   ToggleButtonsExcept(Self, btnDefault3Dview, False);
+  memRandScramble.Lines.Clear; // Clear previous content
+  memRandScramble.Lines.Add('Random scramble executed:');
+  Moves := ''; // Initialize the string that will hold all moves
+
+  // Initialize LastFace with a value that won't match any valid face index
+  LastFace := -1;
+  LastClockWise := False; // Initial value doesn't matter, it will be set in the loop
+
   for i := 1 to Count do
   begin
-    RandomFace := Random(6);
-    ClockWise := Random(2) = 0;
+    repeat
+      RandomFace := Random(6); // Select a random face index
+      ClockWise := Random(2) = 0; // Select clockwise or counterclockwise
+    until not ((RandomFace = LastFace) and (ClockWise <> LastClockWise)); // Avoid immediate reversal
 
-    ManualRotateFace(RandomFace, ClockWise);
+    // Perform the rotation only if it doesn't cancel the previous move
+    FastRotateFace(RandomFace, ClockWise);
+
+    // Convert the move to Singmaster notation
+    MoveStr := FaceStr[RandomFace];
+    if ClockWise then MoveStr := MoveStr + '''';
+
+    // Append the move to the Moves string separated by a space
+    if Moves <> '' then
+      Moves := Moves + ' ' + MoveStr
+    else
+      Moves := MoveStr;
+
+    // Store this move as the last move for comparison in the next iteration
+    LastFace := RandomFace;
+    LastClockWise := ClockWise;
   end;
+
+  // After collecting all moves, append them to the memo on the second line
+  LFDstringCorrection(Moves);
+  memRandScramble.Lines.Add(Moves);
+
   ToggleButtonsExcept(Self, btnDefault3Dview, True);
 end;
+
+
+
+function TfrmMain.GenerateRandomMovesString(MoveCount: Integer): string;
+const
+  Faces: array[0..5] of string = ('U', 'D', 'L', 'R', 'F', 'B');
+  Modifiers: array[0..2] of string = ('', '2', '''');
+var
+  i, FaceIndex, ModifierIndex: Integer;
+  LastFaceIndex, LastModifierIndex: Integer;
+  Move, LastMove: string;
+  Moves: TStringList;
+begin
+  Moves := TStringList.Create;
+  try
+    Moves.Delimiter := ' '; // Use space as the delimiter
+    Moves.StrictDelimiter := True; // Don't treat consecutive delimiters as one
+
+    LastFaceIndex := -1; // Initialize with an impossible value
+    LastModifierIndex := -1; // Initialize with an impossible value
+
+    for i := 1 to MoveCount do
+    begin
+      repeat
+        FaceIndex := Random(Length(Faces)); // Select a random face
+        ModifierIndex := Random(Length(Modifiers)); // Select a random modifier ('', '2', or ''')
+        Move := Faces[FaceIndex] + Modifiers[ModifierIndex];
+      until not (
+                  (FaceIndex = LastFaceIndex) and // Prevent the same face being selected twice in a row without modifier change
+                  ((ModifierIndex = LastModifierIndex) or // Prevent same move or direct reversal (e.g., R R' or R' R)
+                  ((ModifierIndex = 0) and (LastModifierIndex = 2)) or
+                  ((ModifierIndex = 2) and (LastModifierIndex = 0)))
+                );
+
+      Moves.Add(Move); // Append the move to the list
+
+      // Update last move trackers
+      LastFaceIndex := FaceIndex;
+      LastModifierIndex := ModifierIndex;
+      LastMove := Move;
+    end;
+
+    Result := Moves.DelimitedText; // Convert the list to a delimited string
+  finally
+    Moves.Free;
+  end;
+end;
+
 
 
 procedure TfrmMain.btnSearchForSolutionClick(Sender: TObject);
@@ -735,12 +859,12 @@ var
   s: string;
   tmp: TFaceRubik;
 begin
-  memMoveSum.Clear;
+  memSolveSummary.Clear;
   s := '';
   if not VerifyCube(CurrentCubeState, s) then
   begin
-    memMoveSum.Lines.add('The cube has been disassembled or tampered with:');
-    memMoveSum.Lines.add(s);
+    memSolveSummary.Lines.add('The cube has been disassembled or tampered with:');
+    memSolveSummary.Lines.add(s);
     exit;
   end;
 
@@ -749,61 +873,61 @@ begin
 
   // Step 1
   placeWhiteEdges(tmp);
-  memMoveSum.Lines.Add('---> placeWhiteEdges');
-  memMoveSum.Lines.Add(AnsiReplaceText(solu, '/', sLineBreak));
+  memSolveSummary.Lines.Add('---> placeWhiteEdges');
+  memSolveSummary.Lines.Add(AnsiReplaceText(solu, '/', sLineBreak));
   LFDstringCorrection(solu);
   s := solu;
   solu := '';
   // Step 2
   placeWhiteCorners(tmp);
-  memMoveSum.Lines.Add('---> placeWhiteCorners');
-  memMoveSum.Lines.Add(AnsiReplaceText(solu, '/', sLineBreak));
+  memSolveSummary.Lines.Add('---> placeWhiteCorners');
+  memSolveSummary.Lines.Add(AnsiReplaceText(solu, '/', sLineBreak));
   LFDstringCorrection(solu);
   s := s + solu;
   solu := '';
   // Step 3
   placeSecondLayerEdges(tmp);
-  memMoveSum.Lines.Add('---> placeSecondLayerEdges');
-  memMoveSum.Lines.Add(AnsiReplaceText(solu, '/', sLineBreak));
+  memSolveSummary.Lines.Add('---> placeSecondLayerEdges');
+  memSolveSummary.Lines.Add(AnsiReplaceText(solu, '/', sLineBreak));
   LFDstringCorrection(solu);
   s := s + solu;
   solu := '';
   // Step 4
   PlaceYellowEdges(tmp);
-  memMoveSum.Lines.Add('---> PlaceYellowEdges');
-  memMoveSum.Lines.Add(AnsiReplaceText(solu, '/', sLineBreak));
+  memSolveSummary.Lines.Add('---> PlaceYellowEdges');
+  memSolveSummary.Lines.Add(AnsiReplaceText(solu, '/', sLineBreak));
   LFDstringCorrection(solu);
   s := s + solu;
   solu := '';
   // Step 5
   OrientYellowEdges(tmp);
-  memMoveSum.Lines.Add('---> OrientYellowEdges');
-  memMoveSum.Lines.Add(AnsiReplaceText(solu, '/', sLineBreak));
+  memSolveSummary.Lines.Add('---> OrientYellowEdges');
+  memSolveSummary.Lines.Add(AnsiReplaceText(solu, '/', sLineBreak));
   LFDstringCorrection(solu);
   s := s + solu;
   solu := '';
   // Step 6
   PlaceYellowCorners(tmp);
-  memMoveSum.Lines.Add('---> PlaceYellowCorners');
-  memMoveSum.Lines.Add(AnsiReplaceText(solu, '/', sLineBreak));
+  memSolveSummary.Lines.Add('---> PlaceYellowCorners');
+  memSolveSummary.Lines.Add(AnsiReplaceText(solu, '/', sLineBreak));
   LFDstringCorrection(solu);
   s := s + solu;
   solu := '';
   // Step 7
   OrientYellowCorners(tmp);
-  memMoveSum.Lines.Add('---> OrientYellowCorners');
-  memMoveSum.Lines.Add(AnsiReplaceText(solu, '/', sLineBreak));
+  memSolveSummary.Lines.Add('---> OrientYellowCorners');
+  memSolveSummary.Lines.Add(AnsiReplaceText(solu, '/', sLineBreak));
   LFDstringCorrection(solu);
   s := s + solu;
   solu := '';
 
-  memMoveSum.Lines.Add('movements ' + IntToStr(CountMoves(s)));
+  memSolveSummary.Lines.Add('movements ' + IntToStr(CountMoves(s)));
   FilterMoves(s, CurrentCubeState);
   pntBoxCurrentState.Refresh;
-  memMoveSum.Lines.Add('movements after filter ' + IntToStr(CountMoves(s)) + ')');
-  memMoveSum.Lines.Add('');
-  memMoveSum.Lines.Add('---> Filter');
-  memMoveSum.Lines.Add(s);
+  memSolveSummary.Lines.Add('movements after filter ' + IntToStr(CountMoves(s)) + ')');
+  memSolveSummary.Lines.Add('');
+  memSolveSummary.Lines.Add('---> Filter');
+  memSolveSummary.Lines.Add(s);
   UpperCase(s);
   edtMoveString.Text := s;
 end;
