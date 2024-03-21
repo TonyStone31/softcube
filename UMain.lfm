@@ -1,12 +1,12 @@
 object frmMain: TfrmMain
-  Left = 769
-  Height = 860
-  Top = 2532
-  Width = 1337
+  Left = 543
+  Height = 905
+  Top = 2810
+  Width = 1354
   Anchors = [akTop]
   Caption = 'Rubik''s Cube'
-  ClientHeight = 860
-  ClientWidth = 1337
+  ClientHeight = 905
+  ClientWidth = 1354
   Color = clAppWorkspace
   Constraints.MinHeight = 623
   Constraints.MinWidth = 623
@@ -31,13 +31,13 @@ object frmMain: TfrmMain
     AnchorSideRight.Control = Owner
     AnchorSideRight.Side = asrBottom
     AnchorSideBottom.Control = pnlCubeControls
-    Left = 668
-    Height = 337
+    Left = 676
+    Height = 360
     Top = 0
-    Width = 669
+    Width = 678
     Anchors = [akTop, akLeft, akRight, akBottom]
-    ClientHeight = 337
-    ClientWidth = 669
+    ClientHeight = 360
+    ClientWidth = 678
     ParentBackground = False
     TabOrder = 0
     object btnDefault3Dview: TSpeedButton
@@ -47,7 +47,7 @@ object frmMain: TfrmMain
       Left = 11
       Height = 30
       Hint = 'Reset 3D View'
-      Top = 296
+      Top = 319
       Width = 60
       Anchors = [akLeft, akBottom]
       BorderSpacing.Around = 10
@@ -141,9 +141,9 @@ object frmMain: TfrmMain
       AnchorSideLeft.Side = asrBottom
       AnchorSideBottom.Control = pnl3Dview
       AnchorSideBottom.Side = asrBottom
-      Left = 359
+      Left = 364
       Height = 30
-      Top = 296
+      Top = 319
       Width = 30
       Anchors = [akLeft, akBottom]
       BorderSpacing.Around = 10
@@ -157,23 +157,25 @@ object frmMain: TfrmMain
       AnchorSideRight.Control = pntBoxCurrentState
       AnchorSideBottom.Control = pnl3Dview
       AnchorSideBottom.Side = asrBottom
-      Left = 319
+      Left = 324
       Height = 30
-      Top = 296
+      Top = 319
       Width = 30
       Anchors = [akLeft, akBottom]
       BorderSpacing.Around = 10
       Caption = '↑'
       OnClick = btn3DViewRotate90UpClick
+      OnMouseEnter = btn3DViewRotate90UpMouseEnter
+      OnMouseLeave = btn3DViewRotate90UpMouseLeave
     end
     object btn3DViewRotate90Left: TSpeedButton
       Tag = 3
       AnchorSideRight.Control = btn3DViewRotate90Up
       AnchorSideBottom.Control = pnl3Dview
       AnchorSideBottom.Side = asrBottom
-      Left = 279
+      Left = 284
       Height = 30
-      Top = 296
+      Top = 319
       Width = 30
       Anchors = [akRight, akBottom]
       BorderSpacing.Around = 10
@@ -187,9 +189,9 @@ object frmMain: TfrmMain
       AnchorSideRight.Side = asrBottom
       AnchorSideBottom.Control = btnDefault3Dview
       Left = 11
-      Height = 275
+      Height = 298
       Top = 11
-      Width = 647
+      Width = 656
       Anchors = [akTop, akLeft, akRight, akBottom]
       BorderSpacing.Around = 10
       Color = clWhite
@@ -201,20 +203,21 @@ object frmMain: TfrmMain
     end
   end
   object pnlSolution: TPanel
-    AnchorSideLeft.Control = Owner
+    AnchorSideLeft.Control = ts2DViews
+    AnchorSideLeft.Side = asrBottom
     AnchorSideTop.Control = SplitterHorizontalMain
     AnchorSideTop.Side = asrBottom
     AnchorSideRight.Control = Owner
     AnchorSideRight.Side = asrBottom
     AnchorSideBottom.Control = Owner
     AnchorSideBottom.Side = asrBottom
-    Left = 0
-    Height = 411
-    Top = 449
-    Width = 1337
+    Left = 671
+    Height = 433
+    Top = 472
+    Width = 683
     Anchors = [akTop, akLeft, akRight, akBottom]
-    ClientHeight = 411
-    ClientWidth = 1337
+    ClientHeight = 433
+    ClientWidth = 683
     Constraints.MinHeight = 175
     ParentBackground = False
     TabOrder = 1
@@ -223,7 +226,7 @@ object frmMain: TfrmMain
       AnchorSideTop.Control = spinEdtAnimationSpeed
       AnchorSideTop.Side = asrCenter
       AnchorSideRight.Control = spinEdtAnimationSpeed
-      Left = 1213
+      Left = 511
       Height = 17
       Top = 60
       Width = 44
@@ -241,33 +244,33 @@ object frmMain: TfrmMain
       AnchorSideRight.Side = asrBottom
       AnchorSideBottom.Control = pnlSolution
       AnchorSideBottom.Side = asrBottom
-      Left = 1267
+      Left = 565
       Height = 29
       Top = 54
       Width = 59
-      Anchors = [akTop, akRight]
+      Anchors = [akTop]
       BorderSpacing.Left = 10
       BorderSpacing.Top = 10
       BorderSpacing.Right = 10
       BorderSpacing.Bottom = 10
-      MaxValue = 10
+      MaxValue = 11
       MinValue = 1
       TabOrder = 0
       Value = 10
     end
     object memSolveSummary: TMemo
       AnchorSideLeft.Control = pnlSolution
-      AnchorSideTop.Control = btnSearchForSolution
+      AnchorSideTop.Control = edtMoveString
       AnchorSideTop.Side = asrBottom
       AnchorSideRight.Control = pnlSolution
       AnchorSideRight.Side = asrBottom
       AnchorSideBottom.Control = pnlSolution
       AnchorSideBottom.Side = asrBottom
       Left = 11
-      Height = 346
-      Top = 54
-      Width = 297
-      Anchors = [akTop, akLeft, akBottom]
+      Height = 92
+      Top = 330
+      Width = 661
+      Anchors = [akTop, akLeft, akRight, akBottom]
       BorderSpacing.Around = 10
       ReadOnly = True
       ScrollBars = ssBoth
@@ -304,7 +307,7 @@ object frmMain: TfrmMain
       AnchorSideRight.Control = pnlSolution
       AnchorSideRight.Side = asrBottom
       AnchorSideBottom.Side = asrBottom
-      Left = 1246
+      Left = 592
       Height = 33
       Hint = 'Execut all Singmaster commands below.'
       Top = 11
@@ -315,17 +318,16 @@ object frmMain: TfrmMain
       OnClick = btnExecuteClick
     end
     object edtMoveString: TMemo
-      AnchorSideLeft.Control = memSolveSummary
-      AnchorSideLeft.Side = asrBottom
+      AnchorSideLeft.Control = pnlSolution
       AnchorSideTop.Control = lblSingMaster
       AnchorSideTop.Side = asrBottom
       AnchorSideRight.Control = pnlSolution
       AnchorSideRight.Side = asrBottom
-      AnchorSideBottom.Control = lblSingMaster1
-      Left = 318
-      Height = 205
-      Top = 91
-      Width = 1008
+      AnchorSideBottom.Side = asrBottom
+      Left = 11
+      Height = 233
+      Top = 87
+      Width = 661
       Anchors = [akTop, akLeft, akRight, akBottom]
       BorderSpacing.Around = 10
       ScrollBars = ssBoth
@@ -335,69 +337,37 @@ object frmMain: TfrmMain
     end
     object lblSingMaster: TLabel
       AnchorSideLeft.Control = memSolveSummary
-      AnchorSideLeft.Side = asrBottom
-      AnchorSideTop.Control = memSolveSummary
-      Left = 318
+      AnchorSideTop.Control = spinEdtAnimationSpeed
+      AnchorSideTop.Side = asrCenter
+      Left = 11
       Height = 17
-      Top = 64
+      Top = 60
       Width = 78
       BorderSpacing.Top = 10
       Caption = 'Commands:'
-    end
-    object memRandScramble: TMemo
-      AnchorSideLeft.Control = memSolveSummary
-      AnchorSideLeft.Side = asrBottom
-      AnchorSideTop.Side = asrBottom
-      AnchorSideRight.Control = pnlSolution
-      AnchorSideRight.Side = asrBottom
-      AnchorSideBottom.Control = pnlSolution
-      AnchorSideBottom.Side = asrBottom
-      Left = 318
-      Height = 67
-      Top = 333
-      Width = 1008
-      Anchors = [akLeft, akRight, akBottom]
-      BorderSpacing.Around = 10
-      ScrollBars = ssBoth
-      TabOrder = 3
-      OnKeyPress = edtMoveStringKeyPress
-      OnKeyUp = edtMoveStringKeyUp
-    end
-    object lblSingMaster1: TLabel
-      AnchorSideLeft.Control = memSolveSummary
-      AnchorSideLeft.Side = asrBottom
-      AnchorSideTop.Control = edtMoveString
-      AnchorSideTop.Side = asrBottom
-      AnchorSideBottom.Control = memRandScramble
-      Left = 318
-      Height = 17
-      Top = 306
-      Width = 122
-      Anchors = [akLeft, akBottom]
-      BorderSpacing.Top = 10
-      Caption = 'Random scramble:'
     end
   end
   object SplitterVerticalMain: TSplitter
     AnchorSideLeft.Side = asrBottom
     AnchorSideBottom.Control = SplitterHorizontalMain
-    Left = 663
-    Height = 484
+    Left = 671
+    Height = 507
     Top = -40
     Width = 5
     Align = alNone
     Anchors = [akTop, akBottom]
   end
   object SplitterHorizontalMain: TSplitter
-    AnchorSideLeft.Control = Owner
+    AnchorSideLeft.Control = ts2DViews
+    AnchorSideLeft.Side = asrBottom
     AnchorSideRight.Control = Owner
     AnchorSideRight.Side = asrBottom
     AnchorSideBottom.Control = pnlSolution
     Cursor = crVSplit
-    Left = 0
+    Left = 671
     Height = 5
-    Top = 444
-    Width = 1337
+    Top = 467
+    Width = 683
     Align = alNone
     Anchors = [akLeft, akRight]
     ResizeAnchor = akBottom
@@ -408,13 +378,13 @@ object frmMain: TfrmMain
     AnchorSideRight.Control = Owner
     AnchorSideRight.Side = asrBottom
     AnchorSideBottom.Control = SplitterHorizontalMain
-    Left = 668
+    Left = 676
     Height = 107
-    Top = 337
-    Width = 669
+    Top = 360
+    Width = 678
     Anchors = [akLeft, akRight, akBottom]
     ClientHeight = 107
-    ClientWidth = 669
+    ClientWidth = 678
     Constraints.MinWidth = 250
     ParentBackground = False
     TabOrder = 5
@@ -423,7 +393,7 @@ object frmMain: TfrmMain
       AnchorSideRight.Side = asrBottom
       AnchorSideBottom.Control = pnlCubeControls
       AnchorSideBottom.Side = asrBottom
-      Left = 571
+      Left = 580
       Height = 23
       Top = 73
       Width = 87
@@ -459,7 +429,7 @@ object frmMain: TfrmMain
       AnchorSideLeft.Side = asrBottom
       AnchorSideTop.Control = pnlFaceControls
       AnchorSideTop.Side = asrCenter
-      Left = 469
+      Left = 474
       Height = 25
       Top = 37
       Width = 30
@@ -471,7 +441,7 @@ object frmMain: TfrmMain
       AnchorSideLeft.Control = pnlCubeControls
       AnchorSideLeft.Side = asrCenter
       AnchorSideTop.Control = pnlCubeControls
-      Left = 210
+      Left = 215
       Height = 96
       Top = 1
       Width = 249
@@ -655,11 +625,12 @@ object frmMain: TfrmMain
     AnchorSideLeft.Control = Owner
     AnchorSideTop.Control = Owner
     AnchorSideRight.Control = SplitterVerticalMain
-    AnchorSideBottom.Control = SplitterHorizontalMain
+    AnchorSideBottom.Control = Owner
+    AnchorSideBottom.Side = asrBottom
     Left = 0
-    Height = 444
+    Height = 905
     Top = 0
-    Width = 663
+    Width = 671
     ActivePage = TabSheet1
     Anchors = [akTop, akLeft, akRight, akBottom]
     Constraints.MinHeight = 300
@@ -669,29 +640,34 @@ object frmMain: TfrmMain
     OnChange = ts2DViewsChange
     object TabSheet1: TTabSheet
       Caption = '🛠 Set State'
-      ClientHeight = 407
-      ClientWidth = 653
+      ClientHeight = 868
+      ClientWidth = 661
       object pnlSetState: TPanel
         Left = 0
-        Height = 407
+        Height = 868
         Top = 0
-        Width = 653
+        Width = 661
         Align = alClient
         Anchors = [akTop, akLeft, akBottom]
         BevelOuter = bvNone
-        ClientHeight = 407
-        ClientWidth = 653
+        ClientHeight = 868
+        ClientWidth = 661
         ParentBackground = False
         TabOrder = 0
         object pntBoxCurrentState: TPaintBox
-          Left = 35
-          Height = 337
+          AnchorSideLeft.Control = pnlSetState
+          AnchorSideTop.Control = pnlSetState
+          AnchorSideRight.Control = pnlSetState
+          AnchorSideRight.Side = asrBottom
+          Left = 10
+          Height = 755
           Hint = 'Right Click'#10'(Yellow\White)'#10#10'Left Click'#10'(Green\Red\Blue\Orange)'
-          Top = 35
-          Width = 583
-          Align = alClient
-          Anchors = []
-          BorderSpacing.Around = 35
+          Top = 10
+          Width = 641
+          Anchors = [akTop, akLeft, akRight, akBottom]
+          BorderSpacing.Left = 10
+          BorderSpacing.Top = 10
+          BorderSpacing.Right = 10
           Color = clWhite
           ParentColor = False
           OnMouseDown = pntBoxCurrentStateMouseDown
@@ -700,6 +676,7 @@ object frmMain: TfrmMain
         object btnCurrentStateReset: TSpeedButton
           AnchorSideLeft.Control = pnlSetState
           AnchorSideTop.Control = pntBoxCurrentState
+          AnchorSideTop.Side = asrBottom
           AnchorSideRight.Control = pntBoxCurrentState
           AnchorSideRight.Side = asrBottom
           AnchorSideBottom.Control = pnlSetState
@@ -707,9 +684,8 @@ object frmMain: TfrmMain
           Left = 5
           Height = 30
           Hint = 'Reset'
-          Top = 372
+          Top = 770
           Width = 60
-          Anchors = [akLeft, akBottom]
           BorderSpacing.Around = 5
           Glyph.Data = {
             FA090000424DFA09000000000000360000002800000019000000190000000100
@@ -796,16 +772,18 @@ object frmMain: TfrmMain
           OnClick = btnCurrentStateResetClick
         end
         object btnScrampleState: TSpeedButton
+          AnchorSideTop.Control = pntBoxCurrentState
+          AnchorSideTop.Side = asrBottom
           AnchorSideRight.Control = pnlSetState
           AnchorSideRight.Side = asrBottom
           AnchorSideBottom.Control = pnlSetState
           AnchorSideBottom.Side = asrBottom
-          Left = 588
+          Left = 596
           Height = 30
           Hint = 'Scramble'
-          Top = 372
+          Top = 770
           Width = 60
-          Anchors = [akRight, akBottom]
+          Anchors = [akTop, akRight]
           BorderSpacing.Around = 5
           Glyph.Data = {
             FA090000424DFA09000000000000360000002800000019000000190000000100
@@ -891,12 +869,28 @@ object frmMain: TfrmMain
           }
           OnClick = btnScrampleStateClick
         end
+        object memRandScramble: TMemo
+          AnchorSideLeft.Control = btnCurrentStateReset
+          AnchorSideLeft.Side = asrBottom
+          AnchorSideTop.Control = btnCurrentStateReset
+          AnchorSideRight.Control = btnScrampleState
+          AnchorSideBottom.Control = pnlSetState
+          AnchorSideBottom.Side = asrBottom
+          Left = 70
+          Height = 93
+          Top = 770
+          Width = 521
+          Anchors = [akTop, akLeft, akRight, akBottom]
+          BorderSpacing.Bottom = 5
+          ScrollBars = ssBoth
+          TabOrder = 0
+        end
       end
     end
     object TabSheet2: TTabSheet
       Caption = '🛠 Target State'
-      ClientHeight = 407
-      ClientWidth = 653
+      ClientHeight = 868
+      ClientWidth = 661
       object pnlDestination: TPanel
         AnchorSideLeft.Control = TabSheet2
         AnchorSideTop.Control = TabSheet2
@@ -905,20 +899,20 @@ object frmMain: TfrmMain
         AnchorSideBottom.Control = TabSheet2
         AnchorSideBottom.Side = asrBottom
         Left = 0
-        Height = 407
+        Height = 868
         Top = 0
-        Width = 653
+        Width = 661
         Anchors = [akTop, akLeft, akRight, akBottom]
         BevelOuter = bvNone
-        ClientHeight = 407
-        ClientWidth = 653
+        ClientHeight = 868
+        ClientWidth = 661
         ParentBackground = False
         TabOrder = 0
         object pntBoxTargetSolve: TPaintBox
           Left = 35
-          Height = 337
+          Height = 798
           Top = 35
-          Width = 583
+          Width = 591
           Align = alClient
           Anchors = []
           BorderSpacing.Around = 35
@@ -930,7 +924,7 @@ object frmMain: TfrmMain
           AnchorSideLeft.Side = asrCenter
           AnchorSideTop.Control = pnlDestination
           AnchorSideBottom.Control = pntBoxTargetSolve
-          Left = 195
+          Left = 199
           Height = 14
           Top = 0
           Width = 262
@@ -947,7 +941,7 @@ object frmMain: TfrmMain
           AnchorSideBottom.Side = asrBottom
           Left = 5
           Height = 30
-          Top = 372
+          Top = 833
           Width = 60
           Anchors = [akLeft, akBottom]
           BorderSpacing.Around = 5
@@ -1040,10 +1034,10 @@ object frmMain: TfrmMain
           AnchorSideRight.Side = asrBottom
           AnchorSideBottom.Control = pnlDestination
           AnchorSideBottom.Side = asrBottom
-          Left = 588
+          Left = 596
           Height = 30
           Hint = 'Scramble'
-          Top = 372
+          Top = 833
           Width = 60
           Anchors = [akRight, akBottom]
           BorderSpacing.Around = 5

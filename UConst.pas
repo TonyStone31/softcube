@@ -27,7 +27,7 @@ uses
   Graphics,
   types;
 
-CONST
+const
   ConvertNumber = 31;
   StrFrom_To: array[0..ConvertNumber * 2 - 1] of string =
     ('/', ''
@@ -67,6 +67,30 @@ CONST
     , 'FF', 'F2'
     );
 
+  {
+  EDGE_POSITIONS: Defines the positions of the edge pieces on the Rubik's Cube. Each entry in the array
+  represents a specific edge piece and its orientation relative to the cube's faces.
+
+  The array is structured as follows:
+  (Face number, Position on face, Adjacent face number, Position on adjacent face, Internal edge index)
+
+  - The first two integers represent the face number (1 to 6, corresponding to U, F, R, B, L, D) and the
+  position of the edge piece on that face (0 to 7, following the cube's edge enumeration pattern).
+  - The next two integers similarly represent the adjacent face and position of the same edge piece,
+  indicating how edge pieces bridge two faces.
+  - The final integer is an internal index used to uniquely identify the edge piece throughout the cube's
+  transformation processes.
+
+  For example, the entry (1, 7, 2, 1, 12) represents an edge piece that is at position 7 on face 1 (U) and at
+  position 1 on face 2 (F), with an internal index of 12.
+
+  This array is essential for algorithms that solve or manipulate the cube, allowing for precise tracking and
+  manipulation of the cube's edge pieces as moves are applied. It supports the identification of edge pieces'
+  locations and their orientations, which is crucial for determining the next steps in a solving algorithm or
+  for visualizing the cube's state.
+}
+
+
   EDGE_POSITIONS: array[0..23, 0..4] of integer =
     ((1, 7, 2, 1, 12), (1, 5, 3, 1, 13), (1, 1, 4, 1, 14), (1, 3, 5, 1, 15),
     (2, 1, 1, 7, 21), (2, 5, 3, 3, 23), (2, 3, 5, 5, 25), (2, 7, 6, 1, 26),
@@ -74,6 +98,23 @@ CONST
     (4, 1, 1, 1, 41), (4, 3, 3, 5, 43), (4, 5, 5, 3, 45), (4, 7, 6, 7, 46),
     (5, 1, 1, 3, 51), (5, 5, 2, 3, 52), (5, 3, 4, 5, 54), (5, 7, 6, 3, 56),
     (6, 1, 2, 7, 62), (6, 5, 3, 7, 63), (6, 7, 4, 7, 64), (6, 3, 5, 7, 65));
+
+  {
+    CORNER_POSITION array outlines the positions of the corner pieces on the Rubik's Cube
+    relative to their orientation across three adjacent faces. Each sub-array represents a corner
+    piece and is detailed in the format (Face1, Position1, Face2, Position2, Face3, Position3, CornerIndex),
+    where:
+
+    - Face1, Face2, and Face3 are the indices (1-6) of the three faces that converge at the corner.
+    - Position1, Position2, and Position3 describe the specific position of the corner piece on each of those faces.
+    - CornerIndex is a sequence that represents the orientation or permutation of the corner across the faces,
+      helping in identifying the specific corner piece and its orientation.
+
+    This structure is vital for solving algorithms to understand and adjust the orientation of corner pieces,
+    facilitating the process of solving the cube by recognizing and correcting corner positions and orientations.
+  }
+
+
 
   CORNER_POSITION: array[0..23, 0..6] of integer =
     ((1, 8, 2, 2, 3, 0, 123),      //18 22 30     //face 1 2 3

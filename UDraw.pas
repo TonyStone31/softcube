@@ -67,7 +67,7 @@ const
     // White face (top, above Green)              U 1
     (((x: 3; y: 0), (x: 4; y: 0), (x: 5; y: 0)),
     ((x: 3; y: 1), (x: 4; y: 1), (x: 5; y: 1)),   //1?
-    ((x: 3; y: 2), (x: 4; y: 2), (x: 5; y: 2)))   //we need these to be in the numberical order of other
+    ((x: 3; y: 2), (x: 4; y: 2), (x: 5; y: 2)))   //we need these to be in the numerical order of other
     ,                                              //program so we can pass state to solvers
     // Green face (center) Front                  F 3
     (((x: 3; y: 3), (x: 4; y: 3), (x: 5; y: 3)),
@@ -134,7 +134,7 @@ var
   i, j, k: integer;
   tmp: TBitmap;
   centerPoint: TPoint;
-  SpaceForWidth, SpaceForHeight: integer;
+  SpaceForWidth, SpaceForHeight, face: integer;
   faceName: string;
 begin
   tmp := TBitmap.Create;
@@ -172,17 +172,6 @@ begin
     //Background for Yellow face
     tmp.Canvas.Rectangle(3 * CubeySize + 2, 6 * CubeySize + 2, 6 * CubeySize - 4, 9 * CubeySize - 4);
 
-
-    //    for face := 1 to 6 do
-    //begin
-    //  // Append each color of the current face to the result string
-    //  for i := 0 to 8 do
-    //  begin
-    //    faceName := FACE_NAMES[cube[face, i]];
-    //    Result := Result + faceName;
-    //  end;
-    //end;
-
     // Fill cube faces with appropriate colors
     for i := 1 to 6 do
     begin
@@ -198,20 +187,21 @@ begin
             C_FACE_GRID_POS[i, j, k].x * CubeySize + CubeySize - 2,
             C_FACE_GRID_POS[i, j, k].Y * CubeySize + CubeySize - 2);
 
-          //centerPoint := C_FACE_GRID_POS[i, j, k];
-          //faceName := faceName
-          //+ IntToStr(C_FACE_GRID_POS[i, j, k].X)
-          //+ IntToStr(C_FACE_GRID_POS[i, j, k].Y) // Constructs name like U1, L2, etc.
+          centerPoint := C_FACE_GRID_POS[i, j, k];
+          faceName := faceName
+          + IntToStr(TFaceRubik(c)[i, j])
+          //+ IntToStr(C[i, j, k].x);
+          // Constructs name like U1, L2, etc.
           // Needs more thought
-
+                                             ;
           tmp.Canvas.Font.Size := 7;
           tmp.Canvas.Font.Color := clBlack;
 
-          // Draw face name in the center of each cubelet
-          //tmp.Canvas.TextOut(
-          //C_FACE_GRID_POS[i, j, k].x * CubeySize + (CubeySize div 2) - (tmp.Canvas.TextWidth(faceName) div 2),
-          //C_FACE_GRID_POS[i, j, k].Y * CubeySize + (CubeySize div 2) - (tmp.Canvas.TextHeight(faceName) div 2),
-          //faceName);
+           //Draw face name in the center of each cubelet
+          tmp.Canvas.TextOut(
+          C_FACE_GRID_POS[i, j, k].x * CubeySize + (CubeySize div 2) - (tmp.Canvas.TextWidth(faceName) div 2),
+          C_FACE_GRID_POS[i, j, k].Y * CubeySize + (CubeySize div 2) - (tmp.Canvas.TextHeight(faceName) div 2),
+          faceName);
         end;
       end;
     end;

@@ -43,12 +43,12 @@ procedure PlaceYellowEdges(var cube: TRubik);
 procedure OrientYellowEdges(var cube: TRubik);
 procedure PlaceYellowCorners(var cube: TRubik);
 procedure OrientYellowCorners(var cube: TRubik);
-function FilterMoves(var s: string; cube: TFaceRubik; can: tcanvas): string;
+function FilterMoves(var s: string; cube: TFaceRubik): string;
 function CountMoves(s: string): integer;
 function VerifyCube(original: TFaceRubik; var s: string): boolean;
 
 var
-  solu: string = '';
+  solu: string = ' ';
 
 implementation
 
@@ -953,5 +953,63 @@ begin
     for i := 0 to j - 1 do
       if tab[j] = tab[i] then Result := Result + '(' + IntToStr(j) + '/' + IntToStr(i) + ')';
 end;
+
+//function FilterMoves(var s: string; cube: TFaceRubik): string;
+//var
+//  tmp: TLinRubik;
+//  tab: array of string;
+//  i, j, n, p: integer;
+//  f, moveSequence: string;
+//begin
+//  Result := '';
+//  moveSequence := ''; // To hold the sequence of moves with adjusted primes and spaces
+//
+//  for i := 0 to ConvertNumber - 1 do s := AnsiReplaceText(s, StrFrom_To[i * 2], StrFrom_To[i * 2 + 1]);
+//  tmp := TLinRubik(cube);
+//  n := CountMoves(s);
+//  setlength(tab, n + 1);
+//  p := 1;
+//  tab[0] := RubikToStr(tmp);
+//
+//  for i := 1 to n do
+//  begin
+//    f := s[p];
+//    Inc(p);
+//    if (p <= length(s)) and (s[p] = '''') then
+//    begin
+//      f := f + '''';
+//      Inc(p);
+//    end;
+//    if (p <= length(s)) and (s[p] = '2') then
+//    begin
+//      f := f + '2';
+//      Inc(p);
+//    end;
+//
+//    // Adjust the prime symbol for L, D, F moves
+//    if (f = 'L''') or (f = 'D''') or (f = 'F''') then
+//      f := f[1] // Remove the prime symbol for these faces
+//    else if (f = 'L') or (f = 'D') or (f = 'F') then
+//      f := f + ''''; // Add the prime symbol for clockwise rotation of these faces
+//
+//    ApplyFormula(tfacerubik(tmp), f);
+//
+//    tab[i] := RubikToStr(tmp);
+//
+//    // Append the adjusted move to the move sequence with a space for readability
+//    if moveSequence <> '' then
+//      moveSequence := moveSequence + ' ' + f
+//    else
+//      moveSequence := f;
+//  end;
+//
+//  // After processing all moves, append the move sequence to Result
+//  Result := moveSequence;
+//
+//  for j := n downto 1 do
+//    for i := 0 to j - 1 do
+//      if tab[j] = tab[i] then Result := Result + ' (' + IntToStr(j) + '/' + IntToStr(i) + ')';
+//end;
+
 
 end.

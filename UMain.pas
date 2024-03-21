@@ -36,7 +36,8 @@ uses
   Spin,
   ComCtrls,
   Buttons,
-  StdCtrls, Dialogs,
+  Dialogs,
+  StdCtrls,
   strutils,
   UConst,
   UDraw,
@@ -77,12 +78,11 @@ type
     btnUpClock: TSpeedButton;
     btnUpCounter: TSpeedButton;
     edtMoveString: TMemo;
-    memRandScramble: TMemo;
     lblCurrentMove: TLabel;
     lblSingMaster: TLabel;
-    lblSingMaster1: TLabel;
     lblSpeedControl: TLabel;
     lblNoticeTarget: TLabel;
+    memRandScramble: TMemo;
     memSolveSummary: TMemo;
     pnlCubeControls: TPanel;
     pnlFaceControls: TPanel;
@@ -101,6 +101,8 @@ type
     TabSheet1: TTabSheet;
     TabSheet2: TTabSheet;
     procedure btn3DViewRotate90LeftClick(Sender: TObject);
+    procedure btn3DViewRotate90UpMouseEnter(Sender: TObject);
+    procedure btn3DViewRotate90UpMouseLeave(Sender: TObject);
     procedure btnControlHelpClick(Sender: TObject);
     procedure btn3DViewRotateRightClick(Sender: TObject);
     procedure btn3DViewRotate90UpClick(Sender: TObject);
@@ -135,10 +137,11 @@ type
     procedure ActiveSleep(ms: cardinal);
     procedure ExecuteSolverAndParseOutput(const faceString: string; aMemo: TMemo; MoveString: TMemo);
     procedure FastRotateFace(Face: integer; clockWise: boolean);
-    function GenerateRandomMovesString(MoveCount: Integer): string;
     procedure RandomRotateFaces(Count: integer);
-    procedure RotateCubeLeft;
-    procedure RotateCubeUp();
+    procedure RotateCubeLeftRight(Direction: Integer);
+    procedure RotateCubePeakUnder();
+    procedure RotateCubeFlipUp();
+    procedure RotateCubeUnPeakUnder();
     procedure ToggleButtonsExcept(Form: TForm; ExceptButton: TSpeedButton; Enable: boolean);
   public
 
@@ -149,6 +152,7 @@ var
   tmx: integer = 0;
   tmy: integer = 0;
   IsRunning: boolean = False;
+  Cube3DTransActive: boolean;
   mouseDrag3D: boolean;
   FaceCodeMover: integer = 0;
   keyBoardControlActive: boolean;
@@ -156,7 +160,6 @@ var
 implementation
 
 {$R *.lfm}
-
 
 procedure TfrmMain.ToggleButtonsExcept(Form: TForm; ExceptButton: TSpeedButton; Enable: boolean);
 var
@@ -315,6 +318,8 @@ procedure TfrmMain.SetInitialCubeView;
 var
   AngleX, AngleY: double;
 begin
+  if Cube3DTransActive then Exit;
+  Cube3DTransActive := True;
   axeX[0] := -1;
   axeX[1] := 0;
   axeX[2] := 0; // Reset X axis
@@ -328,79 +333,144 @@ begin
   axeZ[2] := -1; // Reset Z axis
 
   Cube3D := VIEW_OF_3D_CUBE;
-  // Found I need to set one angle at a time.
-  AngleY := 45 * Pi / 180; // Rotate -45 degrees around the Y-axis for left/right view
+
+  AngleY := 45 * Pi / 180;
   Rotate3d(cube3d, 0, AngleY, 0);
 
-  AngleX := -34 * Pi / 180; // Rotate 45 degrees around the X-axis to see the top
+  AngleX := -32 * Pi / 180; // Rotate 45 degrees around the X-axis to see the top
   Rotate3d(cube3d, AngleX, 0, 0);
   DrawCube3d(pntBox3Dview, CurrentCubeState, Cube3D);
+  Cube3DTransActive := False;
 end;
 
-procedure TfrmMain.RotateCubeUp();
-const
-  ViewPortChange90: double = 90 * Pi / 180;
+procedure TfrmMain.RotateCubeLeftRight(Direction: Integer);
 var
-  AngleX, AngleY: double;
+  i: integer;
+  AngleYIncrement, AngleX: double;
 begin
-  { #todo -oTonyStone : Yeah this is horrible.  Some day i will revisit and make it rotate the 3D view by 90 degrees only in any direction.  and animate it as well.  For now it is giving me a headache :( }
-  // Always apply a tilt downwards to view the top
-  AngleX := 180 * Pi / 360; // Tilt angle to always show the top
+  repeat
+    Sleep(10);
+  until Cube3DTransActive = False;
 
-  AngleX := AngleX + ViewPortChange90;
+  Cube3DTransActive := True;
 
+  // Direction = 1 for left, and Direction = -1 for right
+  AngleYIncrement := Direction * (90 * Pi / 180) / 45;
 
-  Rotate3d(Cube3D, AngleX, 0, 0);
+  for i := 1 to 45 do
+  begin
+    // ANGLE IT BACK UP SO IT IS JUST A FLAT FRONT VIEW
+    AngleX := 32 * Pi / 180;
+    Rotate3d(cube3d, AngleX, 0, 0);
 
+    // NOW ROTATE IT INCREMENTALLY!!!
+    Rotate3d(cube3d, 0, AngleYIncrement, 0);
 
-  DrawCube3d(pntBox3Dview, CurrentCubeState, Cube3D);
+    // NOW ROTATE IT BACK DOWN TO THE ANGLE WE LIKE TO SEE THE TOP!!
+    AngleX := -32 * Pi / 180;
+    Rotate3d(cube3d, AngleX, 0, 0);
+
+    // WE DON'T DRAW UNTIL ALL AXIS ARE SET!!!
+    DrawCube3d(pntBox3Dview, CurrentCubeState, cube3d);
+    Sleep(10);
+  end;
+
+   // CANNOT BELIEVE HOW MANY HOURS I WASTED HERE!  TRYING TO INCREMENT/DECREMENT the X angle to keep the top clenaly in view
+
+  Cube3DTransActive := False;
 end;
 
-procedure TfrmMain.RotateCubeLeft();
-const
-  ViewPortChange90: double = 90 * Pi / 180;
+procedure TfrmMain.RotateCubeFlipUp();
 var
-  AngleX, AngleY: double;
+  i: integer;
+  AngleXIncrement: double;
 begin
-  AngleX := -180 * Pi / 360; // Tilt angle to always show the top
-  AngleX := AngleX + ViewPortChange90;
-  Rotate3d(Cube3D, AngleX, 0, 0);
+  repeat
+    Sleep(10);
+  until Cube3DTransActive = False;
 
+  Cube3DTransActive := True;
+  AngleXIncrement := (180 * Pi / 180) / 45;
 
+  for i := 1 to 45 do
+  begin
+    Rotate3d(cube3d, AngleXIncrement, 0, 0);
+    DrawCube3d(pntBox3Dview, CurrentCubeState, cube3d);
+    sleep(10);
+  end;
 
-  AngleY := 90 * Pi / 360;
-  AngleY := AngleY + ViewPortChange90;
-
-  //AngleY := -ViewPortChange90; // Rotate left
-  //  rdRight: AngleY := ViewPortChange90; // Rotate right
-  //  rdUp: AngleX := AngleX + ViewPortChange90; // Adjust up rotation including initial tilt
-  //  rdDown: AngleX := AngleX - ViewPortChange90; // Adjust down rotation including initial tilt
-  //end;
-
-  // Apply the rotation
-  //if AngleY <> 0 then
-  //  Rotate3d(Cube3D, 0, AngleY, 0); // Rotate around Y-axis for left/right
-  // Always apply the X rotation for the tilt, potentially adjusted for up/down
-  Rotate3d(Cube3D, 0, AngleY, 0);
-
-  // Redraw the cube with the new orientation
-  DrawCube3d(pntBox3Dview, CurrentCubeState, Cube3D);
+  Cube3DTransActive := False;
 end;
 
+procedure TfrmMain.RotateCubePeakUnder();
+var
+  i: integer;
+  AngleXIncrement: double;
+begin
+  repeat
+    Sleep(10);
+  until Cube3DTransActive = False;
+
+  Cube3DTransActive := True;
+  AngleXIncrement := ((45 + 22.5) * Pi / 180) / 45;
+
+  for i := 1 to 45 do
+  begin
+    Rotate3d(cube3d, AngleXIncrement, 0, 0);
+    DrawCube3d(pntBox3Dview, CurrentCubeState, cube3d);
+    Sleep(10);
+  end;
+
+  Cube3DTransActive := False;
+end;
+
+procedure TfrmMain.RotateCubeUnPeakUnder();
+var
+  i: integer;
+  AngleXIncrement: double;
+begin
+  repeat
+    Sleep(10);
+  until Cube3DTransActive = False;
+
+  Cube3DTransActive := True;
+  AngleXIncrement := ((45 + 22.5) * Pi / 180) / 45;
+
+  for i := 1 to 45 do
+  begin
+    Rotate3d(cube3d, -AngleXIncrement, 0, 0);
+    DrawCube3d(pntBox3Dview, CurrentCubeState, cube3d);
+    Sleep(10);
+  end;
+
+  Cube3DTransActive := False;
+end;
 
 procedure TfrmMain.btn3DViewRotate90LeftClick(Sender: TObject);
 begin
-  RotateCubeLeft;
+  RotateCubeLeftRight(1);
+end;
+
+procedure TfrmMain.btn3DViewRotate90UpMouseEnter(Sender: TObject);
+begin
+  // Needs more thought but partially works.  Will leave commented out for now
+  RotateCubePeakUnder();
+end;
+
+procedure TfrmMain.btn3DViewRotate90UpMouseLeave(Sender: TObject);
+begin
+  // Needs more thought but partially works.  Will leave commented out for now
+  RotateCubeUnPeakUnder();
 end;
 
 procedure TfrmMain.btn3DViewRotate90UpClick(Sender: TObject);
 begin
-  RotateCubeUp;
+  RotateCubeFlipUp;
 end;
 
 procedure TfrmMain.btn3DViewRotateRightClick(Sender: TObject);
 begin
-  RotateCubeLeft;
+  RotateCubeLeftRight(-1);
 end;
 
 
@@ -455,22 +525,25 @@ procedure TfrmMain.btnScrampleStateClick(Sender: TObject);
 var
   NumMoves, i: integer;
   InputStr: string;
+  UserOK: boolean;
 begin
   Randomize;
 
-  // Prompt the user for the number of scramble moves
-  InputStr := InputBox('Scramble Cube', 'Enter the number of scramble moves:', '15');
+  InputStr := '15';
+  UserOK := InputQuery('Scramble Cube', 'Enter the number of scramble moves:', InputStr);
 
-  // Verify the input is a valid number and not more than 100
-  if TryStrToInt(InputStr, NumMoves) then
+  if UserOK then
   begin
-    if NumMoves > 100 then
-      NumMoves := 100; // Cap the number of moves at 100
-    RandomRotateFaces(NumMoves);
-  end
-  else
-    ShowMessage('Please enter a valid number.'); // Display error message if input is not a number
+    if TryStrToInt(InputStr, NumMoves) then
+    begin
+      if NumMoves > 100 then
+        NumMoves := 100; // Capping number of moves
+      RandomRotateFaces(NumMoves);
+    end else
+      ShowMessage('Please enter a valid number.');
+  end;
 end;
+
 
 procedure TfrmMain.btnScrambleTargetClick(Sender: TObject);
 var
@@ -553,7 +626,8 @@ begin
     tmp := cube3d;
     for ii := 0 to 90 do
     begin
-      if (v > 7) and (ii mod 4 <> 0) then Continue;
+      if (v = 11) then Continue;
+      if (v > 7) and (ii mod 3 <> 0) then Continue;
       if not IsRunning then Break;
 
 
@@ -578,7 +652,8 @@ begin
     DrawCube3d(pntBox3Dview, CurrentCubeState, cube3d);
     DrawCube(pntBoxCurrentState, CurrentCubeState);
 
-    ActiveSleep(Round(-300 * v) + 3200);
+    if v < 11 then
+      ActiveSleep(Round(-300 * v) + 3200);
 
     if j > 1 then Inc(i, 2)
     else
@@ -616,6 +691,7 @@ begin
   tmp := cube3d;
   for i := 0 to 90 do
   begin
+    if v = 11 then Continue;
     if (v > 7) and (i mod 4 <> 0) then Continue;
     if i mod v = 0 then ActiveSleep(Round(-2 * v) + 20);
 
@@ -634,17 +710,21 @@ begin
   ExecuteSolverAndParseOutput(CubeToDefinitionString(CurrentCubeState), memSolveSummary, edtMoveString);
 end;
 
+procedure TfrmMain.edtMoveStringKeyUp(Sender: TObject; var Key: word; Shift: TShiftState);
+begin
+  //if Key = VK_RETURN then btnExecuteClick(Sender);
+end;
+
+
 procedure TfrmMain.edtMoveStringKeyPress(Sender: TObject; var Key: char);
 begin
-  // Convert lowercase Singmaster notation characters to uppercase
+
   if Key in ['u', 'd', 'l', 'r', 'f', 'b'] then
   begin
-    Key := UpCase(Key); // Convert to uppercase
-  end // Allow uppercase letters, the number 2, apostrophe, space, and Enter.
-  else if not (Key in ['U', 'D', 'L', 'R', 'F', 'B', '2', '''', ' ', #13]) then
+    Key := UpCase(Key);
+  end else if not (Key in ['U', 'D', 'L', 'R', 'F', 'B', '2', '''', ' ', #13, #8]) then
   begin
-    // If the key pressed is not in the allowed list, ignore the key press
-    Key := #0; // Discard the key press by setting Key to #0
+    Key := #0;
   end;
 end;
 
@@ -688,19 +768,16 @@ begin
 
     // Assume the solution is on the second line and display it in MoveString
     if OutputLines.Count >= 2 then
-      MoveString.Text := OutputLines[1]
-    else
+    begin
+      OutputLines[1] := FormatMovesString(OutputLines[1]);
+      MoveString.Text := OutputLines[1];
+    end else
       MoveString.Text := 'Error: No solution found.';
   finally
     OutputLines.Free;
     Process.Free;
     Screen.Cursor := crDefault;
   end;
-end;
-
-procedure TfrmMain.edtMoveStringKeyUp(Sender: TObject; var Key: word; Shift: TShiftState);
-begin
-  if Key = VK_RETURN then btnExecuteClick(Sender);
 end;
 
 procedure TfrmMain.ManualRotateFace(Face: integer; clockWise: boolean);
@@ -745,7 +822,7 @@ begin
   tmp := cube3d;
   for i := 0 to 90 do
   begin
-    if (v > 7) and (i mod 10 <> 0) then Continue;
+    if i mod 20 <> 0 then Continue;
     Rotate3dface(cube3d, n mod 10 + 1, (((n div 10) * 2 - 1) * i) * pi / 180);
     pntBox3Dview.Refresh;
     cube3d := tmp;
@@ -754,103 +831,62 @@ begin
   Rotateface(TUnitRubik(CurrentCubeState), face mod 10 + 1, (n div 10) * 2 + 1);
   DrawCube(pntBoxCurrentState, CurrentCubeState);
   pntBox3Dview.Refresh;
-
 end;
 
 procedure TfrmMain.RandomRotateFaces(Count: integer);
 var
   i, RandomFace, LastFace: integer;
   ClockWise, LastClockWise: boolean;
-  MoveStr, Moves: string;
+  MoveStr, Moves, LastMoveStr: string;
   FaceStr: array[0..5] of string = ('U', 'F', 'R', 'B', 'L', 'D');
 begin
   ToggleButtonsExcept(Self, btnDefault3Dview, False);
-  memRandScramble.Lines.Clear; // Clear previous content
+  memRandScramble.Lines.Clear;
   memRandScramble.Lines.Add('Random scramble executed:');
-  Moves := ''; // Initialize the string that will hold all moves
-
-  // Initialize LastFace with a value that won't match any valid face index
+  Moves := '';
+  LastMoveStr := '';
   LastFace := -1;
-  LastClockWise := False; // Initial value doesn't matter, it will be set in the loop
+  LastClockWise := False;
 
   for i := 1 to Count do
   begin
     repeat
-      RandomFace := Random(6); // Select a random face index
-      ClockWise := Random(2) = 0; // Select clockwise or counterclockwise
-    until not ((RandomFace = LastFace) and (ClockWise <> LastClockWise)); // Avoid immediate reversal
+      RandomFace := Random(6);
+      ClockWise := Random(2) = 0;
+    until not ((RandomFace = LastFace) and (ClockWise = LastClockWise) and (LastMoveStr.EndsWith('2')));
 
-    // Perform the rotation only if it doesn't cancel the previous move
     FastRotateFace(RandomFace, ClockWise);
 
-    // Convert the move to Singmaster notation
     MoveStr := FaceStr[RandomFace];
-    if ClockWise then MoveStr := MoveStr + '''';
+    if not ClockWise then MoveStr := MoveStr + '''';
 
-    // Append the move to the Moves string separated by a space
-    if Moves <> '' then
-      Moves := Moves + ' ' + MoveStr
-    else
-      Moves := MoveStr;
+    if (LastMoveStr = MoveStr) then
+    begin
+      if MoveStr.EndsWith('''') then
+        MoveStr := MoveStr[1] + '2'
+      else
+        MoveStr := MoveStr + '2';
+      Moves := Copy(Moves, 1, Length(Moves) - Length(LastMoveStr)) + MoveStr;
+    end else if (Moves.EndsWith(MoveStr[1] + '2') and MoveStr.EndsWith('''')) then
+    begin
+      // If the last move was a double, and now we have a counter-clockwise, remove '2' and keep it as a clockwise move
+      Delete(Moves, Length(Moves) - 1, 2);
+    end else begin
+      if Moves <> '' then
+        Moves := Moves + ' ' + MoveStr
+      else
+        Moves := MoveStr;
+    end;
 
-    // Store this move as the last move for comparison in the next iteration
     LastFace := RandomFace;
     LastClockWise := ClockWise;
+    LastMoveStr := MoveStr;
   end;
 
-  // After collecting all moves, append them to the memo on the second line
-  LFDstringCorrection(Moves);
   memRandScramble.Lines.Add(Moves);
-
   ToggleButtonsExcept(Self, btnDefault3Dview, True);
 end;
 
-
-
-function TfrmMain.GenerateRandomMovesString(MoveCount: Integer): string;
-const
-  Faces: array[0..5] of string = ('U', 'D', 'L', 'R', 'F', 'B');
-  Modifiers: array[0..2] of string = ('', '2', '''');
-var
-  i, FaceIndex, ModifierIndex: Integer;
-  LastFaceIndex, LastModifierIndex: Integer;
-  Move, LastMove: string;
-  Moves: TStringList;
-begin
-  Moves := TStringList.Create;
-  try
-    Moves.Delimiter := ' '; // Use space as the delimiter
-    Moves.StrictDelimiter := True; // Don't treat consecutive delimiters as one
-
-    LastFaceIndex := -1; // Initialize with an impossible value
-    LastModifierIndex := -1; // Initialize with an impossible value
-
-    for i := 1 to MoveCount do
-    begin
-      repeat
-        FaceIndex := Random(Length(Faces)); // Select a random face
-        ModifierIndex := Random(Length(Modifiers)); // Select a random modifier ('', '2', or ''')
-        Move := Faces[FaceIndex] + Modifiers[ModifierIndex];
-      until not (
-                  (FaceIndex = LastFaceIndex) and // Prevent the same face being selected twice in a row without modifier change
-                  ((ModifierIndex = LastModifierIndex) or // Prevent same move or direct reversal (e.g., R R' or R' R)
-                  ((ModifierIndex = 0) and (LastModifierIndex = 2)) or
-                  ((ModifierIndex = 2) and (LastModifierIndex = 0)))
-                );
-
-      Moves.Add(Move); // Append the move to the list
-
-      // Update last move trackers
-      LastFaceIndex := FaceIndex;
-      LastModifierIndex := ModifierIndex;
-      LastMove := Move;
-    end;
-
-    Result := Moves.DelimitedText; // Convert the list to a delimited string
-  finally
-    Moves.Free;
-  end;
-end;
 
 
 
@@ -929,6 +965,7 @@ begin
   memSolveSummary.Lines.Add('---> Filter');
   memSolveSummary.Lines.Add(s);
   UpperCase(s);
+  s := FormatMovesString(s);
   edtMoveString.Text := s;
 end;
 
