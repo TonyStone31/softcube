@@ -1,7 +1,7 @@
 object frmMain: TfrmMain
-  Left = 543
+  Left = 0
   Height = 905
-  Top = 2810
+  Top = 2160
   Width = 1354
   Anchors = [akTop]
   Caption = 'Rubik''s Cube'
@@ -38,9 +38,10 @@ object frmMain: TfrmMain
     Anchors = [akTop, akLeft, akRight, akBottom]
     ClientHeight = 360
     ClientWidth = 678
+    Constraints.MinWidth = 150
     ParentBackground = False
     TabOrder = 0
-    object btnDefault3Dview: TSpeedButton
+    object btn3DviewReset: TSpeedButton
       AnchorSideLeft.Control = pnl3Dview
       AnchorSideBottom.Control = pnl3Dview
       AnchorSideBottom.Side = asrBottom
@@ -133,7 +134,7 @@ object frmMain: TfrmMain
         00000000000002020205151210480504040C0000000000000000000000000000
         000000000000000000000000000000000000000000000000000000000000
       }
-      OnClick = btnDefault3DviewClick
+      OnClick = btn3DviewResetClick
     end
     object btn3DViewRotateRight: TSpeedButton
       Tag = 5
@@ -187,7 +188,7 @@ object frmMain: TfrmMain
       AnchorSideTop.Control = pnl3Dview
       AnchorSideRight.Control = pnl3Dview
       AnchorSideRight.Side = asrBottom
-      AnchorSideBottom.Control = btnDefault3Dview
+      AnchorSideBottom.Control = btn3DviewReset
       Left = 11
       Height = 298
       Top = 11
@@ -349,9 +350,10 @@ object frmMain: TfrmMain
   end
   object SplitterVerticalMain: TSplitter
     AnchorSideLeft.Side = asrBottom
-    AnchorSideBottom.Control = SplitterHorizontalMain
+    AnchorSideBottom.Control = Owner
+    AnchorSideBottom.Side = asrBottom
     Left = 671
-    Height = 507
+    Height = 945
     Top = -40
     Width = 5
     Align = alNone
@@ -370,6 +372,7 @@ object frmMain: TfrmMain
     Width = 683
     Align = alNone
     Anchors = [akLeft, akRight]
+    MinSize = 275
     ResizeAnchor = akBottom
   end
   object pnlCubeControls: TPanel
@@ -385,7 +388,6 @@ object frmMain: TfrmMain
     Anchors = [akLeft, akRight, akBottom]
     ClientHeight = 107
     ClientWidth = 678
-    Constraints.MinWidth = 250
     ParentBackground = False
     TabOrder = 5
     object tglKeyBoardControl: TCheckBox
@@ -451,7 +453,7 @@ object frmMain: TfrmMain
       ParentBackground = False
       TabOrder = 1
       object btnDownClock: TSpeedButton
-        Tag = 5
+        Tag = 15
         AnchorSideLeft.Control = btnLeftClock
         AnchorSideLeft.Side = asrBottom
         AnchorSideTop.Control = pnlFaceControls
@@ -461,10 +463,10 @@ object frmMain: TfrmMain
         Width = 30
         BorderSpacing.Around = 10
         Caption = 'D'
-        OnClick = btnRightClockClick
+        OnClick = btnMoveClick
       end
       object btnDownCounter: TSpeedButton
-        Tag = 15
+        Tag = 5
         AnchorSideLeft.Control = btnLeftClock
         AnchorSideLeft.Side = asrBottom
         AnchorSideBottom.Control = pnlFaceControls
@@ -476,10 +478,10 @@ object frmMain: TfrmMain
         Anchors = [akLeft, akBottom]
         BorderSpacing.Around = 10
         Caption = 'D'''
-        OnClick = btnRightClockClick
+        OnClick = btnMoveClick
       end
       object btnLeftCounter: TSpeedButton
-        Tag = 14
+        Tag = 4
         AnchorSideLeft.Control = btnBackClock
         AnchorSideLeft.Side = asrBottom
         AnchorSideBottom.Control = pnlFaceControls
@@ -491,10 +493,10 @@ object frmMain: TfrmMain
         Anchors = [akLeft, akBottom]
         BorderSpacing.Around = 10
         Caption = 'L'''
-        OnClick = btnRightClockClick
+        OnClick = btnMoveClick
       end
       object btnLeftClock: TSpeedButton
-        Tag = 4
+        Tag = 14
         AnchorSideLeft.Control = btnBackClock
         AnchorSideLeft.Side = asrBottom
         AnchorSideTop.Control = pnlFaceControls
@@ -504,10 +506,10 @@ object frmMain: TfrmMain
         Width = 30
         BorderSpacing.Around = 10
         Caption = 'L'
-        OnClick = btnRightClockClick
+        OnClick = btnMoveClick
       end
       object btnBackCounter: TSpeedButton
-        Tag = 13
+        Tag = 3
         AnchorSideLeft.Control = btnUpClock
         AnchorSideLeft.Side = asrBottom
         AnchorSideBottom.Control = pnlFaceControls
@@ -519,10 +521,10 @@ object frmMain: TfrmMain
         Anchors = [akLeft, akBottom]
         BorderSpacing.Around = 10
         Caption = 'B'''
-        OnClick = btnRightClockClick
+        OnClick = btnMoveClick
       end
       object btnBackClock: TSpeedButton
-        Tag = 3
+        Tag = 13
         AnchorSideLeft.Control = btnUpClock
         AnchorSideLeft.Side = asrBottom
         AnchorSideTop.Control = pnlFaceControls
@@ -533,7 +535,7 @@ object frmMain: TfrmMain
         Width = 30
         BorderSpacing.Around = 10
         Caption = 'B'
-        OnClick = btnRightClockClick
+        OnClick = btnMoveClick
       end
       object btnUpCounter: TSpeedButton
         Tag = 10
@@ -548,7 +550,7 @@ object frmMain: TfrmMain
         Anchors = [akLeft, akBottom]
         BorderSpacing.Around = 10
         Caption = 'U'''
-        OnClick = btnRightClockClick
+        OnClick = btnMoveClick
       end
       object btnUpClock: TSpeedButton
         AnchorSideLeft.Control = btnRightClock
@@ -560,7 +562,7 @@ object frmMain: TfrmMain
         Width = 30
         BorderSpacing.Around = 10
         Caption = 'U'
-        OnClick = btnRightClockClick
+        OnClick = btnMoveClick
       end
       object btnRightCounter: TSpeedButton
         Tag = 12
@@ -575,7 +577,7 @@ object frmMain: TfrmMain
         Anchors = [akLeft, akBottom]
         BorderSpacing.Around = 10
         Caption = 'R'''
-        OnClick = btnRightClockClick
+        OnClick = btnMoveClick
       end
       object btnRightClock: TSpeedButton
         Tag = 2
@@ -590,7 +592,7 @@ object frmMain: TfrmMain
         BorderSpacing.Bottom = 50
         BorderSpacing.Around = 10
         Caption = 'R'
-        OnClick = btnRightClockClick
+        OnClick = btnMoveClick
       end
       object btnFrontCounter: TSpeedButton
         Tag = 11
@@ -604,7 +606,7 @@ object frmMain: TfrmMain
         Anchors = [akLeft, akBottom]
         BorderSpacing.Around = 10
         Caption = 'F'''
-        OnClick = btnRightClockClick
+        OnClick = btnMoveClick
       end
       object btnFrontClock: TSpeedButton
         Tag = 1
@@ -617,7 +619,7 @@ object frmMain: TfrmMain
         Width = 30
         BorderSpacing.Around = 10
         Caption = 'F'
-        OnClick = btnRightClockClick
+        OnClick = btnMoveClick
       end
     end
   end
@@ -671,6 +673,8 @@ object frmMain: TfrmMain
           Color = clWhite
           ParentColor = False
           OnMouseDown = pntBoxCurrentStateMouseDown
+          OnMouseWheel = pntBoxCurrentStateMouseWheel
+          OnMouseWheelDown = pntBoxCurrentStateMouseWheelDown
           OnPaint = pntBoxCurrentStatePaint
         end
         object btnCurrentStateReset: TSpeedButton

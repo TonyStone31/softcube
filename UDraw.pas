@@ -43,13 +43,12 @@ uses
   strutils,
   UConst;
 
-procedure PlaceColorClicker(var cube: TRubik; pt: tpoint; colindex: integer);
-function GetCubeyColor(const cube: TRubik; pt: TPoint): integer;
+procedure SetColor2D(var cube: TRubik; pt: tpoint; colindex: integer);
+function GetColor2D(const cube: TRubik; pt: TPoint): integer;
 procedure Rotate3d(var C: TCube3D; rx, ry, rz: single);
 procedure Rotate3dFace(var C: TCube3D; face: integer; rotation: single);
 procedure DrawCube3d(P: TPaintBox; c: TRubik; C3D: TCube3D);
 procedure DrawCube(P: TPaintBox; c: TRubik);
-procedure PlaceColor(var cube: TRubik; pt: tpoint);
 
 var
   CurrentCubeState: TRubik;
@@ -212,7 +211,7 @@ begin
   end;
 end;
 
-function GetCubeyColor(const cube: TRubik; pt: TPoint): integer;
+function GetColor2D(const cube: TRubik; pt: TPoint): integer;
 var
   i, j: integer;
 begin
@@ -231,23 +230,7 @@ begin
       end;
 end;
 
-procedure PlaceColor(var cube: TRubik; pt: tpoint);
-var
-  i, j: integer;
-begin
-  for i := 1 to 6 do for j := 0 to 8 do
-      if j <> 4 then
-      begin
-        if PtInRect(Rect(CFacePlace[i, j].x * CubeySize, CFacePlace[i, j].Y * CubeySize,
-          CFacePlace[i, j].x * CubeySize + CubeySize - 3, CFacePlace[i, j].Y * CubeySize +
-          CubeySize - 3), pt) then
-        begin
-          cube[i, j] := SelectedColor;
-        end;
-      end;
-end;
-
-procedure PlaceColorClicker(var cube: TRubik; pt: tpoint; colindex: integer);
+procedure SetColor2D(var cube: TRubik; pt: tpoint; colindex: integer);
 var
   i, j: integer;
 begin
@@ -262,6 +245,24 @@ begin
         end;
       end;
 end;
+
+function PointInPolygon(point: TPoint; const polygon: array of TPoint): Boolean;
+var
+  i, j: Integer;
+  inside: Boolean;
+begin
+  inside := False;
+  j := High(polygon);
+  for i := Low(polygon) to High(polygon) do
+  begin
+    if (((polygon[i].Y > point.Y) <> (polygon[j].Y > point.Y)) and
+       (point.X < (polygon[j].X - polygon[i].X) * (point.Y - polygon[i].Y) / (polygon[j].Y - polygon[i].Y) + polygon[i].X)) then
+      inside := not inside;
+    j := i;
+  end;
+  Result := inside;
+end;
+
 
 
 

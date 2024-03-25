@@ -53,6 +53,8 @@ var
 
 implementation
 
+
+
 procedure LFDstringCorrection(var s: string);
 { #note -oTonyStone : Yes this is very hackish.  It was currently the easiest solution for me to
 invert the rotation directions for the Left Front and Down faces.  A proper solution I think may

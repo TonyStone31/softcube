@@ -31,6 +31,7 @@ uses
   UDraw;
 
 procedure LFDstringCorrection(var s: string);
+function FormatMovesString(input: string): string;
 function CubeToDefinitionString(cube: TRubik): string;
 procedure RotateFace(var cube: TUnitRubik; face, rotation: integer);
 procedure ApplyFormula(var cube: TRubik; s: string);
@@ -91,6 +92,35 @@ begin
     end;
   end;
   s := newS; // Update the original string
+end;
+
+function FormatMovesString(input: string): string;
+var
+  i: Integer;
+  output: string;
+begin
+  output := '';
+  i := 1;
+  while i <= Length(input) do
+  begin
+    // Add the current move
+    output := output + input[i];
+
+    // Check if the next character is a part of the current move (' or 2)
+    if (i < Length(input)) and ((input[i + 1] = '''') or (input[i + 1] = '2')) then
+    begin
+      output := output + input[i + 1];
+      Inc(i); // Skip the next character since it's part of the current move
+    end;
+
+    // If not at the end of the string, add double space for readability
+    if i < Length(input) then
+      output := output + '  ';
+
+    Inc(i); // Move to the next character/move
+  end;
+
+  Result := output;
 end;
 
 function CubeToDefinitionString(cube: TRubik): string;
@@ -915,54 +945,14 @@ end;
 // Supressions de deux mouvements opposés consécutifs
 // Removal of two consecutive opposite movements
 
-function FilterMoves(var s: string; cube: TFaceRubik): string;
-var
-  tmp: TLinRubik;
-  tab: array of string;
-  i, j, n, p: integer;
-  f: string;
-begin
-  Result := '';
-
-  for i := 0 to ConvertNumber - 1 do s := AnsiReplaceText(s, StrFrom_To[i * 2], StrFrom_To[i * 2 + 1]);
-  tmp := TLinRubik(cube);
-  n := CountMoves(s);
-  setlength(tab, n + 1);
-  p := 1;
-  tab[0] := RubikToStr(tmp);
-
-  for i := 1 to n do
-  begin
-    f := s[p];
-    Inc(p);
-    if (p <= length(s)) and (s[p] = '''') then
-    begin
-      f := f + '''';
-      Inc(p);
-    end;
-    if (p <= length(s)) and (s[p] = '2') then
-    begin
-      f := f + '2';
-      Inc(p);
-    end;
-    ApplyFormula(tfacerubik(tmp), f);
-
-    tab[i] := RubikToStr(tmp);
-  end;
-  for j := n downto 1 do
-    for i := 0 to j - 1 do
-      if tab[j] = tab[i] then Result := Result + '(' + IntToStr(j) + '/' + IntToStr(i) + ')';
-end;
-
 //function FilterMoves(var s: string; cube: TFaceRubik): string;
 //var
 //  tmp: TLinRubik;
 //  tab: array of string;
 //  i, j, n, p: integer;
-//  f, moveSequence: string;
+//  f: string;
 //begin
 //  Result := '';
-//  moveSequence := ''; // To hold the sequence of moves with adjusted primes and spaces
 //
 //  for i := 0 to ConvertNumber - 1 do s := AnsiReplaceText(s, StrFrom_To[i * 2], StrFrom_To[i * 2 + 1]);
 //  tmp := TLinRubik(cube);
@@ -985,31 +975,71 @@ end;
 //      f := f + '2';
 //      Inc(p);
 //    end;
-//
-//    // Adjust the prime symbol for L, D, F moves
-//    if (f = 'L''') or (f = 'D''') or (f = 'F''') then
-//      f := f[1] // Remove the prime symbol for these faces
-//    else if (f = 'L') or (f = 'D') or (f = 'F') then
-//      f := f + ''''; // Add the prime symbol for clockwise rotation of these faces
-//
 //    ApplyFormula(tfacerubik(tmp), f);
 //
 //    tab[i] := RubikToStr(tmp);
-//
-//    // Append the adjusted move to the move sequence with a space for readability
-//    if moveSequence <> '' then
-//      moveSequence := moveSequence + ' ' + f
-//    else
-//      moveSequence := f;
 //  end;
-//
-//  // After processing all moves, append the move sequence to Result
-//  Result := moveSequence;
-//
 //  for j := n downto 1 do
 //    for i := 0 to j - 1 do
-//      if tab[j] = tab[i] then Result := Result + ' (' + IntToStr(j) + '/' + IntToStr(i) + ')';
+//      if tab[j] = tab[i] then Result := Result + '(' + IntToStr(j) + '/' + IntToStr(i) + ')';
 //end;
+
+function FilterMoves(var s: string; cube: TFaceRubik): string;
+var
+  tmp: TLinRubik;
+  tab: array of string;
+  i, j, n, p: integer;
+  f, moveSequence: string;
+begin
+  Result := '';
+  moveSequence := ''; // To hold the sequence of moves with adjusted primes and spaces
+
+  for i := 0 to ConvertNumber - 1 do s := AnsiReplaceText(s, StrFrom_To[i * 2], StrFrom_To[i * 2 + 1]);
+  tmp := TLinRubik(cube);
+  n := CountMoves(s);
+  setlength(tab, n + 1);
+  p := 1;
+  tab[0] := RubikToStr(tmp);
+
+  for i := 1 to n do
+  begin
+    f := s[p];
+    Inc(p);
+    if (p <= length(s)) and (s[p] = '''') then
+    begin
+      f := f + '''';
+      Inc(p);
+    end;
+    if (p <= length(s)) and (s[p] = '2') then
+    begin
+      f := f + '2';
+      Inc(p);
+    end;
+
+    // Adjust the prime symbol for L, D, F moves
+    if (f = 'L''') or (f = 'D''') or (f = 'F''') then
+      f := f[1] // Remove the prime symbol for these faces
+    else if (f = 'L') or (f = 'D') or (f = 'F') then
+      f := f + ''''; // Add the prime symbol for clockwise rotation of these faces
+
+    ApplyFormula(tfacerubik(tmp), f);
+
+    tab[i] := RubikToStr(tmp);
+
+    // Append the adjusted move to the move sequence with a space for readability
+    if moveSequence <> '' then
+      moveSequence := moveSequence + ' ' + f
+    else
+      moveSequence := f;
+  end;
+
+  // After processing all moves, append the move sequence to Result
+  Result := moveSequence;
+
+  for j := n downto 1 do
+    for i := 0 to j - 1 do
+      if tab[j] = tab[i] then Result := Result + ' (' + IntToStr(j) + '/' + IntToStr(i) + ')';
+end;
 
 
 end.
