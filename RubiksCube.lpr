@@ -23,7 +23,7 @@ program RubiksCube;
 {$MODE Delphi}
 
 uses
-  Forms,
+  Forms, tachartlazaruspkg,
   Interfaces,
   UMain in 'UMain.pas' {Form1},
   UConst in 'UConst.pas',

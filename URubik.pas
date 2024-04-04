@@ -47,6 +47,7 @@ procedure OrientYellowCorners(var cube: TRubik);
 function FilterMoves(var s: string; cube: TFaceRubik): string;
 function CountMoves(s: string): integer;
 function VerifyCube(original: TFaceRubik; var s: string): boolean;
+function CompareCubes(c1, c2: TRubik): boolean;
 
 var
   solu: string = ' ';
@@ -175,7 +176,7 @@ begin
   end;
 end;
          // French still... I think it is just comparing two cubes.  Will rename
-function MemeCubes(c1, c2: TRubik): boolean;
+function CompareCubes(c1, c2: TRubik): boolean;
 var
   i: integer;
 begin

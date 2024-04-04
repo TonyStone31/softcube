@@ -37,7 +37,7 @@ uses
   ComCtrls,
   Buttons,
   Dialogs,
-  StdCtrls,
+  StdCtrls, TAChartListbox, BCExpandPanels,
   strutils,
   UConst,
   UDraw,
@@ -54,20 +54,21 @@ type
 
   TfrmMain = class(TForm)
     btn2phaseSolve: TSpeedButton;
-    btnBackClock: TSpeedButton;
     btn3DViewRotate90Left: TSpeedButton;
+    btn3DviewReset: TSpeedButton;
+    btnBackClock: TSpeedButton;
     btnBackCounter: TSpeedButton;
     btnControlHelp: TSpeedButton;
-    btnCurrentStateReset: TSpeedButton;
-    btn3DviewReset: TSpeedButton;
-    btnDownClock: TSpeedButton;
     btn3DViewRotateRight: TSpeedButton;
+    btnCurrentStateReset: TSpeedButton;
+    btnDownClock: TSpeedButton;
     btnDownCounter: TSpeedButton;
     btnExecute: TSpeedButton;
+    btn3DViewRotate90Up: TSpeedButton;
+    btnExecuteUntilSolved: TSpeedButton;
     btnFrontClock: TSpeedButton;
     btnFrontCounter: TSpeedButton;
     btnLeftClock: TSpeedButton;
-    btn3DViewRotate90Up: TSpeedButton;
     btnLeftCounter: TSpeedButton;
     btnRightClock: TSpeedButton;
     btnRightCounter: TSpeedButton;
@@ -79,6 +80,7 @@ type
     btnUpCounter: TSpeedButton;
     edtMoveString: TMemo;
     lblCurrentMove: TLabel;
+    lblPeakUnder: TLabel;
     lblSingMaster: TLabel;
     lblSpeedControl: TLabel;
     lblNoticeTarget: TLabel;
@@ -86,16 +88,16 @@ type
     memSolveSummary: TMemo;
     pnlCubeControls: TPanel;
     pnlFaceControls: TPanel;
+    pnlSetState: TPanel;
     pntBox3Dview: TPaintBox;
+    pntBoxCurrentState: TPaintBox;
     SplitterVerticalMain: TSplitter;
     SplitterHorizontalMain: TSplitter;
     tglKeyBoardControl: TCheckBox;
     ts2DViews: TPageControl;
     pnlDestination: TPanel;
-    pnlSetState: TPanel;
     pnl3Dview: TPanel;
     pnlSolution: TPanel;
-    pntBoxCurrentState: TPaintBox;
     pntBoxTargetSolve: TPaintBox;
     spinEdtAnimationSpeed: TSpinEdit;
     TabSheet1: TTabSheet;
@@ -106,6 +108,7 @@ type
     procedure btnControlHelpClick(Sender: TObject);
     procedure btn3DViewRotateRightClick(Sender: TObject);
     procedure btn3DViewRotate90UpClick(Sender: TObject);
+    procedure btnExecuteUntilSolvedClick(Sender: TObject);
     procedure btnScrambleTargetClick(Sender: TObject);
     procedure btnScrampleStateClick(Sender: TObject);
     procedure btnTargetSolveResetClick(Sender: TObject);
@@ -120,6 +123,12 @@ type
     procedure FormKeyDown(Sender: TObject; var Key: word; Shift: TShiftState);
     procedure FormKeyPress(Sender: TObject; var Key: char);
     procedure FormKeyUp(Sender: TObject; var Key: word; Shift: TShiftState);
+    procedure lblPeakUnderClick(Sender: TObject);
+    procedure lblPeakUnderMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X,
+      Y: Integer);
+    procedure lblPeakUnderMouseEnter(Sender: TObject);
+    procedure lblPeakUnderMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X,
+      Y: Integer);
     procedure pntBoxCurrentStateMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: integer;
       MousePos: TPoint; var Handled: boolean);
     procedure pntBoxCurrentStateMouseWheelDown(Sender: TObject; Shift: TShiftState;
@@ -297,19 +306,20 @@ end;
 
 procedure TfrmMain.FormKeyDown(Sender: TObject; var Key: word; Shift: TShiftState);
 begin
+  case Key of
+    VK_A: FaceCodeMover := 4; // Left
+    VK_S: FaceCodeMover := 5; // Down
+    VK_D: FaceCodeMover := 2; // Right
+    VK_W: FaceCodeMover := 0; // Up
+    VK_R: FaceCodeMover := 3; // Front
+    VK_F: FaceCodeMover := 1; // Back
+  end;
   if keyBoardControlActive then Key := 0;
 end;
 
 procedure TfrmMain.FormKeyPress(Sender: TObject; var Key: char);
 begin
-  case Key of
-    'a', 'A': FaceCodeMover := 4;
-    's', 'S': FaceCodeMover := 5;
-    'd', 'D': FaceCodeMover := 2;
-    'w', 'W': FaceCodeMover := 0;
-    'r', 'R': FaceCodeMover := 3;
-    'f', 'F': FaceCodeMover := 1;
-  end;
+
 end;
 
 procedure TfrmMain.FormKeyUp(Sender: TObject; var Key: word; Shift: TShiftState);
@@ -328,6 +338,38 @@ begin
     if (Key = VK_DOWN) then
       ManualRotateFace(FaceCodeMover, True);
   end;
+end;
+
+procedure TfrmMain.lblPeakUnderClick(Sender: TObject);
+begin
+  //if Cube3DTransActive then Exit;
+  //RotateCubePeakUnder();
+  //Cube3DTransActive:=True;
+  //ActiveSleep(1000);
+  //Cube3DTransActive:=False;
+  //RotateCubeUnPeakUnder();
+
+end;
+
+procedure TfrmMain.lblPeakUnderMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState;
+  X, Y: Integer);
+begin
+  if Cube3DTransActive then Exit;
+  RotateCubePeakUnder();
+  Cube3DTransActive:=True;
+end;
+
+procedure TfrmMain.lblPeakUnderMouseEnter(Sender: TObject);
+begin
+
+end;
+
+procedure TfrmMain.lblPeakUnderMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState;
+  X, Y: Integer);
+begin
+    //ActiveSleep(1000);
+  Cube3DTransActive:=False;
+  RotateCubeUnPeakUnder();
 end;
 
 procedure TfrmMain.ts2DViewsChange(Sender: TObject);
@@ -400,8 +442,6 @@ begin
   DrawCube(pntBoxCurrentState, CurrentCubeState);
   pntBox3Dview.Refresh;
 end;
-
-
 
 procedure TfrmMain.pntBoxCurrentStateMouseWheelDown(Sender: TObject; Shift: TShiftState;
   MousePos: TPoint; var Handled: boolean);
@@ -545,13 +585,13 @@ begin
   until Cube3DTransActive = False;
 
   Cube3DTransActive := True;
-  AngleXIncrement := ((45 + 22.5) * Pi / 180) / 60;
+  AngleXIncrement := ((45 + 22.5) * Pi / 180) / 30;
 
-  for i := 1 to 60 do
+  for i := 1 to 30 do
   begin
     Rotate3d(cube3d, AngleXIncrement, 0, 0);
     DrawCube3d(pntBox3Dview, CurrentCubeState, cube3d);
-    Sleep(i div 6);
+    Sleep(i div 12);
   end;
 
   Cube3DTransActive := False;
@@ -568,13 +608,13 @@ begin
   until Cube3DTransActive = False;
 
   Cube3DTransActive := True;
-  AngleXIncrement := ((45 + 22.5) * Pi / 180) / 60;
+  AngleXIncrement := ((45 + 22.5) * Pi / 180) / 30;
 
-  for i := 1 to 60 do
+  for i := 1 to 30 do
   begin
     Rotate3d(cube3d, -AngleXIncrement, 0, 0);
     DrawCube3d(pntBox3Dview, CurrentCubeState, cube3d);
-    Sleep(i div 6);
+    Sleep(i div 12);
   end;
 
   Cube3DTransActive := False;
@@ -582,31 +622,60 @@ end;
 
 procedure TfrmMain.btn3DViewRotate90LeftClick(Sender: TObject);
 begin
+  if Cube3DTransActive then Exit;
   RotateCubeLeftRight(1);
 end;
 
 procedure TfrmMain.btn3DViewRotate90UpMouseEnter(Sender: TObject);
 begin
-  // Needs more thought but partially works.  Will leave commented out for now
-  RotateCubePeakUnder();
+
 end;
 
 procedure TfrmMain.btn3DViewRotate90UpMouseLeave(Sender: TObject);
 begin
-  // Needs more thought but partially works.  Will leave commented out for now
-  RotateCubeUnPeakUnder();
+
 end;
 
 procedure TfrmMain.btn3DViewRotate90UpClick(Sender: TObject);
 begin
+  if Cube3DTransActive then Exit;
   RotateCubeFlipUp;
+end;
+
+procedure TfrmMain.btnExecuteUntilSolvedClick(Sender: TObject);
+var
+  s: TCaption;
+  repeated: Integer;
+begin
+  repeated:=0;
+    if IsRunning then
+  begin
+    btnExecuteUntilSolved.Caption := '🚀 Execute';
+    ToggleButtonsExcept(Self, btnExecuteUntilSolved, True);
+    IsRunning := False;
+    exit;
+  end;
+  IsRunning := True;
+  btnExecuteUntilSolved.Caption := 'Stop';
+  ToggleButtonsExcept(Self, btnExecuteUntilSolved, False);
+
+  repeat
+  s := AnsiUpperCase(edtMoveString.Text);
+  ExecuteNotation(s, spinEdtAnimationSpeed.Value);
+  Inc(repeated);
+  until CompareCubes(CurrentCubeState,TargetCubeState);
+
+  IsRunning := False;
+  btnExecuteUntilSolved.Caption := '🚀 Execute Until Solved';
+  ToggleButtonsExcept(Self, btnExecuteUntilSolved, True);
+  ShowMessage(IntToStr(repeated));
 end;
 
 procedure TfrmMain.btn3DViewRotateRightClick(Sender: TObject);
 begin
+  if Cube3DTransActive then Exit;
   RotateCubeLeftRight(-1);
 end;
-
 
 procedure TfrmMain.tglKeyBoardControlChange(Sender: TObject);
 begin
@@ -624,10 +693,37 @@ begin
 end;
 
 procedure TfrmMain.pntBox3DviewMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: integer);
+var
+  colorIndex: integer;
 begin
-  mouseDrag3D := True;
-  tmx := x;
-  tmy := y;
+  if IsRunning then Exit;
+  colorIndex := GetColor3D(CurrentCubeState, Point(x, y));
+
+  if Button = mbLeft then
+  begin
+    // Cycles colors 2 to 5 with left mouse button
+    if (colorIndex >= 2) and (colorIndex < 5) then
+      Inc(colorIndex) // Move to the next color
+    else if colorIndex = 5 then
+      colorIndex := 2 // Wrap back to color 2
+    else
+      colorIndex := 2; // Default to 2 if outside range
+  end else if Button = mbRight then
+  begin
+    // Toggles between colors 1 and 6 with right mouse button
+    if colorIndex = 6 then
+      colorIndex := 1
+    else
+      colorIndex := 6;
+  end;
+
+  SetColor3D(CurrentCubeState, point(x, y), colorIndex);
+
+  DrawCube(pntBoxCurrentState, CurrentCubeState);
+  pntBox3Dview.Refresh;
+  //mouseDrag3D := True;
+  //tmx := x;
+  //tmy := y;
 end;
 
 procedure TfrmMain.pntBox3DviewMouseMove(Sender: TObject; Shift: TShiftState; X, Y: integer);
@@ -670,8 +766,8 @@ begin
   begin
     if TryStrToInt(InputStr, NumMoves) then
     begin
-      if NumMoves > 100 then
-        NumMoves := 100; // Capping number of moves
+      //if NumMoves > 100 then
+      //  NumMoves := 100; // Capping number of moves
       //RandomRotateFaces(NumMoves);
       scrambledNotation := GenerateRandomScramble(NumMoves);
       memRandScramble.Text := scrambledNotation;
@@ -685,7 +781,6 @@ begin
   end;
 end;
 
-
 procedure TfrmMain.btnScrambleTargetClick(Sender: TObject);
 var
   i: integer;
@@ -698,7 +793,41 @@ begin
 end;
 
 procedure TfrmMain.btnControlHelpClick(Sender: TObject);
+var
+  Instructions: string;
 begin
+  Instructions :=
+    'Using Keyboard Controls:' + sLineBreak + sLineBreak +
+    '1. Enable Keyboard Control:' + sLineBreak +
+    '   - Check the "Keyboard" checkbox located in the user interface.' + sLineBreak +
+    sLineBreak +
+    '2. Select Face to Rotate:' + sLineBreak +
+    '   - Once the "Keyboard" checkbox is enabled, you can choose which face of the Rubik''s Cube to rotate using the arrow keys.' + sLineBreak +
+    sLineBreak +
+    '3. Face Selection:' + sLineBreak +
+    '   - Press the corresponding keys to select the face you want to rotate:' + sLineBreak +
+    '     - Press ''W'' for the Up face.' + sLineBreak +
+    '     - Press ''A'' for the Left face.' + sLineBreak +
+    '     - Press ''S'' for the Down face.' + sLineBreak +
+    '     - Press ''D'' for the Right face.' + sLineBreak +
+    '     - Press ''R'' for the Front face.' + sLineBreak +
+    '     - Press ''F'' for the Back face.' + sLineBreak +
+    sLineBreak +
+    '4. Rotating the Face:' + sLineBreak +
+    '   - After selecting a face, you can rotate it using the arrow keys:' + sLineBreak +
+    '     - Press the left arrow key to rotate the face counterclockwise.' + sLineBreak +
+    '     - Press the right arrow key to rotate the face clockwise.' + sLineBreak +
+    sLineBreak +
+    '5. Disabling Keyboard Control:' + sLineBreak +
+    '   - To disable keyboard controls, uncheck the "Keyboard" checkbox.' + sLineBreak +
+    sLineBreak +
+    'Note:' + sLineBreak +
+    ' - Keyboard controls are only available when the "Keyboard" checkbox is enabled.' + sLineBreak +
+    ' - Ensure that the application is not currently executing any other commands when using keyboard controls.' + sLineBreak +
+    sLineBreak +
+    'For additional assistance, please refer to the application''s user manual or contact support.';
+
+  ShowMessage(Instructions);
 
 end;
 
@@ -774,7 +903,6 @@ procedure TfrmMain.edtMoveStringKeyUp(Sender: TObject; var Key: word; Shift: TSh
 begin
   //if Key = VK_RETURN then btnExecuteClick(Sender);
 end;
-
 
 procedure TfrmMain.edtMoveStringKeyPress(Sender: TObject; var Key: char);
 begin
@@ -892,8 +1020,6 @@ begin
   DrawCube(pntBoxCurrentState, CurrentCubeState);
   pntBox3Dview.Refresh;
 end;
-
-
 
 function TfrmMain.GenerateRandomScramble(MoveCount: integer): string;
 const

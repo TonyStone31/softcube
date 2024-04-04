@@ -45,10 +45,26 @@ uses
 
 procedure SetColor2D(var cube: TRubik; pt: tpoint; colindex: integer);
 function GetColor2D(const cube: TRubik; pt: TPoint): integer;
+//procedure SetColor3D(var cube3D: TCube3D; const pt: TPoint; const colindex: integer);
+
+
+  procedure SetColor3D(var cube: TRubik; const pt: TPoint; colindex: byte);
+  function GetColor3D(const cube: TRubik; const pt: TPoint): integer;
+
 procedure Rotate3d(var C: TCube3D; rx, ry, rz: single);
 procedure Rotate3dFace(var C: TCube3D; face: integer; rotation: single);
-procedure DrawCube3d(P: TPaintBox; c: TRubik; C3D: TCube3D);
+procedure DrawCube3d(P: TPaintBox; RubikCube: TRubik; C3D: TCube3D);
 procedure DrawCube(P: TPaintBox; c: TRubik);
+
+type
+  T2DArray = array[0..3] of tpoint;
+
+  TPolyOrder = record
+    order: integer;
+    z: single;
+    color: tcolor;
+    pt: T2DArray;
+  end;
 
 var
   CurrentCubeState: TRubik;
@@ -59,6 +75,8 @@ var
   axeY: T3dPoint = (0, -1, 0);
   axeZ: T3dPoint = (0, 0, -1);
   CubeySize: integer = 30;
+
+  PolyOrder: array[0..269] of TPolyOrder;
 
 const
   C_FACE_GRID_POS: array[1..6, 0..2, 0..2] of TPoint =
@@ -187,20 +205,19 @@ begin
             C_FACE_GRID_POS[i, j, k].Y * CubeySize + CubeySize - 2);
 
           centerPoint := C_FACE_GRID_POS[i, j, k];
-          faceName := faceName
-          + IntToStr(TFaceRubik(c)[i, j])
+          faceName := faceName + IntToStr(TFaceRubik(c)[i, j])
           //+ IntToStr(C[i, j, k].x);
           // Constructs name like U1, L2, etc.
           // Needs more thought
-                                             ;
+          ;
           tmp.Canvas.Font.Size := 7;
           tmp.Canvas.Font.Color := clBlack;
 
-           //Draw face name in the center of each cubelet
-          tmp.Canvas.TextOut(
-          C_FACE_GRID_POS[i, j, k].x * CubeySize + (CubeySize div 2) - (tmp.Canvas.TextWidth(faceName) div 2),
-          C_FACE_GRID_POS[i, j, k].Y * CubeySize + (CubeySize div 2) - (tmp.Canvas.TextHeight(faceName) div 2),
-          faceName);
+          //Draw face name in the center of each cubelet
+          //tmp.Canvas.TextOut(
+          //C_FACE_GRID_POS[i, j, k].x * CubeySize + (CubeySize div 2) - (tmp.Canvas.TextWidth(faceName) div 2),
+          //C_FACE_GRID_POS[i, j, k].Y * CubeySize + (CubeySize div 2) - (tmp.Canvas.TextHeight(faceName) div 2),
+          //faceName);
         end;
       end;
     end;
@@ -246,54 +263,171 @@ begin
       end;
 end;
 
-function PointInPolygon(point: TPoint; const polygon: array of TPoint): Boolean;
+function PointInPolygon(point: TPoint; const polygon: array of TPoint): boolean;
 var
-  i, j: Integer;
-  inside: Boolean;
+  i, j: integer;
+  inside: boolean;
 begin
   inside := False;
   j := High(polygon);
   for i := Low(polygon) to High(polygon) do
   begin
-    if (((polygon[i].Y > point.Y) <> (polygon[j].Y > point.Y)) and
-       (point.X < (polygon[j].X - polygon[i].X) * (point.Y - polygon[i].Y) / (polygon[j].Y - polygon[i].Y) + polygon[i].X)) then
+    if (((polygon[i].Y > point.Y) <> (polygon[j].Y > point.Y)) and (point.X <
+      (polygon[j].X - polygon[i].X) * (point.Y - polygon[i].Y) / (polygon[j].Y - polygon[i].Y) + polygon[i].X)) then
       inside := not inside;
     j := i;
   end;
   Result := inside;
 end;
 
-function GetClickedCubie(x, y: Integer; const Polygons: array of TPolygon): TCubie;
-var
-  i: Integer;
-begin
-  // Initialize result to indicate no cubie was found
-  Result.CubieIndex := -1;
 
-  for i := Low(Polygons) to High(Polygons) do
+
+
+// RENDU 3D RENDU 3D RENDU 3D RENDU 3D RENDU 3D RENDU 3D RENDU 3D RENDU 3D RENDU
+// 3D RENDERING 3D RENDERING 3D RENDERING 3D RENDERING 3D RENDERING 3D RENDERING 3D RENDERING 3D RENDERING 3D
+
+function GetColor3D(const cube: TRubik; const pt: TPoint): integer;
+var
+  i, j: integer;
+begin
+  Result := -1; // Default value indicating no color found
+
+  // Iterate through each face of the cube
+  for i := 1 to 6 do
   begin
-    if PointInPolygon(Point(x, y), Polygons[i].Vertices) then
+    // Iterate through each cubey of the face
+    for j := 0 to 8 do
     begin
-      // We found the polygon that was clicked, now map it back to a cubie
-      Result := Polygons[i].Cubie; // This assumes you have a way to map polygons to cubies
+      if j <> 4 then // Skipping the center piece as it's fixed
+      begin
+        // Check if the clicked point is within the bounding box of the cubey
+        if PointInPolygon(pt, CFacePlace[i, j]) then
+        begin
+          Result := cube[i, j]; // Return the color index of the cubey
+          Exit; // Exit as soon as the color is found
+        end;
+      end;
+    end;
+  end;
+end;
+
+procedure SetColor3D(var cube: TRubik; const pt: TPoint; colindex: byte);
+var
+  i: integer;
+  cubeletIndex: integer;
+begin
+  // Iterate through each cubelet in the 3D cube
+  for i := 0 to 269 do
+  begin
+    // Check if the clicked point is inside the polygon representing this cubelet
+    if PointInPolygon(pt, PolyOrder[i].pt) then
+    begin
+      // Get the index of the cubelet in the Rubik's cube
+      cubeletIndex := PolyOrder[i].order;
+
+      // Update the color index of the cubelet in the Rubik's cube
+      cube[(cubeletIndex div 9) + 1, (cubeletIndex mod 9) div 3] := colindex;
+
+      // Break the loop since we've found the cubelet corresponding to the clicked point
       Break;
     end;
   end;
 end;
 
 
-// RENDU 3D RENDU 3D RENDU 3D RENDU 3D RENDU 3D RENDU 3D RENDU 3D RENDU 3D RENDU
-// 3D RENDERING 3D RENDERING 3D RENDERING 3D RENDERING 3D RENDERING 3D RENDERING 3D RENDERING 3D RENDERING 3D
 
-type
-  T2DArray = array[0..3] of tpoint;
 
-  TPolyOrder = record
-    order: integer;
-    z: single;
-    color: tcolor;
-    pt: T2DArray;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function Pt3dTo2D(x, y, z: single; dx, dy, scalingFactor: integer): TPoint;
+begin
+  z := z + 10; // Adjusts depth positioning
+  Result.x := Round((x * scalingFactor / z) * 20) + dx;
+  Result.y := -Round((y * scalingFactor / z) * 20) + dy; // Negative to flip Y-axis for screen coordinates
+end;
+
+procedure DrawCube3d(P: TPaintBox; RubikCube: TRubik; C3D: TCube3D);
+var
+  i, j: integer;
+  pt: T2DArray;
+  dx, dy, BaseScale, ScalingFactor: integer;
+  ux, uy: single;
+  vx, vy: single;
+  tmp: tbitmap;
+  polytmp: TPolyOrder;
+begin
+  tmp := tbitmap.Create;
+  tmp.Width := p.Width;
+  tmp.Height := p.Height;
+  tmp.Canvas.Brush.color := clAppWorkspace;
+  tmp.canvas.FillRect(p.ClientRect);
+  dx := tmp.Width div 2;
+  dy := tmp.Height div 2;
+
+  ScalingFactor := Min(P.Width, P.Height) div 24;
+
+  for i := 0 to 269 do
+  begin
+    PolyOrder[i].order := -1;
+    for j := 0 to 3 do pt[j] := Pt3dTo2D(C3D[i, j + 1, 0], C3D[i, j + 1, 1], C3D[i, j + 1, 2], dx, dy, ScalingFactor);
+    ux := pt[0].X - pt[1].X;
+    uy := pt[0].y - pt[1].y;
+    vx := pt[2].X - pt[1].X;
+    vy := pt[2].y - pt[1].y;
+
+    // ne dessine pas les faces arrières
+    // does not draw the back faces
+    //if ux*vy-uy*vx>=0 then continue;
+
+
+    PolyOrder[i].pt := pt;
+    PolyOrder[i].z := (C3D[i, 1, 2] + C3D[i, 2, 2] + C3D[i, 3, 2] + C3D[i, 4, 2]) / 4;
+    PolyOrder[i].order := i;
+    if i mod 5 = 4 then PolyOrder[i].color := C_COLOR[RubikCube[(i div 5) div 9 + 1, ((i div 5) mod 9)]]
+    else
+      PolyOrder[i].color := clblack;
+    // les faces arrières sont noirs
+    // the back faces are black
+    if ux * vy - uy * vx >= 0 then PolyOrder[i].color := clblack;
   end;
+
+  // tri des polygones à dessiner par ordre Z
+  // sorting of polygons to be drawn by Z order
+  for i := 0 to 268 do if PolyOrder[i].order <> -1 then
+      for j := i + 1 to 269 do if PolyOrder[j].order <> -1 then
+          if PolyOrder[j].z > PolyOrder[i].z then
+          begin
+            polytmp := PolyOrder[j];
+            PolyOrder[j] := PolyOrder[i];
+            PolyOrder[i] := polytmp;
+          end;
+
+  // affichage des polygones
+  // display of polygons
+  for i := 0 to 269 do
+    if PolyOrder[i].order <> -1 then
+    begin
+      tmp.canvas.Brush.color := PolyOrder[i].color;
+      tmp.canvas.Polygon(PolyOrder[i].pt);
+    end;
+
+  p.Canvas.Draw(0, 0, tmp);
+  tmp.Free;
+end;
+
 
 function RotationPoint(p: t3dpoint; vect: t3dpoint; r: single): t3dpoint;
 var
@@ -359,83 +493,9 @@ begin
     end;
 end;
 
-function Pt3dTo2D(x, y, z: single; dx, dy, scalingFactor: integer): TPoint;
-begin
-  z := z + 10; // Adjusts depth positioning
-  Result.x := Round((x * scalingFactor / z) * 20) + dx;
-  Result.y := -Round((y * scalingFactor / z) * 20) + dy; // Negative to flip Y-axis for screen coordinates
-end;
-
-var
-  PolyOrder: array[0..269] of TPolyOrder;
-
-procedure DrawCube3d(P: TPaintBox; c: TRubik; C3D: TCube3D);
-var
-  i, j: integer;
-  pt: T2DArray;
-  dx, dy, BaseScale, ScalingFactor: integer;
-  ux, uy: single;
-  vx, vy: single;
-  tmp: tbitmap;
-  polytmp: TPolyOrder;
-begin
-  tmp := tbitmap.Create;
-  tmp.Width := p.Width;
-  tmp.Height := p.Height;
-  tmp.Canvas.Brush.color := clAppWorkspace;
-  tmp.canvas.FillRect(p.ClientRect);
-  dx := tmp.Width div 2;
-  dy := tmp.Height div 2;
-
-  ScalingFactor := Min(P.Width, P.Height) div 24;
-
-  for i := 0 to 269 do
-  begin
-    PolyOrder[i].order := -1;
-    for j := 0 to 3 do pt[j] := Pt3dTo2D(C3D[i, j + 1, 0], C3D[i, j + 1, 1], C3D[i, j + 1, 2], dx, dy, ScalingFactor);
-    ux := pt[0].X - pt[1].X;
-    uy := pt[0].y - pt[1].y;
-    vx := pt[2].X - pt[1].X;
-    vy := pt[2].y - pt[1].y;
-
-    // ne dessine pas les faces arrières
-    // does not draw the back faces
-    //if ux*vy-uy*vx>=0 then continue;
 
 
-    PolyOrder[i].pt := pt;
-    PolyOrder[i].z := (C3D[i, 1, 2] + C3D[i, 2, 2] + C3D[i, 3, 2] + C3D[i, 4, 2]) / 4;
-    PolyOrder[i].order := i;
-    if i mod 5 = 4 then PolyOrder[i].color := C_COLOR[c[(i div 5) div 9 + 1, ((i div 5) mod 9)]]
-    else
-      PolyOrder[i].color := clblack;
-    // les faces arrières sont noirs
-    // the back faces are black
-    if ux * vy - uy * vx >= 0 then PolyOrder[i].color := clblack;
-  end;
 
-  // tri des polygones à dessiner par ordre Z
-  // sorting of polygons to be drawn by Z order
-  for i := 0 to 268 do if PolyOrder[i].order <> -1 then
-      for j := i + 1 to 269 do if PolyOrder[j].order <> -1 then
-          if PolyOrder[j].z > PolyOrder[i].z then
-          begin
-            polytmp := PolyOrder[j];
-            PolyOrder[j] := PolyOrder[i];
-            PolyOrder[i] := polytmp;
-          end;
 
-  // affichage des polygones
-  // display of polygons
-  for i := 0 to 269 do
-    if PolyOrder[i].order <> -1 then
-    begin
-      tmp.canvas.Brush.color := PolyOrder[i].color;
-      tmp.canvas.Polygon(PolyOrder[i].pt);
-    end;
-
-  p.Canvas.Draw(0, 0, tmp);
-  tmp.Free;
-end;
 
 end.
