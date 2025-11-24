@@ -41,20 +41,26 @@ uses
   Spin,
   StdCtrls,
   strutils,
-  UConst;
+  UConst,
+  BGRABitmap,
+  BGRABitmapTypes;
 
-procedure SetColor2D(var cube: TRubik; pt: tpoint; colindex: integer);
-function GetColor2D(const cube: TRubik; pt: TPoint): integer;
+procedure SetCubeletColor(var cube: TRubik; pt: tpoint; colindex: integer);
+function GetCubeletColor(const cube: TRubik; pt: TPoint): integer;
 //procedure SetColor3D(var cube3D: TCube3D; const pt: TPoint; const colindex: integer);
-
-
-  procedure SetColor3D(var cube: TRubik; const pt: TPoint; colindex: byte);
-  function GetColor3D(const cube: TRubik; const pt: TPoint): integer;
+function PointInPolygon(point: TPoint; const polygon: array of TPoint): boolean;
 
 procedure Rotate3d(var C: TCube3D; rx, ry, rz: single);
 procedure Rotate3dFace(var C: TCube3D; face: integer; rotation: single);
-procedure DrawCube3d(P: TPaintBox; RubikCube: TRubik; C3D: TCube3D);
+procedure DrawCube3d(Bitmap: TBGRABitmap; RubikCube: TRubik; C3D: TCube3D);
 procedure DrawCube(P: TPaintBox; c: TRubik);
+procedure DrawMarchingAnts(Bitmap: TBGRABitmap; const Points: array of TPointF;
+  Offset: Integer; LineWidth: Single);
+
+// Easing functions for smooth animations
+function EaseInOutQuad(t: Double): Double;
+function EaseInOutSine(t: Double): Double;
+function EaseInOutCubic(t: Double): Double;
 
 type
   T2DArray = array[0..3] of tpoint;
@@ -77,6 +83,22 @@ var
   CubeySize: integer = 30;
 
   PolyOrder: array[0..269] of TPolyOrder;
+
+  // Lighting control - set to False to disable lighting
+  UseLighting: Boolean = True;
+
+  // Keyboard face selection - which of the 3 visible faces is selected
+  KeyboardFaceSelectMode: Boolean = False;
+  SelectedVisibleFace: Integer = 0;  // Index into VisibleFaces array (0, 1, or 2)
+  MarchingAntsOffset: Integer = 0;   // Animation offset for marching ants
+  FaceHighlightPhase: Single = 0;    // 0 to 2*Pi for pulsing effect
+
+  // Track which 3 faces are currently visible to the user
+  // Face indices: 1=Top, 2=Front, 3=Right, 4=Back, 5=Left, 6=Bottom
+  // VisibleFaces[0] = top-ish face, [1] = front-ish face, [2] = right-ish face
+  VisibleFaces: array[0..2] of Integer = (1, 2, 3);  // Default: Top, Front, Right
+  ViewRotationY: Integer = 0;  // Track Y rotation in 90-degree increments (0, 1, 2, 3)
+  ViewFlipped: Boolean = False;  // Track if cube has been flipped 180° (W key)
 
 const
   C_FACE_GRID_POS: array[1..6, 0..2, 0..2] of TPoint =
@@ -206,10 +228,10 @@ begin
 
           centerPoint := C_FACE_GRID_POS[i, j, k];
           faceName := faceName + IntToStr(TFaceRubik(c)[i, j])
-          //+ IntToStr(C[i, j, k].x);
+          + IntToStr(C_FACE_GRID_POS[i, j, k].x);
           // Constructs name like U1, L2, etc.
           // Needs more thought
-          ;
+
           tmp.Canvas.Font.Size := 7;
           tmp.Canvas.Font.Color := clBlack;
 
@@ -228,7 +250,7 @@ begin
   end;
 end;
 
-function GetColor2D(const cube: TRubik; pt: TPoint): integer;
+function GetCubeletColor(const cube: TRubik; pt: TPoint): integer;
 var
   i, j: integer;
 begin
@@ -247,7 +269,7 @@ begin
       end;
 end;
 
-procedure SetColor2D(var cube: TRubik; pt: tpoint; colindex: integer);
+procedure SetCubeletColor(var cube: TRubik; pt: tpoint; colindex: integer);
 var
   i, j: integer;
 begin
@@ -265,89 +287,38 @@ end;
 
 function PointInPolygon(point: TPoint; const polygon: array of TPoint): boolean;
 var
+  windingNumber: integer;
   i, j: integer;
-  inside: boolean;
+  xi, yi, xj, yj: integer;
 begin
-  inside := False;
+  windingNumber := 0;
   j := High(polygon);
+
+  // Iterate through each edge of the polygon
   for i := Low(polygon) to High(polygon) do
   begin
-    if (((polygon[i].Y > point.Y) <> (polygon[j].Y > point.Y)) and (point.X <
-      (polygon[j].X - polygon[i].X) * (point.Y - polygon[i].Y) / (polygon[j].Y - polygon[i].Y) + polygon[i].X)) then
-      inside := not inside;
-    j := i;
-  end;
-  Result := inside;
-end;
+    xi := polygon[i].X;
+    yi := polygon[i].Y;
+    xj := polygon[j].X;
+    yj := polygon[j].Y;
 
-
-
-
-// RENDU 3D RENDU 3D RENDU 3D RENDU 3D RENDU 3D RENDU 3D RENDU 3D RENDU 3D RENDU
-// 3D RENDERING 3D RENDERING 3D RENDERING 3D RENDERING 3D RENDERING 3D RENDERING 3D RENDERING 3D RENDERING 3D
-
-function GetColor3D(const cube: TRubik; const pt: TPoint): integer;
-var
-  i, j: integer;
-begin
-  Result := -1; // Default value indicating no color found
-
-  // Iterate through each face of the cube
-  for i := 1 to 6 do
-  begin
-    // Iterate through each cubey of the face
-    for j := 0 to 8 do
+    // Check if the point is within the vertical range of the edge
+    if (yi <= point.Y) then
     begin
-      if j <> 4 then // Skipping the center piece as it's fixed
-      begin
-        // Check if the clicked point is within the bounding box of the cubey
-        if PointInPolygon(pt, CFacePlace[i, j]) then
-        begin
-          Result := cube[i, j]; // Return the color index of the cubey
-          Exit; // Exit as soon as the color is found
-        end;
-      end;
-    end;
-  end;
-end;
-
-procedure SetColor3D(var cube: TRubik; const pt: TPoint; colindex: byte);
-var
-  i: integer;
-  cubeletIndex: integer;
-begin
-  // Iterate through each cubelet in the 3D cube
-  for i := 0 to 269 do
-  begin
-    // Check if the clicked point is inside the polygon representing this cubelet
-    if PointInPolygon(pt, PolyOrder[i].pt) then
+      if (yj > point.Y) and ((point.Y - yi) * (xj - xi) > (point.X - xi) * (yj - yi)) then
+        Inc(windingNumber);
+    end
+    else
     begin
-      // Get the index of the cubelet in the Rubik's cube
-      cubeletIndex := PolyOrder[i].order;
-
-      // Update the color index of the cubelet in the Rubik's cube
-      //cube[(cubeletIndex div 9) + 1, (cubeletIndex mod 9) div 3] := colindex;
-
-      // Break the loop since we've found the cubelet corresponding to the clicked point
-      Break;
+      if (yj <= point.Y) and ((point.Y - yi) * (xj - xi) < (point.X - xi) * (yj - yi)) then
+        Dec(windingNumber);
     end;
+
+    j := i; // Move to the next edge
   end;
+
+  Result := windingNumber <> 0;
 end;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -359,25 +330,218 @@ begin
   Result.y := -Round((y * scalingFactor / z) * 20) + dy; // Negative to flip Y-axis for screen coordinates
 end;
 
-procedure DrawCube3d(P: TPaintBox; RubikCube: TRubik; C3D: TCube3D);
+procedure QuickSortPolyOrder(var Arr: array of TPolyOrder; iLo, iHi: Integer);
 var
-  i, j: integer;
+  Lo, Hi: Integer;
+  Pivot: Single;
+  T: TPolyOrder;
+begin
+  Lo := iLo;
+  Hi := iHi;
+  Pivot := Arr[(Lo + Hi) div 2].z;
+
+  repeat
+    // Find elements to swap (sorting by z descending - highest z first)
+    while (Arr[Lo].order <> -1) and (Arr[Lo].z > Pivot) do Inc(Lo);
+    while (Arr[Hi].order <> -1) and (Arr[Hi].z < Pivot) do Dec(Hi);
+
+    // Skip inactive elements
+    while (Lo <= Hi) and (Arr[Lo].order = -1) do Inc(Lo);
+    while (Lo <= Hi) and (Arr[Hi].order = -1) do Dec(Hi);
+
+    if Lo <= Hi then
+    begin
+      // Swap elements
+      T := Arr[Lo];
+      Arr[Lo] := Arr[Hi];
+      Arr[Hi] := T;
+      Inc(Lo);
+      Dec(Hi);
+    end;
+  until Lo > Hi;
+
+  if Hi > iLo then QuickSortPolyOrder(Arr, iLo, Hi);
+  if Lo < iHi then QuickSortPolyOrder(Arr, Lo, iHi);
+end;
+
+function CalculateFaceNormal(const p1, p2, p3: T3dPoint): T3dPoint;
+var
+  u, v: T3dPoint;
+  len: single;
+begin
+  // Calculate two edge vectors
+  u[0] := p2[0] - p1[0];
+  u[1] := p2[1] - p1[1];
+  u[2] := p2[2] - p1[2];
+
+  v[0] := p3[0] - p1[0];
+  v[1] := p3[1] - p1[1];
+  v[2] := p3[2] - p1[2];
+
+  // Cross product to get normal
+  Result[0] := u[1] * v[2] - u[2] * v[1];
+  Result[1] := u[2] * v[0] - u[0] * v[2];
+  Result[2] := u[0] * v[1] - u[1] * v[0];
+
+  // Normalize
+  len := sqrt(Result[0] * Result[0] + Result[1] * Result[1] + Result[2] * Result[2]);
+  if len > 0.0001 then
+  begin
+    Result[0] := Result[0] / len;
+    Result[1] := Result[1] / len;
+    Result[2] := Result[2] / len;
+  end;
+end;
+
+// ============================================================================
+// Easing Functions - Make animations feel natural and realistic
+// ============================================================================
+
+function EaseInOutQuad(t: Double): Double;
+// Quadratic easing - smooth acceleration and deceleration
+// Slow start → Fast middle → Slow end
+// Best for most animations - feels natural
+begin
+  if t < 0.5 then
+    Result := 2 * t * t
+  else
+    Result := 1 - Power(-2 * t + 2, 2) / 2;
+end;
+
+function EaseInOutSine(t: Double): Double;
+// Sine-based easing - very smooth and gentle
+// Slower acceleration/deceleration than quad
+// Good for subtle, elegant movements
+begin
+  Result := -(Cos(Pi * t) - 1) / 2;
+end;
+
+function EaseInOutCubic(t: Double): Double;
+// Cubic easing - more dramatic acceleration
+// Very slow start → Very fast middle → Very slow end
+// Good for emphasizing movement
+begin
+  if t < 0.5 then
+    Result := 4 * t * t * t
+  else
+    Result := 1 - Power(-2 * t + 2, 3) / 2;
+end;
+
+function ApplyLighting(baseColor: TColor; normal: T3dPoint): TBGRAPixel;
+const
+  // Light from upper-left-front (like desk lamp)
+  LIGHT_X = -0.5;
+  LIGHT_Y = -0.7;
+  LIGHT_Z = -0.5;
+  AMBIENT = 0.75;  // Minimum brightness (75% - brighter base!)
+  DIFFUSE = 0.50;  // Maximum additional brightness (50% - balanced)
+  SPECULAR = 1.2;  // Glossy highlight strength (120% for SUPER shiny!)
+  SHININESS = 12;  // How tight the highlight is (lower = larger, more visible)
+var
+  dotProduct, specularIntensity: single;
+  brightness: single;
+  r, g, b: byte;
+  lightLen, normalLen: single;
+  lightDir, viewDir, reflection: T3dPoint;
+  reflectDot: single;
+begin
+  // Normalize light direction
+  lightLen := sqrt(LIGHT_X*LIGHT_X + LIGHT_Y*LIGHT_Y + LIGHT_Z*LIGHT_Z);
+  lightDir[0] := LIGHT_X / lightLen;
+  lightDir[1] := LIGHT_Y / lightLen;
+  lightDir[2] := LIGHT_Z / lightLen;
+
+  // Normalize normal vector
+  normalLen := sqrt(normal[0]*normal[0] + normal[1]*normal[1] + normal[2]*normal[2]);
+  if normalLen > 0 then
+  begin
+    normal[0] := normal[0] / normalLen;
+    normal[1] := normal[1] / normalLen;
+    normal[2] := normal[2] / normalLen;
+  end;
+
+  // Calculate dot product (how much face points toward light)
+  dotProduct := -(normal[0] * lightDir[0] + normal[1] * lightDir[1] + normal[2] * lightDir[2]);
+
+  // Clamp to [0, 1] - negative means facing away from light
+  if dotProduct < 0 then dotProduct := 0;
+  if dotProduct > 1 then dotProduct := 1;
+
+  // Calculate final brightness: ambient + diffuse * angle
+  brightness := AMBIENT + DIFFUSE * dotProduct;
+
+  // Specular highlight (glossy reflection)
+  // View direction from face to camera (camera at 0,0,-∞ looking toward +Z)
+  viewDir[0] := 0;
+  viewDir[1] := 0;
+  viewDir[2] := -1;
+
+  // Calculate reflection vector: R = 2(N·L)N - L
+  reflection[0] := 2 * dotProduct * normal[0] + lightDir[0];
+  reflection[1] := 2 * dotProduct * normal[1] + lightDir[1];
+  reflection[2] := 2 * dotProduct * normal[2] + lightDir[2];
+
+  // Specular intensity: (R·V)^shininess
+  reflectDot := -(reflection[0] * viewDir[0] + reflection[1] * viewDir[1] + reflection[2] * viewDir[2]);
+  if reflectDot < 0 then reflectDot := 0;
+  if reflectDot > 1 then reflectDot := 1;
+
+  // Apply shininess (power function for tight highlight)
+  specularIntensity := Power(reflectDot, SHININESS) * SPECULAR;
+
+  // Add specular to brightness
+  brightness := brightness + specularIntensity;
+
+  // Darken back faces for depth perception
+  // Faces pointing away from camera (negative Z normal) are darker
+  if normal[2] < 0 then
+    brightness := brightness * 0.75;  // 25% darker for back faces
+
+  // Apply brightness to color components (can exceed 1.0 for highlights!)
+  r := Red(baseColor);
+  g := Green(baseColor);
+  b := Blue(baseColor);
+
+  // Clamp to 255 max for over-bright highlights
+  Result.red := Min(255, Round(r * brightness));
+  Result.green := Min(255, Round(g * brightness));
+  Result.blue := Min(255, Round(b * brightness));
+  Result.alpha := 255;
+end;
+
+procedure DrawCube3d(Bitmap: TBGRABitmap; RubikCube: TRubik; C3D: TCube3D);
+var
+  i, j, layer: integer;
   pt: T2DArray;
   dx, dy, BaseScale, ScalingFactor: integer;
   ux, uy: single;
   vx, vy: single;
-  tmp: tbitmap;
-  polytmp: TPolyOrder;
+  bgra_pts: array[0..3] of TPointF;
+  shrunk_pts: array[0..3] of TPointF;
+  centerX, centerY, shrinkFactor: single;
+  normal: T3dPoint;
+  litColor: TBGRAPixel;
+  nextJ: integer;
+  edgeDx, edgeDy: single;
+  // Variables for face selection highlighting
+  faceIdx: Integer;
+  cornerPolys: array[0..3] of Integer;
+  faceCorners: array[0..3] of TPointF;
+  cornerCubelets: array[0..3] of Integer;
+  polyIdx, cubeletIdx, ptIdx, selJ: Integer;
+  minX, minY, maxX, maxY: Single;
+  foundCorners: Boolean;
+  selectedFaceStart, selectedFaceEnd: Integer;
+  isSelectedFacePoly: Boolean;
+  highlightAmount: Single;
+  highlightColor: TBGRAPixel;
 begin
-  tmp := tbitmap.Create;
-  tmp.Width := p.Width;
-  tmp.Height := p.Height;
-  tmp.Canvas.Brush.color := clAppWorkspace;
-  tmp.canvas.FillRect(p.ClientRect);
-  dx := tmp.Width div 2;
-  dy := tmp.Height div 2;
+  // Clear the bitmap with background color
+  Bitmap.Fill(ColorToBGRA(clAppWorkspace));
+  dx := Bitmap.Width div 2;
+  dy := Bitmap.Height div 2;
 
-  ScalingFactor := Min(P.Width, P.Height) div 24;
+  ScalingFactor := Min(Bitmap.Width, Bitmap.Height) div 24;
 
   for i := 0 to 269 do
   begin
@@ -405,27 +569,133 @@ begin
   end;
 
   // tri des polygones à dessiner par ordre Z
-  // sorting of polygons to be drawn by Z order
-  for i := 0 to 268 do if PolyOrder[i].order <> -1 then
-      for j := i + 1 to 269 do if PolyOrder[j].order <> -1 then
-          if PolyOrder[j].z > PolyOrder[i].z then
-          begin
-            polytmp := PolyOrder[j];
-            PolyOrder[j] := PolyOrder[i];
-            PolyOrder[i] := polytmp;
-          end;
+  // sorting of polygons to be drawn by Z order (highest z first)
+  QuickSortPolyOrder(PolyOrder, 0, 269);
+
+  // Calculate selected face for highlighting
+  if KeyboardFaceSelectMode then
+  begin
+    // Use the currently visible faces array
+    faceIdx := VisibleFaces[SelectedVisibleFace];
+  end
+  else
+  begin
+    faceIdx := 0;
+  end;
 
   // affichage des polygones
-  // display of polygons
+  // display of polygons with lighting
   for i := 0 to 269 do
     if PolyOrder[i].order <> -1 then
     begin
-      tmp.canvas.Brush.color := PolyOrder[i].color;
-      tmp.canvas.Polygon(PolyOrder[i].pt);
+      // Convert TPoint array to TPointF for anti-aliasing
+      for j := 0 to 3 do
+      begin
+        bgra_pts[j].x := PolyOrder[i].pt[j].x;
+        bgra_pts[j].y := PolyOrder[i].pt[j].y;
+      end;
+
+      // Check if this polygon belongs to a cubelet that rotates with the selected face
+      // C3dFaceRotation[faceIdx, 0..20] contains the 21 cubelet indices that rotate
+      // Each cubelet has 5 polygons, so polygon index = cubelet * 5 + (0..4)
+      isSelectedFacePoly := False;
+      if faceIdx > 0 then
+      begin
+        cubeletIdx := PolyOrder[i].order div 5;  // Which cubelet does this polygon belong to?
+        for selJ := 0 to 20 do
+        begin
+          if C3dFaceRotation[faceIdx, selJ] = cubeletIdx then
+          begin
+            isSelectedFacePoly := True;
+            Break;
+          end;
+        end;
+      end;
+
+      // Skip lighting for black (back) faces
+      if PolyOrder[i].color = clBlack then
+      begin
+        Bitmap.FillPolyAntialias(bgra_pts, ColorToBGRA(clBlack));
+      end
+      else if UseLighting then
+      begin
+        // Calculate face normal from 3D points
+        normal := CalculateFaceNormal(
+          C3D[PolyOrder[i].order, 1],
+          C3D[PolyOrder[i].order, 2],
+          C3D[PolyOrder[i].order, 3]
+        );
+
+        // Apply lighting to base color
+        litColor := ApplyLighting(PolyOrder[i].color, normal);
+
+        // Draw with lit color (specular highlights already baked in!)
+        Bitmap.FillPolyAntialias(bgra_pts, litColor);
+
+        // Draw marching ants outline for selected face cubelets
+        if isSelectedFacePoly then
+        begin
+          DrawMarchingAnts(Bitmap, bgra_pts, MarchingAntsOffset, 3.0);
+        end;
+
+        // Directional bevel edges for raised sticker appearance
+        // Draw highlight on top-left edges and shadow on bottom-right edges
+        for j := 0 to 3 do
+        begin
+          nextJ := (j + 1) mod 4;
+          edgeDx := bgra_pts[nextJ].x - bgra_pts[j].x;
+          edgeDy := bgra_pts[nextJ].y - bgra_pts[j].y;
+
+          // Determine if edge is more top-left or bottom-right
+          // Top-left edges: going left (edgeDx < 0) or going up (edgeDy < 0)
+          // Bottom-right edges: going right (edgeDx > 0) or going down (edgeDy > 0)
+
+          if (edgeDx < 0) or (edgeDy < 0) then
+          begin
+            // Top or left edge - draw bright highlight
+            Bitmap.DrawLineAntialias(
+              Round(bgra_pts[j].x), Round(bgra_pts[j].y),
+              Round(bgra_pts[nextJ].x), Round(bgra_pts[nextJ].y),
+              ColorToBGRA(clWhite, 100), 1.5
+            );
+          end
+          else if (edgeDx > 0) or (edgeDy > 0) then
+          begin
+            // Bottom or right edge - draw dark shadow
+            Bitmap.DrawLineAntialias(
+              Round(bgra_pts[j].x), Round(bgra_pts[j].y),
+              Round(bgra_pts[nextJ].x), Round(bgra_pts[nextJ].y),
+              ColorToBGRA(clBlack, 80), 1.5
+            );
+          end;
+        end;
+
+        // Simple subtle edge darkening (just edges, not gradient)
+        Bitmap.DrawPolygonAntialias(bgra_pts, ColorToBGRA(clBlack, 35), 3.5);
+
+        // Bright inner glow for cubelet separation
+        Bitmap.DrawPolygonAntialias(bgra_pts, ColorToBGRA(clWhite, 150), 1.0);
+
+        // Strong black outline for definition
+        Bitmap.DrawPolygonAntialias(bgra_pts, ColorToBGRA(clBlack, 160), 2.0);
+      end
+      else
+      begin
+        // No lighting - just draw flat colors
+        Bitmap.FillPolyAntialias(bgra_pts, ColorToBGRA(PolyOrder[i].color));
+
+        // Simple edge darkening
+        Bitmap.DrawPolygonAntialias(bgra_pts, ColorToBGRA(clBlack, 35), 3.5);
+
+        // Bright inner glow for separation
+        Bitmap.DrawPolygonAntialias(bgra_pts, ColorToBGRA(clWhite, 150), 1.0);
+
+        Bitmap.DrawPolygonAntialias(bgra_pts, ColorToBGRA(clBlack, 160), 2.0);
+      end;
     end;
 
-  p.Canvas.Draw(0, 0, tmp);
-  tmp.Free;
+  // No need to Draw or Free - TBGRAVirtualScreen handles it!
+  // Face highlighting is now done inline during polygon drawing above
 end;
 
 
@@ -493,9 +763,111 @@ begin
     end;
 end;
 
+procedure DrawMarchingAnts(Bitmap: TBGRABitmap; const Points: array of TPointF;
+  Offset: Integer; LineWidth: Single);
+// Draws a marching ants selection border around a polygon
+// Points: array of corner points defining the polygon
+// Offset: animation offset (0-15) for the marching effect
+// LineWidth: thickness of the selection line
+const
+  DASH_LENGTH = 8;  // Length of each dash segment
+  GAP_LENGTH = 8;   // Length of gap between dashes
+  PATTERN_LENGTH = 16; // Total pattern length (DASH_LENGTH + GAP_LENGTH)
+var
+  i, nextI: Integer;
+  dx, dy, segLen, traveled, remaining: Single;
+  startX, startY, endX, endY: Single;
+  drawX, drawY, stepX, stepY: Single;
+  patternPos: Integer;
+  inDash: Boolean;
+  dashStartX, dashStartY: Single;
+begin
+  if Length(Points) < 3 then Exit;
 
+  // Draw each edge of the polygon
+  for i := 0 to High(Points) do
+  begin
+    nextI := (i + 1) mod Length(Points);
 
+    startX := Points[i].x;
+    startY := Points[i].y;
+    endX := Points[nextI].x;
+    endY := Points[nextI].y;
 
+    dx := endX - startX;
+    dy := endY - startY;
+    segLen := Sqrt(dx * dx + dy * dy);
 
+    if segLen < 1 then Continue;
+
+    // Normalize direction
+    stepX := dx / segLen;
+    stepY := dy / segLen;
+
+    // Walk along the edge drawing dashes
+    traveled := 0;
+    drawX := startX;
+    drawY := startY;
+
+    // Calculate initial pattern position based on offset
+    patternPos := Offset mod PATTERN_LENGTH;
+    inDash := patternPos < DASH_LENGTH;
+
+    if inDash then
+    begin
+      dashStartX := drawX;
+      dashStartY := drawY;
+    end;
+
+    while traveled < segLen do
+    begin
+      // How far until pattern state changes?
+      if inDash then
+        remaining := DASH_LENGTH - (patternPos mod PATTERN_LENGTH)
+      else
+        remaining := PATTERN_LENGTH - (patternPos mod PATTERN_LENGTH);
+
+      // Don't go past end of segment
+      if traveled + remaining > segLen then
+        remaining := segLen - traveled;
+
+      // Move along segment
+      traveled := traveled + remaining;
+      drawX := startX + stepX * traveled;
+      drawY := startY + stepY * traveled;
+      patternPos := (patternPos + Round(remaining)) mod PATTERN_LENGTH;
+
+      // If we were in a dash, draw it
+      if inDash then
+      begin
+        // Draw black outline FIRST (thicker, underneath)
+        Bitmap.DrawLineAntialias(dashStartX, dashStartY, drawX, drawY,
+          ColorToBGRA(clBlack, 255), LineWidth + 3);
+        // Draw white dash on top
+        Bitmap.DrawLineAntialias(dashStartX, dashStartY, drawX, drawY,
+          ColorToBGRA(clWhite, 255), LineWidth);
+      end;
+
+      // Toggle dash/gap state
+      inDash := not inDash;
+      if inDash then
+      begin
+        dashStartX := drawX;
+        dashStartY := drawY;
+      end;
+    end;
+
+    // If we ended in a dash, draw the final segment
+    if inDash then
+    begin
+      // Draw black outline FIRST (thicker, underneath)
+      Bitmap.DrawLineAntialias(dashStartX, dashStartY, endX, endY,
+        ColorToBGRA(clBlack, 255), LineWidth + 3);
+      // Draw white dash on top
+      Bitmap.DrawLineAntialias(dashStartX, dashStartY, endX, endY,
+        ColorToBGRA(clWhite, 255), LineWidth);
+    end;
+  end;
+end;
 
 end.
