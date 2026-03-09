@@ -6,7 +6,7 @@ This solver is designed to be used independently — from the command line, shel
 
 ## Credits
 
-- **Herbert Kociemba** — The NxN reduction algorithm is reimplemented in Pascal from [Kociemba's RubikNxNxNSolver](https://github.com/hkociemba/RubikNxNxNSolver) (Python). The built-in 3x3 two-phase solver is reimplemented from Kociemba's two-phase algorithm originally written in Java for [CubeExplorer](http://kociemba.org/cube.htm).
+- **Herbert Kociemba** — The NxN reduction algorithm is based on [Kociemba's RubikNxNxNSolver](https://github.com/hkociemba/RubikNxNxNSolver) (Pascal/Lazarus). The built-in 3x3 two-phase solver is based on Kociemba's two-phase algorithm from [CubeExplorer](http://kociemba.org/cube.htm).
 
 ## Building
 

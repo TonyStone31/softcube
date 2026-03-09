@@ -22,9 +22,9 @@ Rubik's Cube simulator and solver written with Lazarus and Free Pascal. Supports
 ## Credits & Acknowledgments
 
 ### Herbert Kociemba
-The NxN solver is based on [Herbert Kociemba's RubikNxNxNSolver](https://github.com/hkociemba/RubikNxNxNSolver) (Python), reimplemented in Pascal. It uses a reduction-based approach that solves NxN cubes by reducing them to 3x3 and then applying the two-phase algorithm.
+The NxN solver is based on [Herbert Kociemba's RubikNxNxNSolver](https://github.com/hkociemba/RubikNxNxNSolver) (Pascal/Lazarus). It uses a reduction-based approach that solves NxN cubes by reducing them to 3x3 and then applying the two-phase algorithm.
 
-The built-in 3x3 two-phase solver is reimplemented in Pascal from Kociemba's two-phase algorithm, originally implemented in Java for his [CubeExplorer](http://kociemba.org/cube.htm) software. His pioneering work on optimal and near-optimal Rubik's Cube solving algorithms is the foundation of the solver used here.
+The built-in 3x3 two-phase solver is based on Kociemba's two-phase algorithm from [CubeExplorer](http://kociemba.org/cube.htm). His pioneering work on optimal and near-optimal Rubik's Cube solving algorithms is the foundation of the solver used here.
 
 ### Original 3D Rendering
 The original 3D cube rendering code was obtained from [CodeS-SourceS.CommentCaMarche.net](https://codes-sources.commentcamarche.net/source/53132-rubik-s-cube) and has been substantially modified and extended to support NxN cubes.
