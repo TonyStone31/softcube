@@ -33,23 +33,23 @@ uses
   SysUtils,
   ExtCtrls,
   Menus,
-  GraphMath,
-  Math,
   Spin,
-  ComCtrls,
   Buttons,
   Dialogs,
   StdCtrls,
   BGRAVirtualScreen,
   BGRABitmap,
   BGRABitmapTypes,
-  strutils,
+  IniFiles,
+  Math,
   UConst,
   UDraw,
+  UGenericCube,
   UWebcamScan,
-  process,
-  Types,
-  URubik;
+  UTerminalOutput,
+  UAbout,
+  UHelp,
+  process;
 
 type
   TRotationDirection = (rdLeft, rdRight, rdUp, rdDown);
@@ -72,8 +72,54 @@ type
     btn3DViewRotate90Up: TSpeedButton;
     btnExecute: TSpeedButton;
     btnExecuteUntilSolved: TSpeedButton;
+    btnScanWebcam: TSpeedButton;
+    btnScrampleState: TSpeedButton;
     btnStepBackward: TSpeedButton;
     btnStepForward: TSpeedButton;
+    MainMenu1: TMainMenu;
+    mnuApp: TMenuItem;
+    mnuAbout: TMenuItem;
+    mnuHelp: TMenuItem;
+    mnuAppSep1: TMenuItem;
+    mnuQuit: TMenuItem;
+    mnuTools: TMenuItem;
+    mnuTablesGenerate: TMenuItem;
+    mnuTablesInfo: TMenuItem;
+    mnuSeparator1: TMenuItem;
+    mnuTablesClean: TMenuItem;
+    mnuSeparator2: TMenuItem;
+    mnuSolveQuality: TMenuItem;
+    mnuQualityFast: TMenuItem;
+    mnuQualityBalanced: TMenuItem;
+    mnuQualityOptimal: TMenuItem;
+    mnuCubeView: TMenuItem;
+    mnuSeparator3: TMenuItem;
+    mnuAnimEnabled: TMenuItem;
+    mnuAnimSpeed: TMenuItem;
+    mnuSpeed1: TMenuItem;
+    mnuSpeed2: TMenuItem;
+    mnuSpeed3: TMenuItem;
+    mnuSpeed4: TMenuItem;
+    mnuSpeed5: TMenuItem;
+    mnuSpeed6: TMenuItem;
+    mnuSpeed7: TMenuItem;
+    mnuSpeed8: TMenuItem;
+    mnuSpeed9: TMenuItem;
+    mnuSpeed10: TMenuItem;
+    mnuSolverTimeout: TMenuItem;
+    mnuTimeout5: TMenuItem;
+    mnuTimeout10: TMenuItem;
+    mnuTimeout15: TMenuItem;
+    mnuTimeout20: TMenuItem;
+    mnuTimeout25: TMenuItem;
+    mnuTimeout30: TMenuItem;
+    mnuTimeout35: TMenuItem;
+    mnuTimeout40: TMenuItem;
+    mnuTimeout45: TMenuItem;
+    mnuTimeout60: TMenuItem;
+    mnuTimeoutNone: TMenuItem;
+    memRandScramble: TMemo;
+    mnuShowTerminal: TMenuItem;
     pnlPlaybackControls: TPanel;
     btnFrontClock: TSpeedButton;
     btnFrontCounter: TSpeedButton;
@@ -81,11 +127,6 @@ type
     btnLeftCounter: TSpeedButton;
     btnRightClock: TSpeedButton;
     btnRightCounter: TSpeedButton;
-    btnScrambleTarget: TSpeedButton;
-    btnScrampleState: TSpeedButton;
-    btnScanWebcam: TSpeedButton;
-    btnSearchForSolution: TSpeedButton;
-    btnTargetSolveReset: TSpeedButton;
     btnUpClock: TSpeedButton;
     btnUpCounter: TSpeedButton;
     edtMoveString: TMemo;
@@ -95,14 +136,10 @@ type
     lblCurrentMove: TLabel;
     lblPeakUnder: TLabel;
     lblSingMaster: TLabel;
-    lblSpeedControl: TLabel;
-    lblNoticeTarget: TLabel;
-    memRandScramble: TMemo;
-    memSolveSummary: TMemo;
     pnlCubeControls: TPanel;
     pnlFaceControls: TPanel;
-    pnlSettings: TPanel;
     pnlSetState: TPanel;
+    pnlSettings: TPanel;
     pntBox3Dview: TBGRAVirtualScreen;
     pntBoxCurrentState: TPaintBox;
     spinEdtCubeSize: TSpinEdit;
@@ -110,14 +147,10 @@ type
     SplitterHorizontalMain: TSplitter;
     chkKeyBoardControl: TCheckBox;
     tmrMarchingAnts: TTimer;
-    ts2DViews: TPageControl;
-    pnlDestination: TPanel;
     pnl3Dview: TPanel;
     pnlSolution: TPanel;
-    pntBoxTargetSolve: TPaintBox;
-    spinEdtAnimationSpeed: TSpinEdit;
-    TabSheet1: TTabSheet;
-    TabSheet2: TTabSheet;
+    procedure mnuAnimEnabledClick(Sender: TObject);
+    procedure mnuSpeedClick(Sender: TObject);
     procedure btn3DViewRotate90LeftClick(Sender: TObject);
     procedure btn3DViewRotate90UpMouseEnter(Sender: TObject);
     procedure btn3DViewRotate90UpMouseLeave(Sender: TObject);
@@ -125,10 +158,8 @@ type
     procedure btn3DViewRotateRightClick(Sender: TObject);
     procedure btn3DViewRotate90UpClick(Sender: TObject);
     procedure btnExecuteUntilSolvedClick(Sender: TObject);
-    procedure btnScrambleTargetClick(Sender: TObject);
     procedure btnScrampleStateClick(Sender: TObject);
     procedure btnScanWebcamClick(Sender: TObject);
-    procedure btnTargetSolveResetClick(Sender: TObject);
     procedure btnExecuteClick(Sender: TObject);
     procedure btnStepBackwardClick(Sender: TObject);
     procedure btnStepForwardClick(Sender: TObject);
@@ -136,9 +167,23 @@ type
     procedure btn3DviewResetClick(Sender: TObject);
     procedure btnMoveClick(Sender: TObject);
     procedure btn2phaseSolveClick(Sender: TObject);
+    procedure mnuAboutClick(Sender: TObject);
+    procedure mnuHelpClick(Sender: TObject);
+    procedure mnuQuitClick(Sender: TObject);
+    procedure mnuShowTerminalClick(Sender: TObject);
+    procedure mnuTablesGenerateClick(Sender: TObject);
+    procedure mnuTablesInfoClick(Sender: TObject);
+    procedure mnuTablesCleanClick(Sender: TObject);
+    procedure mnuQualityFastClick(Sender: TObject);
+    procedure mnuQualityBalancedClick(Sender: TObject);
+    procedure mnuQualityOptimalClick(Sender: TObject);
+    procedure mnuTimeoutClick(Sender: TObject);
     procedure edtMoveStringKeyPress(Sender: TObject; var Key: char);
     procedure edtMoveStringKeyUp(Sender: TObject; var Key: word; Shift: TShiftState);
     procedure FormCreate(Sender: TObject);
+    procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
+    procedure FormChangeBounds(Sender: TObject);
+    procedure SnapTerminalOutput;
     procedure FormKeyDown(Sender: TObject; var Key: word; Shift: TShiftState);
     procedure FormKeyUp(Sender: TObject; var Key: word; Shift: TShiftState);
     procedure lblPeakUnderMouseDown(Sender: TObject; Button: TMouseButton;
@@ -151,27 +196,29 @@ type
       WheelDelta: integer; MousePos: TPoint; var Handled: boolean);
     procedure pntBoxCurrentStateMouseWheelDown(Sender: TObject;
       Shift: TShiftState; MousePos: TPoint; var Handled: boolean);
-    procedure ts2DViewsChange(Sender: TObject);
-    procedure pntBoxTargetSolveMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: integer);
-    procedure pntBoxTargetSolvePaint(Sender: TObject);
     procedure pntBoxCurrentStateMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: integer);
     procedure pntBoxCurrentStatePaint(Sender: TObject);
     procedure pntBox3DviewMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: integer);
     procedure pntBox3DviewRedraw(Sender: TObject; Bitmap: TBGRABitmap);
-    procedure btnSearchForSolutionClick(Sender: TObject);
     procedure ManualRotateFace(Face: integer; clockWise: boolean);
     procedure SetInitialCubeView;
     procedure spinEdtCubeSizeChange(Sender: TObject);
     procedure chkKeyBoardControlChange(Sender: TObject);
     procedure tmrMarchingAntsTimer(Sender: TObject);
   private
+    FAnimationSpeed: integer;
+    FAnimationEnabled: boolean;
+    FSolverProcess: TProcess;
+    FSolverCancelled: boolean;
+    FSolveMaxLength: integer;
+    FSolveTimeLimitMs: integer;
+    FLastScrambleMoves: integer;
+    FSolverTimeoutMs: QWord;
     procedure ActiveSleep(ms: cardinal);
     procedure ExecuteSolverAndParseOutput(const faceString: string;
       aMemo: TMemo; MoveString: TMemo);
-    procedure FastRotateFace(Face: integer; clockWise: boolean);
     function GenerateRandomScramble(MoveCount: integer): string;
     procedure RotateCubeLeftRight(Direction: integer);
     procedure RotateCubePeakUnder();
@@ -186,6 +233,13 @@ type
     procedure UpdatePlaybackButtons;
     procedure EnterExecutionMode;
     procedure ExitExecutionMode;
+    procedure ExecuteNotationNxN(const s: string);
+    procedure ManualRotateFaceSlice(genFace: TFace; genDir: TMoveDirection;
+      SliceStart, SliceEnd: Integer);
+    procedure QueueOrExecuteMove(Face: integer; clockWise: boolean);
+    procedure QueueOrExecuteSliceMove(genFace: TFace; genDir: TMoveDirection;
+      SliceStart, SliceEnd: Integer);
+    procedure ProcessMoveQueue;
   public
     procedure ExecuteNotation(var s: string; SpeedVal: integer);
 
@@ -196,23 +250,35 @@ type
   TExecutionState = (esIdle, esExecuting, esPaused);
 
   TMoveRecord = record
-    Face: integer;      // CUBE_LEFT, CUBE_RIGHT, etc.
-    Turns: integer;     // 1, 2, or 3
+    Face: integer;      // Legacy 0-based face index (for display only)
+    Turns: integer;     // 1=CW, 2=180, 3=CCW
     StartPos: integer;  // Position in original string
-    Length: integer;    // Length in original string (1 or 2 chars)
+    Length: integer;     // Length in original string
+    // NxN slice fields
+    GenFace: TFace;
+    Direction: TMoveDirection;
+    SliceStart: Integer;
+    SliceEnd: Integer;
+    MoveStr: string;    // Original move token for display
   end;
 
 var
   frmMain: TfrmMain;
-  tmx: integer = 0;
-  tmy: integer = 0;
   IsRunning: boolean = False;
+  AnimatingFace: boolean = False;  // Re-entry guard for ManualRotateFace animation
+  FBatchExecuting: boolean = False; // Suppresses per-move redraws during batch execution
+  FPrevMainLeft: integer = 0;       // Previous main form position for delta tracking
+  FPrevMainTop: integer = 0;
   Cube3DTransActive: boolean;
   PeekState: TPeekState = psNormal;
   WantToUnPeak: boolean = False;
   mouseDrag3D: boolean;
   FaceCodeMover: integer = 0;
   keyBoardControlActive: boolean;
+
+  // Generic cube instance (always active for all sizes)
+  GenericCube: TGenericCube = nil;
+  ActiveCubeSize: Integer = 3;  // Tracks current cube size
 
   // Playback control variables
   ExecutionState: TExecutionState = esIdle;
@@ -223,6 +289,91 @@ var
 implementation
 
 {$R *.lfm}
+
+// Rotate NxN 3D view geometry
+procedure RotateView3D(rx, ry, rz: single);
+begin
+  if NxNCubeSize > 0 then
+    Rotate3dN(Cube3DN, rx, ry, rz);
+end;
+
+// Helper: Add a move to the queue (returns false if queue is full)
+function QueueMove(Face: Integer; Clockwise: Boolean): Boolean;
+begin
+  Result := False;
+  if MoveQueueCount >= MAX_MOVE_QUEUE then Exit;
+  MoveQueue[MoveQueueCount].Face := Face;
+  MoveQueue[MoveQueueCount].Clockwise := Clockwise;
+  MoveQueue[MoveQueueCount].UseSlice := False;
+  Inc(MoveQueueCount);
+  Result := True;
+end;
+
+// Helper: Add a slice move to the queue (returns false if queue is full)
+function QueueSliceMove(genFace: TFace; genDir: TMoveDirection;
+  SliceStart, SliceEnd: Integer): Boolean;
+begin
+  Result := False;
+  if MoveQueueCount >= MAX_MOVE_QUEUE then Exit;
+  MoveQueue[MoveQueueCount].UseSlice := True;
+  MoveQueue[MoveQueueCount].GenFace := genFace;
+  MoveQueue[MoveQueueCount].GenDir := genDir;
+  MoveQueue[MoveQueueCount].SliceStart := SliceStart;
+  MoveQueue[MoveQueueCount].SliceEnd := SliceEnd;
+  Inc(MoveQueueCount);
+  Result := True;
+end;
+
+// Helper: Get next move from queue (returns false if empty)
+function DequeueMove(out Item: TMoveQueueItem): Boolean;
+var
+  i: Integer;
+begin
+  Result := False;
+  if MoveQueueCount = 0 then Exit;
+  Item := MoveQueue[0];
+  for i := 0 to MoveQueueCount - 2 do
+    MoveQueue[i] := MoveQueue[i + 1];
+  Dec(MoveQueueCount);
+  Result := True;
+end;
+
+// Helper: Calculate rotation direction based on current view state
+procedure GetRotationParams(IsLeftArrow: Boolean; out ActualFace: Integer; out IsClockwise: Boolean);
+begin
+  ActualFace := VisibleFaces[SelectedVisibleFace];
+
+  case SelectedVisibleFace of
+    0: begin
+      if ActualFace = 1 then
+        IsClockwise := not IsLeftArrow
+      else
+        IsClockwise := IsLeftArrow;
+    end;
+    1: begin
+      if (ActualFace = 2) or (ActualFace = 3) then
+        IsClockwise := not IsLeftArrow
+      else
+        IsClockwise := IsLeftArrow;
+      if ViewFlipped then
+        IsClockwise := not IsClockwise;
+      if Odd(ViewRotationY) then
+        IsClockwise := not IsClockwise;
+    end;
+    2: begin
+      if (ActualFace = 2) or (ActualFace = 3) then
+        IsClockwise := IsLeftArrow
+      else
+        IsClockwise := not IsLeftArrow;
+      if ViewFlipped then
+        IsClockwise := not IsClockwise;
+      if Odd(ViewRotationY) then
+        IsClockwise := not IsClockwise;
+    end;
+  else
+    IsClockwise := not IsLeftArrow;
+  end;
+end;
 
 procedure TfrmMain.ToggleButtonsExcept(Form: TForm; ExceptButton: TSpeedButton;
   Enable: boolean);
@@ -242,153 +393,61 @@ begin
 end;
 
 procedure TfrmMain.ExecuteNotation(var s: string; SpeedVal: integer);
-var
-  tmp: tcube3d;
-  lblS: string;
-  j: integer;
-  i: integer;
-  f: integer;
-  StartTime, ElapsedMs, TargetDuration: QWord;
-  Progress, CurrentAngle, TargetAngle: Double;
 begin
-  LFDstringCorrection(s);
-  //Really think what I did here is hackish because I will need to invert the 3 sides
-  //anywhere and anytime you want to use signmaster notation.  Need to rethink this
-  //however for now it does do the trick.
-  i := 1;
+  // Unified: delegate to ExecuteNotationNxN which uses ManualRotateFace
+  ExecuteNotationNxN(s);
+end;
 
-  while i <= length(s) do
-  begin
-    if not IsRunning then exit;
+procedure TfrmMain.ExecuteNotationNxN(const s: string);
+var
+  Moves: TArray<TCubeMove>;
+  Move: TCubeMove;
+  i, redrawInterval: Integer;
+  SliceStart, SliceEnd: Integer;
+begin
+  Moves := TCubeMoveParser.ParseMoveSequence(s, ActiveCubeSize);
 
-    j := 1;
-    if (i < length(s)) and (s[i + 1] = '''') then
+  redrawInterval := Max(1, Length(Moves) div 10);
+  try
+    for i := 0 to Length(Moves) - 1 do
     begin
-      j := 3;
-      lblS := s[i] + s[i + 1];
-      LFDstringCorrection(lblS);
-    end
-    else if (i < length(s)) and (s[i + 1] = '2') then
-    begin
-      j := 2;
-      lblS := s[i] + s[i + 1];
-
-    end
-    else
-    begin
-      lblS := s[i];
-      LFDstringCorrection(lblS);
-    end;
-    lblCurrentMove.Caption := lblS;
-    // DON'T call ProcessMessages here - causes slowdown!
-
-    case s[i] of
-      'L': f := CUBE_LEFT;
-      'R': f := CUBE_RIGHT;
-      'B': f := CUBE_BACK;
-      'F': f := CUBE_FRONT;
-      'U': f := CUBE_TOP;
-      'D': f := CUBE_BOTTOM;
+      Move := Moves[i];
+      SliceStart := Move.SliceDepth;
+      if Move.IsWide then
+        SliceEnd := SliceStart + Move.SliceWidth - 1
       else
-        if j > 1 then Inc(i, 2)
-        else
-          Inc(i);
-        continue;
-    end;
-
-    // Read current speed from control (allows changing speed during execution)
-    SpeedVal := spinEdtAnimationSpeed.Value;
-
-    // Skip animation entirely for speed 11 only
-    if (SpeedVal >= 11) then
-    begin
-      RotateFace(TUnitRubik(CurrentCubeState), f, j);
-      // Don't refresh every move - just at the end
-      if j > 1 then Inc(i, 2)
-      else Inc(i);
-      lblCurrentMove.Caption := ' ';
-      continue;
-    end;
-
-    // Time-based animation (speeds 1-10)
-    case SpeedVal of
-      1: TargetDuration := 5000;
-      2: TargetDuration := 3000;
-      3: TargetDuration := 2000;
-      4: TargetDuration := 1500;
-      5: TargetDuration := 1000;
-      6: TargetDuration := 700;
-      7: TargetDuration := 500;
-      8: TargetDuration := 350;
-      9: TargetDuration := 250;
-      10: TargetDuration := 150;
-    else
-      TargetDuration := 1000;
-    end;
-
-    // Scale duration - only j=2 takes 2x as long (j=3 is still just 90°!)
-    if j = 2 then
-      TargetDuration := TargetDuration * 2;
-
-    // Calculate target angle: j=2 is 180°, j=1 and j=3 are 90°
-    if j = 2 then
-      TargetAngle := 180
-    else
-      TargetAngle := 90;
-
-    tmp := cube3d;
-    StartTime := GetTickCount64;
-
-    while True do
-    begin
-      ElapsedMs := GetTickCount64 - StartTime;
-      if ElapsedMs >= TargetDuration then Break;
-      if not IsRunning then Break;
-
-      // Re-read speed to allow mid-animation changes
-      SpeedVal := spinEdtAnimationSpeed.Value;
-
-      // Linear progress from 0.0 to 1.0
-      Progress := ElapsedMs / TargetDuration;
-
-      // Apply easing for natural movement (slow start → fast → slow end)
-      Progress := EaseInOutQuad(Progress);
-
-      CurrentAngle := Progress * TargetAngle;
-
-      // Direction: j=1 and j=2 go negative (one direction), j=3 goes positive (opposite)
-      if j = 3 then
-        Rotate3dface(cube3d, f, CurrentAngle * pi / 180)
+        SliceEnd := SliceStart;
+      FBatchExecuting := not FAnimationEnabled;
+      case Move.Direction of
+        dirCW:
+          ManualRotateFaceSlice(Move.Face, dirCW, SliceStart, SliceEnd);
+        dir180:
+        begin
+          ManualRotateFaceSlice(Move.Face, dirCW, SliceStart, SliceEnd);
+          ManualRotateFaceSlice(Move.Face, dirCW, SliceStart, SliceEnd);
+        end;
+        dirCCW:
+          ManualRotateFaceSlice(Move.Face, dirCCW, SliceStart, SliceEnd);
+      end;
+      if FBatchExecuting then
+      begin
+        if (i mod redrawInterval = 0) or (i = Length(Moves) - 1) then
+        begin
+          pntBoxCurrentState.Refresh;
+          pntBox3Dview.DiscardBitmap;
+          Application.ProcessMessages;
+        end;
+      end
       else
-        Rotate3dface(cube3d, f, -CurrentAngle * pi / 180);
-
-      // DrawCube3d handled by OnRedraw event
-      pntBox3Dview.DiscardBitmap;
-      Application.ProcessMessages;
-
-      cube3d := tmp;
-      Sleep(1);  // Prevent CPU burn
+        lblCurrentMove.Caption := TCubeMoveParser.MoveToString(Move, ActiveCubeSize);
     end;
-
-    RotateFace(TUnitRubik(CurrentCubeState), f, j);
-    DrawCube(pntBoxCurrentState, CurrentCubeState);
-    // DrawCube3d handled by OnRedraw event
+  finally
+    FBatchExecuting := False;
     pntBoxCurrentState.Refresh;
     pntBox3Dview.DiscardBitmap;
-    Application.ProcessMessages;
-
-    if j > 1 then Inc(i, 2)
-    else
-      Inc(i);
-    lblCurrentMove.Caption := ' ';
   end;
 
-  // Final refresh at the end for speed 8+
-  // DrawCube3d handled by OnRedraw event
-  DrawCube(pntBoxCurrentState, CurrentCubeState);
-  pntBoxCurrentState.Refresh;
-  pntBox3Dview.DiscardBitmap;
-
+  lblCurrentMove.Caption := ' ';
 end;
 
 procedure TfrmMain.ActiveSleep(ms: cardinal);
@@ -413,27 +472,181 @@ begin
   end;
 end;
 
+function GetSettingsFile: string;
+begin
+  Result := ExtractFilePath(ParamStr(0)) + 'softcube.ini';
+end;
+
 procedure TfrmMain.FormCreate(Sender: TObject);
+var
+  ini: TIniFile;
+  timeoutMin, qualityIdx: integer;
+  timeoutItem: TMenuItem;
+  i: integer;
+  result_str: string;
 begin
   Randomize;
   DoubleBuffered := True;
-  CurrentCubeState := C_CUBE_COMPLETE;
-  TargetCubeState := C_CUBE_COMPLETE;
-  Cube3D := VIEW_OF_3D_CUBE;
   lblCurrentMove.Caption := ' ';
 
   // Ensure rotation flag starts in correct state
   Cube3DTransActive := False;
   mouseDrag3D := False;
 
+  // Default animation settings
+  FAnimationSpeed := 7;
+  FAnimationEnabled := True;
 
-  SetInitialCubeView;
+  // Initialize main form position tracking for terminal output follow
+  FPrevMainLeft := Self.Left;
+  FPrevMainTop := Self.Top;
 
-  // Initialize cube size info label
+  // Default solve settings
+  FSolveMaxLength := 23;
+  FSolveTimeLimitMs := 5000;
+  FSolverTimeoutMs := 600000;
+  FLastScrambleMoves := 15;
+
+  // Load saved settings
+  if FileExists(GetSettingsFile) then
+  begin
+    ini := TIniFile.Create(GetSettingsFile);
+    try
+      spinEdtCubeSize.Value := ini.ReadInteger('General', 'CubeSize', 3);
+      FAnimationSpeed := ini.ReadInteger('General', 'AnimationSpeed', 7);
+      FAnimationEnabled := ini.ReadBool('General', 'AnimationEnabled', True);
+
+      qualityIdx := ini.ReadInteger('Solver', 'Quality', 0);
+      case qualityIdx of
+        1: mnuQualityBalancedClick(nil);
+        2: mnuQualityOptimalClick(nil);
+      else
+        mnuQualityFastClick(nil);
+      end;
+
+      FLastScrambleMoves := ini.ReadInteger('Solver', 'ScrambleMoves', 15);
+      timeoutMin := ini.ReadInteger('Solver', 'TimeoutMinutes', 10);
+      FSolverTimeoutMs := QWord(timeoutMin) * 60 * 1000;
+      // Check the matching menu item
+      for i := 0 to mnuSolverTimeout.Count - 1 do
+      begin
+        timeoutItem := mnuSolverTimeout.Items[i];
+        if timeoutItem.Tag = timeoutMin then
+        begin
+          timeoutItem.Checked := True;
+          Break;
+        end;
+      end;
+    finally
+      ini.Free;
+    end;
+  end;
+
+  // Sync animation menu checkmarks with loaded values
+  mnuAnimEnabled.Checked := FAnimationEnabled;
+  for i := 0 to mnuAnimSpeed.Count - 1 do
+    mnuAnimSpeed.Items[i].Checked := (mnuAnimSpeed.Items[i].Tag = FAnimationSpeed);
+
+  // spinEdtCubeSizeChange initializes GenericCube, NxN 3D, and calls SetInitialCubeView
   spinEdtCubeSizeChange(nil);
+
+  // Restore saved cube state (after GenericCube is created by spinEdtCubeSizeChange)
+  if FileExists(GetSettingsFile) and (GenericCube <> nil) then
+  begin
+    ini := TIniFile.Create(GetSettingsFile);
+    try
+      result_str := ini.ReadString('CubeState', 'Facelets', '');
+      if (result_str <> '') and (Length(result_str) = 6 * GenericCube.CubeSize * GenericCube.CubeSize) then
+      begin
+        try
+          GenericCube.FromDefinitionString(result_str);
+          pntBoxCurrentState.Invalidate;
+          pntBox3Dview.RedrawBitmap;
+        except
+          // If state is corrupt, just keep the solved cube
+        end;
+      end;
+    finally
+      ini.Free;
+    end;
+  end;
 
   // Initialize playback buttons
   UpdatePlaybackButtons;
+end;
+
+procedure TfrmMain.FormClose(Sender: TObject; var CloseAction: TCloseAction);
+var
+  ini: TIniFile;
+  qualityIdx, timeoutMin, i: integer;
+begin
+  ini := TIniFile.Create(GetSettingsFile);
+  try
+    ini.WriteInteger('General', 'CubeSize', spinEdtCubeSize.Value);
+    ini.WriteInteger('General', 'AnimationSpeed', FAnimationSpeed);
+    ini.WriteBool('General', 'AnimationEnabled', FAnimationEnabled);
+
+    if mnuQualityOptimal.Checked then qualityIdx := 2
+    else if mnuQualityBalanced.Checked then qualityIdx := 1
+    else qualityIdx := 0;
+    ini.WriteInteger('Solver', 'Quality', qualityIdx);
+    ini.WriteInteger('Solver', 'ScrambleMoves', FLastScrambleMoves);
+
+    timeoutMin := 10;
+    for i := 0 to mnuSolverTimeout.Count - 1 do
+      if mnuSolverTimeout.Items[i].Checked then
+      begin
+        timeoutMin := mnuSolverTimeout.Items[i].Tag;
+        Break;
+      end;
+    ini.WriteInteger('Solver', 'TimeoutMinutes', timeoutMin);
+
+    // Save cube state
+    if GenericCube <> nil then
+      ini.WriteString('CubeState', 'Facelets', GenericCube.ToDefinitionString);
+  finally
+    ini.Free;
+  end;
+end;
+
+procedure TfrmMain.SnapTerminalOutput;
+begin
+  // Only reposition if window is not already open (don't disrupt user-placed window)
+  if frmTerminalOutput.Visible then Exit;
+  // Align to bottom-left corner of main form (overlapping, not below it)
+  frmTerminalOutput.Left := Self.Left;
+  frmTerminalOutput.Top := Self.Top + Self.Height - frmTerminalOutput.Height;
+  FPrevMainLeft := Self.Left;
+  FPrevMainTop := Self.Top;
+end;
+
+procedure TfrmMain.FormChangeBounds(Sender: TObject);
+var
+  deltaX, deltaY: integer;
+  mainRect, termRect, expandedMain: TRect;
+begin
+  deltaX := Self.Left - FPrevMainLeft;
+  deltaY := Self.Top - FPrevMainTop;
+  FPrevMainLeft := Self.Left;
+  FPrevMainTop := Self.Top;
+
+  if not frmTerminalOutput.Visible then Exit;
+  if (deltaX = 0) and (deltaY = 0) then Exit;  // resize only, not a move
+
+  // Only follow if terminal is within 300px of main form (not dragged far away)
+  mainRect := Rect(Self.Left, Self.Top, Self.Left + Self.Width, Self.Top + Self.Height);
+  termRect := Rect(frmTerminalOutput.Left, frmTerminalOutput.Top,
+                   frmTerminalOutput.Left + frmTerminalOutput.Width,
+                   frmTerminalOutput.Top + frmTerminalOutput.Height);
+  expandedMain := Rect(mainRect.Left - 300, mainRect.Top - 300,
+                       mainRect.Right + 300, mainRect.Bottom + 300);
+
+  if (termRect.Left < expandedMain.Right) and (termRect.Right > expandedMain.Left) and
+     (termRect.Top < expandedMain.Bottom) and (termRect.Bottom > expandedMain.Top) then
+  begin
+    frmTerminalOutput.Left := frmTerminalOutput.Left + deltaX;
+    frmTerminalOutput.Top := frmTerminalOutput.Top + deltaY;
+  end;
 end;
 
 procedure TfrmMain.spinEdtCubeSizeChange(Sender: TObject);
@@ -457,186 +670,153 @@ begin
 
   lblCubeSizeInfo.Caption := InfoText;
 
-  // TODO: When TGenericCube is integrated:
-  // - Free current generic cube instance
-  // - Create new TGenericCube with selected size
-  // - Update drawing system to use new cube
-  // - Refresh displays
+  // Create/recreate generic cube for the selected size
+  ActiveCubeSize := CubeSize;
+  if GenericCube <> nil then
+    FreeAndNil(GenericCube);
+  GenericCube := TGenericCube.Create(CubeSize);
+
+  InitNxN3D(CubeSize);
+
+  // Reset slice selection
+  SelectedSliceDepth := 0;
+  SelectedVisibleFace := 0;
+
+  SetInitialCubeView;
+
+  // Refresh displays
+  pntBoxCurrentState.Invalidate;
+  pntBox3Dview.Invalidate;
 end;
 
 procedure TfrmMain.FormKeyDown(Sender: TObject; var Key: word; Shift: TShiftState);
 var
   ActualFace: Integer;
   IsClockwise: Boolean;
+  IsArrowKey: Boolean;
 begin
-  // Keyboard control system:
-  // Up/Down arrows: cycle through visible faces
-  // Left/Right arrows: rotate selected face (direction based on face position)
-  // A/D keys: rotate 3D view left/right
-  // W key: flip view 180°
-  // S key: reset view to initial position
-
   if not keyBoardControlActive then Exit;
-  if IsRunning then Exit;
-  if Cube3DTransActive then Exit;  // Don't allow input during view rotation
+
+  // Check if this is an arrow key
+  IsArrowKey := (Key = VK_LEFT) or (Key = VK_RIGHT) or (Key = VK_UP) or (Key = VK_DOWN);
+
+  // Key repeat filtering for all arrow keys
+  if IsArrowKey then
+  begin
+    if (Key = LastArrowKeyDown) and ArrowKeyIsHeld then
+      Exit;  // Ignore auto-repeat
+    LastArrowKeyDown := Key;
+    ArrowKeyIsHeld := True;
+  end;
+
+  if Cube3DTransActive or IsRunning or AnimatingFace then
+  begin
+    if (Key <> VK_LEFT) and (Key <> VK_RIGHT) and
+       (Key <> VK_UP) and (Key <> VK_DOWN) then Exit;
+  end;
 
   case Key of
     VK_UP:
     begin
-      // Cycle to previous visible face
-      SelectedVisibleFace := (SelectedVisibleFace + 2) mod 3;
+      // Cycle through face+depth selections
+      if ActiveCubeSize <= 3 then
+      begin
+        SelectedSliceDepth := 0;
+        SelectedVisibleFace := (SelectedVisibleFace + 2) mod 3;
+      end
+      else
+      begin
+        if SelectedSliceDepth > 0 then
+          Dec(SelectedSliceDepth)
+        else
+        begin
+          SelectedVisibleFace := (SelectedVisibleFace + 2) mod 3;
+          SelectedSliceDepth := (ActiveCubeSize - 1) div 2;
+        end;
+      end;
       pntBox3Dview.DiscardBitmap;
       Key := 0;
     end;
 
     VK_DOWN:
     begin
-      // Cycle to next visible face
-      SelectedVisibleFace := (SelectedVisibleFace + 1) mod 3;
+      if ActiveCubeSize <= 3 then
+      begin
+        SelectedSliceDepth := 0;
+        SelectedVisibleFace := (SelectedVisibleFace + 1) mod 3;
+      end
+      else
+      begin
+        if SelectedSliceDepth < (ActiveCubeSize - 1) div 2 then
+          Inc(SelectedSliceDepth)
+        else
+        begin
+          SelectedSliceDepth := 0;
+          SelectedVisibleFace := (SelectedVisibleFace + 1) mod 3;
+        end;
+      end;
       pntBox3Dview.DiscardBitmap;
       Key := 0;
     end;
 
     VK_LEFT:
     begin
-      // Rotate selected face with "push" logic
-      // The direction depends on:
-      // 1. Which screen position (left vs right of screen)
-      // 2. Which actual cube face is there (determines base direction)
-      // 3. Whether cube is flipped (inverts side face directions)
-      ActualFace := VisibleFaces[SelectedVisibleFace];
-
-      case SelectedVisibleFace of
-        0: begin
-          // Top or Bottom face - Left arrow = CCW when top, CW when bottom
-          if ActualFace = 1 then
-            IsClockwise := False
-          else
-            IsClockwise := True;
-        end;
-        1: begin
-          // Left side of screen
-          // Front(2) and Right(3): Left = CCW
-          // Back(4) and Left(5): Left = CW
-          if (ActualFace = 2) or (ActualFace = 3) then
-            IsClockwise := False
-          else
-            IsClockwise := True;
-          // Invert when cube is flipped
-          if ViewFlipped then
-            IsClockwise := not IsClockwise;
-          // Invert for odd number of A/D rotations
-          if Odd(ViewRotationY) then
-            IsClockwise := not IsClockwise;
-        end;
-        2: begin
-          // Right side of screen (opposite of left side)
-          // Front(2) and Right(3): Left = CW
-          // Back(4) and Left(5): Left = CCW
-          if (ActualFace = 2) or (ActualFace = 3) then
-            IsClockwise := True
-          else
-            IsClockwise := False;
-          // Invert when cube is flipped
-          if ViewFlipped then
-            IsClockwise := not IsClockwise;
-          // Invert for odd number of A/D rotations
-          if Odd(ViewRotationY) then
-            IsClockwise := not IsClockwise;
-        end;
+      GetRotationParams(True, ActualFace, IsClockwise);
+      if SelectedSliceDepth = 0 then
+        QueueOrExecuteMove(ActualFace - 1, IsClockwise)
       else
-        IsClockwise := False;
+      begin
+        if IsClockwise then
+          QueueOrExecuteSliceMove(
+            TFace(CLegacyToGenericOrd[ActualFace]), dirCW,
+            SelectedSliceDepth, SelectedSliceDepth)
+        else
+          QueueOrExecuteSliceMove(
+            TFace(CLegacyToGenericOrd[ActualFace]), dirCCW,
+            SelectedSliceDepth, SelectedSliceDepth);
       end;
-
-      // Debug: show current state in caption
-      Caption := Format('LEFT: Sel=%d Face=%d Flip=%s Rot=%d CW=%s',
-        [SelectedVisibleFace, ActualFace, BoolToStr(ViewFlipped, 'Y', 'N'),
-         ViewRotationY, BoolToStr(IsClockwise, 'CW', 'CCW')]);
-
-      ManualRotateFace(ActualFace - 1, IsClockwise);
       Key := 0;
     end;
 
     VK_RIGHT:
     begin
-      // Rotate selected face - opposite direction of VK_LEFT
-      ActualFace := VisibleFaces[SelectedVisibleFace];
-
-      case SelectedVisibleFace of
-        0: begin
-          // Top or Bottom face - Right arrow = CW when top, CCW when bottom
-          if ActualFace = 1 then
-            IsClockwise := True
-          else
-            IsClockwise := False;
-        end;
-        1: begin
-          // Left side of screen
-          // Front(2) and Right(3): Right = CW
-          // Back(4) and Left(5): Right = CCW
-          if (ActualFace = 2) or (ActualFace = 3) then
-            IsClockwise := True
-          else
-            IsClockwise := False;
-          // Invert when cube is flipped
-          if ViewFlipped then
-            IsClockwise := not IsClockwise;
-          // Invert for odd number of A/D rotations
-          if Odd(ViewRotationY) then
-            IsClockwise := not IsClockwise;
-        end;
-        2: begin
-          // Right side of screen (opposite of left side)
-          // Front(2) and Right(3): Right = CCW
-          // Back(4) and Left(5): Right = CW
-          if (ActualFace = 2) or (ActualFace = 3) then
-            IsClockwise := False
-          else
-            IsClockwise := True;
-          // Invert when cube is flipped
-          if ViewFlipped then
-            IsClockwise := not IsClockwise;
-          // Invert for odd number of A/D rotations
-          if Odd(ViewRotationY) then
-            IsClockwise := not IsClockwise;
-        end;
+      GetRotationParams(False, ActualFace, IsClockwise);
+      if SelectedSliceDepth = 0 then
+        QueueOrExecuteMove(ActualFace - 1, IsClockwise)
       else
-        IsClockwise := True;
+      begin
+        if IsClockwise then
+          QueueOrExecuteSliceMove(
+            TFace(CLegacyToGenericOrd[ActualFace]), dirCW,
+            SelectedSliceDepth, SelectedSliceDepth)
+        else
+          QueueOrExecuteSliceMove(
+            TFace(CLegacyToGenericOrd[ActualFace]), dirCCW,
+            SelectedSliceDepth, SelectedSliceDepth);
       end;
-
-      // Debug: show current state in caption
-      Caption := Format('RIGHT: Sel=%d Face=%d Flip=%s Rot=%d CW=%s',
-        [SelectedVisibleFace, ActualFace, BoolToStr(ViewFlipped, 'Y', 'N'),
-         ViewRotationY, BoolToStr(IsClockwise, 'CW', 'CCW')]);
-
-      ManualRotateFace(ActualFace - 1, IsClockwise);
       Key := 0;
     end;
 
     Ord('A'), Ord('a'):
     begin
-      // Rotate view left (same as left button)
       RotateCubeLeftRight(1);
       Key := 0;
     end;
 
     Ord('D'), Ord('d'):
     begin
-      // Rotate view right (same as right button)
       RotateCubeLeftRight(-1);
       Key := 0;
     end;
 
     Ord('W'), Ord('w'):
     begin
-      // Flip view 180° (same as up button)
       RotateCubeFlipUp;
       Key := 0;
     end;
 
     Ord('S'), Ord('s'):
     begin
-      // Reset view to initial position
       SetInitialCubeView;
       Key := 0;
     end;
@@ -648,6 +828,13 @@ begin
   // Key handling moved to FormKeyDown for immediate response
   // This is kept for compatibility but most logic is in KeyDown now
   if not keyBoardControlActive then Exit;
+
+  // Reset arrow key repeat filter on key release
+  if (Key = VK_LEFT) or (Key = VK_RIGHT) or (Key = VK_UP) or (Key = VK_DOWN) then
+  begin
+    ArrowKeyIsHeld := False;
+    LastArrowKeyDown := 0;
+  end;
 
   // Consume handled keys
   case Key of
@@ -694,127 +881,58 @@ end;
 procedure TfrmMain.pntBox3DviewMouseWheel(Sender: TObject; Shift: TShiftState;
   WheelDelta: integer; MousePos: TPoint; var Handled: boolean);
 var
-  i: integer;
-  clickedPolygonIndex: integer;
-  closestZ: single;
-  selectedFace, selectedCubelet: integer;
-  currentColorIndex: integer;
+  hitFace: TFace;
+  hitRow, hitCol: Integer;
+  curColor: TCubeColor;
+  nowTick: QWord;
 begin
-  clickedPolygonIndex := -1;
-  closestZ := -MaxInt; // Start with the smallest possible value for comparison.
+  if GenericCube = nil then Exit;
+  if NxNCubeSize <= 0 then Exit;
 
-  // Iterate over the polygons and determine if the mouse point is inside any of them
-  for i := 0 to High(PolyOrder) do
-  begin
-    // Only proceed if the polygon is not a back face and is drawn
-    if (PolyOrder[i].order <> -1) and (PolyOrder[i].color <> clBlack) then
-    begin
-      if PointInPolygon(MousePos, PolyOrder[i].pt) then
-      begin
-        // If this polygon is closer to the viewer (greater Z), select it
-        if PolyOrder[i].z > closestZ then
-        begin
-          clickedPolygonIndex := PolyOrder[i].order;
-          closestZ := PolyOrder[i].z;
-        end;
-      end;
-    end;
-  end;
+  // Throttle fast mouse wheels
+  nowTick := GetTickCount64;
+  if (nowTick - LastWheelColorTick) < 50 then begin Handled := True; Exit; end;
+  LastWheelColorTick := nowTick;
 
-  // If a valid polygon was under the mouse pointer, update the color
-  if clickedPolygonIndex <> -1 then
-  begin
-    // Adjust the calculation of the face and cubelet
-    selectedFace := (clickedPolygonIndex div 45) + 1; // 45 polygons per face
-    selectedCubelet := (clickedPolygonIndex mod 45) div 5; // Each cubelet has 5 polygons
+  if not HitTestCube3dN(MousePos, NxNCubeSize, hitFace, hitRow, hitCol) then Exit;
 
-    // Skip if the clicked cubelet is the middle one (cubelet 4)
-    if selectedCubelet = 4 then
-      Exit;
+  curColor := GenericCube.Facelets[hitFace, hitRow, hitCol];
 
-    // Get the current color index of the clicked cubelet
-    currentColorIndex := CurrentCubeState[selectedFace, selectedCubelet];
+  if WheelDelta > 0 then
+    curColor := CycleColorLeft(curColor)
+  else if WheelDelta < 0 then
+    curColor := CycleColorRight(curColor);
 
-    // Adjust the colorIndex based on WheelDelta
-    if WheelDelta > 0 then
-    begin
-      // Scrolled up: Cycle forward through the colors 2 to 5
-      currentColorIndex := ((currentColorIndex - 2 + 1) mod 4) + 2;
-    end
-    else if WheelDelta < 0 then
-    begin
-      // Scrolled down: Cycle backward through the colors 2 to 5
-      if currentColorIndex = 2 then
-        currentColorIndex := 5
-      else if currentColorIndex > 2 then
-        Dec(currentColorIndex) // Move to the previous color
-      else
-        currentColorIndex := 2; // Default to 2 if outside the target range
-    end;
+  GenericCube.Facelets[hitFace, hitRow, hitCol] := curColor;
 
-    // Set the new color to the clicked cubelet
-    CurrentCubeState[selectedFace, selectedCubelet] := currentColorIndex;
-
-    // Update the form caption to indicate which face and cubelet were modified
-    frmMain.Caption := Format('Mouse Wheel on Face: %d, Cubelet: %d',
-      [selectedFace, selectedCubelet]);
-
-    // Trigger a redraw to reflect the change
-    // DrawCube3d handled by OnRedraw event
-    DrawCube(pntBoxCurrentState, CurrentCubeState);
-    pntBoxCurrentState.Refresh;
-    pntBox3Dview.DiscardBitmap;
-  end
-  else
-  begin
-    frmMain.Caption := 'No valid cubelet under mouse pointer';
-  end;
-
+  pntBoxCurrentState.Refresh;
+  pntBox3Dview.DiscardBitmap;
   Handled := True;
 end;
 
 
-procedure TfrmMain.ts2DViewsChange(Sender: TObject);
-begin
-  pntBox3Dview.DiscardBitmap;
-end;
-
-procedure TfrmMain.pntBoxTargetSolvePaint(Sender: TObject);
-begin
-  DrawCube(pntBoxTargetSolve, TargetCubeState);
-  // DON'T call Refresh inside Paint handler - causes infinite loop!
-end;
-
 procedure TfrmMain.pntBoxCurrentStateMouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: integer);
 var
-  colorIndex: integer;
+  hitFace: TFace;
+  hitRow, hitCol: Integer;
+  curColor: TCubeColor;
 begin
   if IsRunning then Exit;
-  colorIndex := GetCubeletColor(CurrentCubeState, Point(x, y));
+  if GenericCube = nil then Exit;
+
+  if not HitTestCubeN(pntBoxCurrentState, GenericCube.CubeSize, Point(X, Y),
+                      hitFace, hitRow, hitCol) then Exit;
+
+  curColor := GenericCube.Facelets[hitFace, hitRow, hitCol];
 
   if Button = mbLeft then
-  begin
-    // Cycles colors 2 to 5 with left mouse button
-    if (colorIndex >= 2) and (colorIndex < 5) then
-      Inc(colorIndex) // Move to the next color
-    else if colorIndex = 5 then
-      colorIndex := 2 // Wrap back to color 2
-    else
-      colorIndex := 2; // Default to 2 if outside range
-  end
+    curColor := CycleColorLeft(curColor)
   else if Button = mbRight then
-  begin
-    // Toggles between colors 1 and 6 with right mouse button
-    if colorIndex = 6 then
-      colorIndex := 1
-    else
-      colorIndex := 6;
-  end;
+    curColor := CycleColorRight(curColor);
 
-  SetCubeletColor(CurrentCubeState, point(x, y), colorIndex);
+  GenericCube.Facelets[hitFace, hitRow, hitCol] := curColor;
 
-  DrawCube(pntBoxCurrentState, CurrentCubeState);
   pntBoxCurrentState.Refresh;
   pntBox3Dview.DiscardBitmap;
 end;
@@ -822,122 +940,61 @@ end;
 procedure TfrmMain.pntBox3DviewMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: integer);
 var
-  i: integer;
-  clickedPolygonIndex: integer;
   clickPoint: TPoint;
-  closestZ: single;
-  selectedFace, selectedCubelet: integer;
-  currentColorIndex: integer;
+  hitFace: TFace;
+  hitRow, hitCol: Integer;
+  curColor: TCubeColor;
 begin
+  if GenericCube = nil then Exit;
+  if NxNCubeSize <= 0 then Exit;
   clickPoint := Point(X, Y);
-  clickedPolygonIndex := -1;
-  closestZ := -MaxInt;  // Start with the smallest possible value for comparison.
 
-  // Iterate over the polygons and determine if the click point is inside any of them
-  for i := 0 to High(PolyOrder) do
-  begin
-    // Only proceed if the polygon is not a back face and is drawn
-    if (PolyOrder[i].order <> -1) and (PolyOrder[i].color <> clBlack) then
-    begin
-      if PointInPolygon(clickPoint, PolyOrder[i].pt) then
-      begin
-        // If this polygon is closer to the viewer (greater Z), select it
-        if PolyOrder[i].z > closestZ then
-        begin
-          clickedPolygonIndex := PolyOrder[i].order;
-          closestZ := PolyOrder[i].z;
-        end;
-      end;
-    end;
-  end;
+  if not HitTestCube3dN(clickPoint, NxNCubeSize, hitFace, hitRow, hitCol) then Exit;
 
-  // If a valid polygon was clicked, update the color
-  if clickedPolygonIndex <> -1 then
-  begin
-    // Adjust the calculation of the face and cubelet
-    selectedFace := (clickedPolygonIndex div 45) + 1; // 45 polygons per face
-    selectedCubelet := (clickedPolygonIndex mod 45) div 5; // Each cubelet has 5 polygons
+  curColor := GenericCube.Facelets[hitFace, hitRow, hitCol];
 
-    // Do not change the color of the middle cubelet
-    if selectedCubelet = 4 then
-    begin
-      frmMain.Caption := Format('Clicked on Face: %d, Cubelet: %d (Center - No Change)',
-        [selectedFace, selectedCubelet]);
-      Exit;
-    end;
+  if Button = mbLeft then
+    curColor := CycleColorLeft(curColor)
+  else if Button = mbRight then
+    curColor := CycleColorRight(curColor);
 
-    // Get the current color index of the clicked cubelet
-    currentColorIndex := CurrentCubeState[selectedFace, selectedCubelet];
+  GenericCube.Facelets[hitFace, hitRow, hitCol] := curColor;
 
-    // Cycle colors based on mouse button clicked
-    if Button = mbLeft then
-    begin
-      // Cycles colors 2 to 5 with left mouse button
-      if (currentColorIndex >= 2) and (currentColorIndex < 5) then
-        Inc(currentColorIndex) // Move to the next color
-      else if currentColorIndex = 5 then
-        currentColorIndex := 2 // Wrap back to color 2
-      else
-        currentColorIndex := 2; // Default to 2 if outside range
-    end
-    else if Button = mbRight then
-    begin
-      // Toggles between colors 1 and 6 with right mouse button
-      if currentColorIndex = 6 then
-        currentColorIndex := 1
-      else
-        currentColorIndex := 6;
-    end;
-
-    // Set the new color to the clicked cubelet
-    CurrentCubeState[selectedFace, selectedCubelet] := currentColorIndex;
-
-    // Update the form caption to show which face and cubelet was clicked
-    frmMain.Caption := Format('Clicked on Face: %d, Cubelet: %d',
-      [selectedFace, selectedCubelet]);
-
-    // Trigger a redraw to reflect the change
-    // DrawCube3d handled by OnRedraw event
-    DrawCube(pntBoxCurrentState, CurrentCubeState);
-    pntBoxCurrentState.Refresh;
-    pntBox3Dview.DiscardBitmap;
-  end
-  else
-  begin
-    frmMain.Caption := 'No valid cubelet clicked';
-  end;
+  pntBoxCurrentState.Refresh;
+  pntBox3Dview.DiscardBitmap;
 end;
 
 procedure TfrmMain.pntBoxCurrentStateMouseWheel(Sender: TObject;
   Shift: TShiftState; WheelDelta: integer; MousePos: TPoint; var Handled: boolean);
 var
-  colorIndex: integer;
+  hitFace: TFace;
+  hitRow, hitCol: Integer;
+  curColor: TCubeColor;
+  nowTick: QWord;
 begin
-  if IsRunning then Exit; // Ensure the cube isn't in a running state
-  colorIndex := GetCubeletColor(CurrentCubeState, MousePos);
-  // Assuming GetColor can work with MousePos directly
+  if IsRunning then Exit;
+  if GenericCube = nil then Exit;
 
-  // Adjust the colorIndex based on WheelDelta
+  // Throttle fast mouse wheels - minimum 50ms between color changes
+  nowTick := GetTickCount64;
+  if (nowTick - LastWheelColorTick) < 50 then begin Handled := True; Exit; end;
+  LastWheelColorTick := nowTick;
+
+  if not HitTestCubeN(pntBoxCurrentState, GenericCube.CubeSize, MousePos,
+                      hitFace, hitRow, hitCol) then Exit;
+
+  curColor := GenericCube.Facelets[hitFace, hitRow, hitCol];
+
   if WheelDelta > 0 then
-  begin
-    // Scrolled up: Cycle forward through the colors 2 to 5
-    colorIndex := ((colorIndex - 2 + 1) mod 4) + 2;
-  end
+    curColor := CycleColorLeft(curColor)
   else if WheelDelta < 0 then
-  begin
-    // Scrolled down: Cycle backward through the colors 2 to 5
-    if colorIndex = 2 then
-      colorIndex := 5
-    else if colorIndex > 2 then
-      Dec(colorIndex) // Move to the previous color
-    else
-      colorIndex := 2; // Default to 2 if outside the target range
-  end;
+    curColor := CycleColorRight(curColor);
 
-  SetCubeletColor(CurrentCubeState, MousePos, colorIndex);
-  DrawCube(pntBoxCurrentState, CurrentCubeState);
+  GenericCube.Facelets[hitFace, hitRow, hitCol] := curColor;
+
   pntBoxCurrentState.Refresh;
   pntBox3Dview.DiscardBitmap;
+  Handled := True;
 end;
 
 procedure TfrmMain.pntBoxCurrentStateMouseWheelDown(Sender: TObject;
@@ -946,43 +1003,10 @@ begin
 
 end;
 
-procedure TfrmMain.pntBoxTargetSolveMouseDown(Sender: TObject;
-  Button: TMouseButton; Shift: TShiftState; X, Y: integer);
-var
-  colorIndex: integer;
-begin
-  if IsRunning then Exit;
-  colorIndex := GetCubeletColor(TargetCubeState, Point(x, y));
-
-  if Button = mbLeft then
-  begin
-    // Cycles colors 2 to 5 with left mouse button
-    if (colorIndex >= 2) and (colorIndex < 5) then
-      Inc(colorIndex) // Move to the next color
-    else if colorIndex = 5 then
-      colorIndex := 2 // Wrap back to color 2
-    else
-      colorIndex := 2; // Default to 2 if outside range
-  end
-  else if Button = mbRight then
-  begin
-    // Toggles between colors 1 and 6 with right mouse button
-    if colorIndex = 6 then
-      colorIndex := 1
-    else
-      colorIndex := 6;
-  end;
-
-  SetCubeletColor(TargetCubeState, point(x, y), colorIndex);
-
-  DrawCube(pntBoxTargetSolve, TargetCubeState);
-  pntBoxTargetSolve.Refresh;
-  pntBox3Dview.DiscardBitmap;
-end;
-
 procedure TfrmMain.pntBoxCurrentStatePaint(Sender: TObject);
 begin
-  DrawCube(pntBoxCurrentState, CurrentCubeState);
+  if GenericCube <> nil then
+    DrawCubeN(pntBoxCurrentState, GenericCube);
   // DON'T call Refresh inside Paint handler - causes infinite loop!
 end;
 
@@ -990,25 +1014,16 @@ procedure TfrmMain.SetInitialCubeView;
 var
   AngleX, AngleY: double;
 begin
-  axeX[0] := -1;
-  axeX[1] := 0;
-  axeX[2] := 0; // Reset X axis
-
-  axeY[0] := 0;
-  axeY[1] := -1;
-  axeY[2] := 0; // Reset Y axis
-
-  axeZ[0] := 0;
-  axeZ[1] := 0;
-  axeZ[2] := -1; // Reset Z axis
-
-  Cube3D := VIEW_OF_3D_CUBE;
+  // Regenerate NxN geometry
+  if NxNCubeSize > 0 then
+    Cube3DN := GenerateNxNCube3D(NxNCubeSize);
 
   AngleY := 45 * Pi / 180;
-  Rotate3d(cube3d, 0, AngleY, 0);
+  AngleX := -32 * Pi / 180;
 
-  AngleX := -32 * Pi / 180; // Rotate 45 degrees around the X-axis to see the top
-  Rotate3d(cube3d, AngleX, 0, 0);
+  // Apply initial view rotation
+  RotateView3D(0, AngleY, 0);
+  RotateView3D(AngleX, 0, 0);
 
   // Reset visible faces to initial view: Top, Front, Right
   // Face indices: 1=Top, 2=Front, 3=Right, 4=Back, 5=Left, 6=Bottom
@@ -1018,7 +1033,6 @@ begin
   ViewRotationY := 0;    // Reset rotation counter
   ViewFlipped := False;  // Reset flip state
 
-  // DrawCube3d handled by OnRedraw event
   Cube3DTransActive := False;
   pntBoxCurrentState.Refresh;
   pntBox3Dview.DiscardBitmap;
@@ -1065,10 +1079,10 @@ begin
       DeltaAngleY := (1.0 - Progress) * TotalAngleY;
 
       AngleX := 32 * Pi / 180;
-      Rotate3d(cube3d, AngleX, 0, 0);
-      Rotate3d(cube3d, 0, DeltaAngleY, 0);
+      RotateView3D(AngleX, 0, 0);
+      RotateView3D(0, DeltaAngleY, 0);
       AngleX := -32 * Pi / 180;
-      Rotate3d(cube3d, AngleX, 0, 0);
+      RotateView3D(AngleX, 0, 0);
 
       Break;
     end;
@@ -1082,14 +1096,14 @@ begin
 
     // ANGLE IT BACK UP SO IT IS JUST A FLAT FRONT VIEW
     AngleX := 32 * Pi / 180;
-    Rotate3d(cube3d, AngleX, 0, 0);
+    RotateView3D(AngleX, 0, 0);
 
     // NOW ROTATE IT INCREMENTALLY!!!
-    Rotate3d(cube3d, 0, DeltaAngleY, 0);
+    RotateView3D(0, DeltaAngleY, 0);
 
     // NOW ROTATE IT BACK DOWN TO THE ANGLE WE LIKE TO SEE THE TOP!!
     AngleX := -32 * Pi / 180;
-    Rotate3d(cube3d, AngleX, 0, 0);
+    RotateView3D(AngleX, 0, 0);
 
     // WE DON'T DRAW UNTIL ALL AXIS ARE SET!!!
     pntBox3Dview.DiscardBitmap;
@@ -1189,7 +1203,7 @@ begin
     begin
       // Apply final increment to complete the rotation
       DeltaAngleX := (1.0 - Progress) * TotalAngleX;
-      Rotate3d(cube3d, DeltaAngleX, 0, 0);
+      RotateView3D(DeltaAngleX, 0, 0);
       Break;
     end;
 
@@ -1201,7 +1215,7 @@ begin
     DeltaAngleX := (Progress - PrevProgress) * TotalAngleX;
 
     // Apply incremental rotation
-    Rotate3d(cube3d, DeltaAngleX, 0, 0);
+    RotateView3D(DeltaAngleX, 0, 0);
 
     pntBox3Dview.DiscardBitmap;
     Application.ProcessMessages;
@@ -1299,7 +1313,7 @@ begin
     begin
       // Apply final increment to complete the rotation
       DeltaAngleX := (1.0 - Progress) * TotalAngleX;
-      Rotate3d(cube3d, DeltaAngleX, 0, 0);
+      RotateView3D(DeltaAngleX, 0, 0);
       Break;
     end;
 
@@ -1311,7 +1325,7 @@ begin
     DeltaAngleX := (Progress - PrevProgress) * TotalAngleX;
 
     // Apply incremental rotation
-    Rotate3d(cube3d, DeltaAngleX, 0, 0);
+    RotateView3D(DeltaAngleX, 0, 0);
 
     pntBox3Dview.DiscardBitmap;
     Application.ProcessMessages;
@@ -1361,7 +1375,7 @@ begin
     begin
       // Apply final increment to complete the rotation
       DeltaAngleX := (1.0 - Progress) * TotalAngleX;
-      Rotate3d(cube3d, DeltaAngleX, 0, 0);
+      RotateView3D(DeltaAngleX, 0, 0);
       Break;
     end;
 
@@ -1373,7 +1387,7 @@ begin
     DeltaAngleX := (Progress - PrevProgress) * TotalAngleX;
 
     // Apply incremental rotation
-    Rotate3d(cube3d, DeltaAngleX, 0, 0);
+    RotateView3D(DeltaAngleX, 0, 0);
 
     pntBox3Dview.DiscardBitmap;
     Application.ProcessMessages;
@@ -1424,16 +1438,19 @@ begin
   ToggleButtonsExcept(Self, btnExecuteUntilSolved, False);
 
   repeat
-    s := AnsiUpperCase(edtMoveString.Text);
-    ExecuteNotation(s, spinEdtAnimationSpeed.Value);
+    s := Trim(edtMoveString.Text);
+    ExecuteNotation(s, FAnimationSpeed);
     Inc(repeated);
-  until CompareCubes(CurrentCubeState, TargetCubeState) or (IsRunning = False);
+  until ((GenericCube <> nil) and GenericCube.IsSolved) or (IsRunning = False);
 
   if IsRunning then
-    memSolveSummary.Lines[0] :=
-      'Solved state reached after repeating sequence ' + (IntToStr(repeated)) + ' times.'
+  begin
+    frmTerminalOutput.Show;
+    frmTerminalOutput.memTerminal.Lines[0] :=
+      'Solved state reached after repeating sequence ' + (IntToStr(repeated)) + ' times.';
+  end
   else
-    memSolveSummary.Lines.Clear;
+    frmTerminalOutput.memTerminal.Lines.Clear;
 
   IsRunning := False;
   btnExecuteUntilSolved.Caption := '🚀 Execute Until Solved';
@@ -1481,15 +1498,13 @@ end;
 
 procedure TfrmMain.pntBox3DviewRedraw(Sender: TObject; Bitmap: TBGRABitmap);
 begin
-  if ts2DViews.ActivePageIndex = 0 then
-    DrawCube3d(Bitmap, CurrentCubeState, cube3d)
-  else
-    DrawCube3d(Bitmap, TargetCubeState, cube3d);
+  if (GenericCube <> nil) and (NxNCubeSize > 0) then
+    DrawCube3dN(Bitmap, GenericCube, Cube3DN);
 end;
 
 procedure TfrmMain.btnScrampleStateClick(Sender: TObject);
 var
-  NumMoves, i: integer;
+  NumMoves: integer;
   InputStr, scrambledNotation: string;
   UserOK: boolean;
 begin
@@ -1499,22 +1514,20 @@ begin
 
   Randomize;
 
-  InputStr := '15';
+  InputStr := IntToStr(FLastScrambleMoves);
   UserOK := InputQuery('Scramble Cube', 'Enter the number of scramble moves:', InputStr);
 
   if UserOK then
   begin
-    if TryStrToInt(InputStr, NumMoves) then
+    if TryStrToInt(InputStr, NumMoves) and (NumMoves > 0) then
     begin
-      //if NumMoves > 100 then
-      //  NumMoves := 100; // Capping number of moves
-      //RandomRotateFaces(NumMoves);
+      FLastScrambleMoves := NumMoves;
       scrambledNotation := GenerateRandomScramble(NumMoves);
       memRandScramble.Text := scrambledNotation;
+
+      // Animate scramble using ManualRotateFace (always uses GenericCube)
       ToggleButtonsExcept(Self, btn3DviewReset, False);
-      IsRunning := True;
-      ExecuteNotation(scrambledNotation, 11);
-      IsRunning := False;
+      ExecuteNotationNxN(scrambledNotation);
       ToggleButtonsExcept(Self, btn3DviewReset, True);
       pntBoxCurrentState.Refresh;
       pntBox3Dview.DiscardBitmap;
@@ -1532,8 +1545,8 @@ begin
   try
     if WebcamForm.ShowModal = mrOK then
     begin
-      // User completed scanning - update current cube state
-      CurrentCubeState := WebcamForm.ScannedCubeState;
+      // User completed scanning - update cube state
+      GenericCubeFromRubik(GenericCube, WebcamForm.ScannedCubeState);
       pntBoxCurrentState.Refresh;
       pntBox3Dview.DiscardBitmap;
       ShowMessage('Cube scanned successfully!');
@@ -1543,17 +1556,6 @@ begin
   end;
 end;
 
-procedure TfrmMain.btnScrambleTargetClick(Sender: TObject);
-var
-  i: integer;
-begin
-  TargetCubeState := C_CUBE_COMPLETE;
-  for i := 0 to 50 do rotateface(TUnitRubik(TargetCubeState), random(6) +
-      1, random(3) + 1);
-  DrawCube(pntBoxTargetSolve, TargetCubeState);
-  // DrawCube3d handled by OnRedraw event
-
-end;
 
 procedure TfrmMain.btnControlHelpClick(Sender: TObject);
 var
@@ -1594,29 +1596,49 @@ end;
 procedure TfrmMain.btnExecuteClick(Sender: TObject);
 var
   s: string;
+  redrawInterval: integer;
 begin
   // Toggle between Execute and Pause
   case ExecutionState of
     esIdle:
     begin
       // Start new execution
-      s := AnsiUpperCase(edtMoveString.Text);
-      if Trim(s) = '' then Exit;
-
-      // CRITICAL: Apply LFDstringCorrection hack before parsing
-      LFDstringCorrection(s);
+      s := Trim(edtMoveString.Text);
+      if s = '' then Exit;
 
       EnterExecutionMode;
       ParseNotationMoves(s);
       CurrentMoveIndex := -1;
 
-      // Execute all moves
-      while (CurrentMoveIndex < Length(ParsedMoves) - 1) and (ExecutionState = esExecuting) do
-      begin
-        Inc(CurrentMoveIndex);
-        ExecuteSingleMove(CurrentMoveIndex, True);
+      // Execute all moves - dynamically checks FAnimationEnabled each iteration
+      redrawInterval := Max(1, Length(ParsedMoves) div 10);
+      try
+        while (CurrentMoveIndex < Length(ParsedMoves) - 1) and (ExecutionState = esExecuting) do
+        begin
+          Inc(CurrentMoveIndex);
+          FBatchExecuting := not FAnimationEnabled;
+          ExecuteSingleMove(CurrentMoveIndex, True);
+          if FBatchExecuting then
+          begin
+            if (CurrentMoveIndex mod redrawInterval = 0) or (CurrentMoveIndex = Length(ParsedMoves) - 1) then
+            begin
+              pntBoxCurrentState.Refresh;
+              pntBox3Dview.DiscardBitmap;
+              HighlightCurrentMove;
+              Application.ProcessMessages;
+            end;
+          end
+          else
+          begin
+            HighlightCurrentMove;
+            Application.ProcessMessages;
+          end;
+        end;
+      finally
+        FBatchExecuting := False;
+        pntBoxCurrentState.Refresh;
+        pntBox3Dview.DiscardBitmap;
         HighlightCurrentMove;
-        Application.ProcessMessages;
       end;
 
       // When complete, switch to paused so user can step backward
@@ -1647,12 +1669,34 @@ begin
       ExecutionState := esExecuting;
       UpdatePlaybackButtons;
 
-      while (CurrentMoveIndex < Length(ParsedMoves) - 1) and (ExecutionState = esExecuting) do
-      begin
-        Inc(CurrentMoveIndex);
-        ExecuteSingleMove(CurrentMoveIndex, True);
+      redrawInterval := Max(1, Length(ParsedMoves) div 10);
+      try
+        while (CurrentMoveIndex < Length(ParsedMoves) - 1) and (ExecutionState = esExecuting) do
+        begin
+          Inc(CurrentMoveIndex);
+          FBatchExecuting := not FAnimationEnabled;
+          ExecuteSingleMove(CurrentMoveIndex, True);
+          if FBatchExecuting then
+          begin
+            if (CurrentMoveIndex mod redrawInterval = 0) or (CurrentMoveIndex = Length(ParsedMoves) - 1) then
+            begin
+              pntBoxCurrentState.Refresh;
+              pntBox3Dview.DiscardBitmap;
+              HighlightCurrentMove;
+              Application.ProcessMessages;
+            end;
+          end
+          else
+          begin
+            HighlightCurrentMove;
+            Application.ProcessMessages;
+          end;
+        end;
+      finally
+        FBatchExecuting := False;
+        pntBoxCurrentState.Refresh;
+        pntBox3Dview.DiscardBitmap;
         HighlightCurrentMove;
-        Application.ProcessMessages;
       end;
 
       // When complete, return to paused so user can step backward
@@ -1665,13 +1709,6 @@ begin
   end;
 end;
 
-procedure TfrmMain.btnTargetSolveResetClick(Sender: TObject);
-begin
-  TargetCubeState := C_CUBE_COMPLETE;
-  DrawCube(pntBoxTargetSolve, TargetCubeState);
-  pntBoxTargetSolve.Refresh;
-  pntBox3Dview.DiscardBitmap;
-end;
 
 procedure TfrmMain.btnStepBackwardClick(Sender: TObject);
 begin
@@ -1708,98 +1745,550 @@ end;
 
 procedure TfrmMain.btnCurrentStateResetClick(Sender: TObject);
 begin
-  CurrentCubeState := C_CUBE_COMPLETE;
-  DrawCube(pntBoxCurrentState, CurrentCubeState);
+  GenericCube.Reset;
+
   pntBoxCurrentState.Refresh;
   pntBox3Dview.DiscardBitmap;
 end;
 
 procedure TfrmMain.btnMoveClick(Sender: TObject);
 var
-  n: integer;
-  tmp: tcube3d;
-  v: integer;
-  StartTime, ElapsedMs, TargetDuration: QWord;
-  Progress, CurrentAngle: Double;
+  Face: integer;
+  clockWise: boolean;
+  btn: TSpeedButton;
 begin
   // Exit execution mode if user manually rotates
   if ExecutionState <> esIdle then
     ExitExecutionMode;
 
-  // Prevent re-entry
-  if IsRunning then
-  begin
-    Exit;
-  end;
-  IsRunning := True;
-  try
-    n := TSpeedButton(Sender).Tag;
-    v := spinEdtAnimationSpeed.Value;
+  btn := TSpeedButton(Sender);
 
-    // For speed 11, skip animation entirely - instant rotation
-    if v >= 11 then
-    begin
-      Rotateface(TUnitRubik(CurrentCubeState), n mod 10 + 1, (n div 10) * 2 + 1);
-      pntBoxCurrentState.Refresh;
-      pntBox3Dview.DiscardBitmap;
-      Exit;
-    end;
+  // Explicit button-to-face mapping
+  // Face: 0=U, 1=F, 2=R, 3=B, 4=L, 5=D
+  if      btn = btnUpClock      then begin Face := 0; clockWise := True;  end
+  else if btn = btnUpCounter    then begin Face := 0; clockWise := False; end
+  else if btn = btnFrontClock   then begin Face := 1; clockWise := True;  end
+  else if btn = btnFrontCounter then begin Face := 1; clockWise := False; end
+  else if btn = btnRightClock   then begin Face := 2; clockWise := True;  end
+  else if btn = btnRightCounter then begin Face := 2; clockWise := False; end
+  else if btn = btnBackClock    then begin Face := 3; clockWise := True;  end
+  else if btn = btnBackCounter  then begin Face := 3; clockWise := False; end
+  else if btn = btnLeftClock    then begin Face := 4; clockWise := True;  end
+  else if btn = btnLeftCounter  then begin Face := 4; clockWise := False; end
+  else if btn = btnDownClock    then begin Face := 5; clockWise := True;  end
+  else if btn = btnDownCounter  then begin Face := 5; clockWise := False; end
+  else Exit;
 
-  // Time-based animation (speeds 1-10)
-  case v of
-    1: TargetDuration := 5000;
-    2: TargetDuration := 3000;
-    3: TargetDuration := 2000;
-    4: TargetDuration := 1500;
-    5: TargetDuration := 1000;
-    6: TargetDuration := 700;
-    7: TargetDuration := 500;
-    8: TargetDuration := 350;
-    9: TargetDuration := 250;
-    10: TargetDuration := 150;
-  else
-    TargetDuration := 1000;
-  end;
-
-  tmp := cube3d;
-  StartTime := GetTickCount64;
-
-  while True do
-  begin
-    ElapsedMs := GetTickCount64 - StartTime;
-    if ElapsedMs >= TargetDuration then Break;
-
-    // Linear progress from 0.0 to 1.0
-    Progress := ElapsedMs / TargetDuration;
-
-    // Apply easing for natural movement (slow start → fast → slow end)
-    Progress := EaseInOutQuad(Progress);
-
-    CurrentAngle := Progress * 90;
-
-    Rotate3dface(cube3d, n mod 10 + 1, (((n div 10) * 2 - 1) * CurrentAngle) * pi / 180);
-    // DrawCube3d handled by OnRedraw event
-    pntBox3Dview.DiscardBitmap;
-    Application.ProcessMessages;
-
-    cube3d := tmp;
-    Sleep(1);  // Prevent CPU burn
-  end;
-
-  Rotateface(TUnitRubik(CurrentCubeState), n mod 10 + 1, (n div 10) * 2 + 1);
-  DrawCube(pntBoxCurrentState, CurrentCubeState);
-  // DrawCube3d handled by OnRedraw event
-  pntBoxCurrentState.Refresh;
-  pntBox3Dview.DiscardBitmap;
-  finally
-    IsRunning := False;
-  end;
+  QueueOrExecuteMove(Face, clockWise);
 end;
 
 procedure TfrmMain.btn2phaseSolveClick(Sender: TObject);
 begin
-  ExecuteSolverAndParseOutput(CubeToDefinitionString(CurrentCubeState),
-    memSolveSummary, edtMoveString);
+  // If solver is running, cancel it
+  if Assigned(FSolverProcess) and FSolverProcess.Running then
+  begin
+    FSolverCancelled := True;
+    FSolverProcess.Terminate(1);
+    Exit;
+  end;
+
+  SnapTerminalOutput;
+  frmTerminalOutput.Show;
+  ExecuteSolverAndParseOutput(GenericCube.ToDefinitionString,
+    frmTerminalOutput.memTerminal, edtMoveString);
+end;
+
+function CountMovesInString(const s: string): integer;
+var
+  tokens: TStringList;
+  k: integer;
+  tok: string;
+begin
+  Result := 0;
+  if Trim(s) = '' then Exit;
+  tokens := TStringList.Create;
+  try
+    tokens.Delimiter := ' ';
+    tokens.StrictDelimiter := True;
+    tokens.DelimitedText := Trim(s);
+    for k := 0 to tokens.Count - 1 do
+    begin
+      tok := Trim(tokens[k]);
+      if tok <> '' then Inc(Result);
+    end;
+  finally
+    tokens.Free;
+  end;
+end;
+
+function FormatElapsed(ms: QWord): string;
+begin
+  if ms < 1000 then
+    Result := Format('%d ms', [ms])
+  else if ms < 60000 then
+    Result := Format('%.1f s', [ms / 1000.0])
+  else
+    Result := Format('%d min %d s', [ms div 60000, (ms mod 60000) div 1000]);
+end;
+
+function GetNxNTableDir: string;
+begin
+  Result := IncludeTrailingPathDelimiter(
+    ExtractFilePath(ParamStr(0)) + 'nxn-solver' + PathDelim + 'data');
+end;
+
+function CheckNxNTables(cubeSize: integer; out missingInfo: string): boolean;
+var
+  virtualSize: integer;
+  tables: array of string;
+  tableSizeMB: array of integer;
+  idx, missing: integer;
+  totalMissingMB: integer;
+
+  procedure AddTable(const name: string; sizeMB: integer);
+  begin
+    SetLength(tables, idx + 1);
+    SetLength(tableSizeMB, idx + 1);
+    tables[idx] := name;
+    tableSizeMB[idx] := sizeMB;
+    Inc(idx);
+  end;
+
+begin
+  idx := 0;
+  if cubeSize <= 3 then
+  begin
+    Result := True;
+    missingInfo := '';
+    Exit;
+  end;
+
+  if Odd(cubeSize) then virtualSize := cubeSize
+  else virtualSize := cubeSize + 1;
+
+  AddTable('UDCentTrans', 23);
+  AddTable('UDCenterMove', 152);
+  AddTable('UDCentBrick256Prun', 180);
+  AddTable('UDXCrossMove', 102);
+  AddTable('UDXCrossPrun', 12);
+  AddTable('FBCenterMove', 3);
+  AddTable('FBFullCenterSlicePrun', 2560);
+  AddTable('Ph3RLFBCenterMove', 1);
+  AddTable('Ph3RLFBXCrossMove', 1);
+  AddTable('Ph3RLFBXCrossPrun', 23);
+  AddTable('Ph4UDCentBrickPrun', 23);
+
+  if virtualSize >= 7 then
+  begin
+    AddTable('UDCentersSlice10', 10240);
+    AddTable('Ph3Brick702RLFBCentPrun', 3900);
+  end;
+
+  missing := 0;
+  totalMissingMB := 0;
+  missingInfo := '';
+
+  for idx := 0 to High(tables) do
+  begin
+    if not FileExists(GetNxNTableDir + tables[idx]) then
+    begin
+      Inc(missing);
+      totalMissingMB := totalMissingMB + tableSizeMB[idx];
+      if missingInfo <> '' then missingInfo := missingInfo + ', ';
+      missingInfo := missingInfo + tables[idx];
+    end;
+  end;
+
+  if missing > 0 then
+    missingInfo := Format('%d table(s) missing (~%.1f GB on disk): %s',
+      [missing, totalMissingMB / 1024.0, missingInfo]);
+
+  Result := (missing = 0);
+end;
+
+procedure TfrmMain.mnuAboutClick(Sender: TObject);
+begin
+  with TfrmAbout.Create(Self) do
+  try
+    ShowModal;
+  finally
+    Free;
+  end;
+end;
+
+procedure TfrmMain.mnuHelpClick(Sender: TObject);
+begin
+  if frmHelp = nil then
+    Application.CreateForm(TfrmHelp, frmHelp);
+  frmHelp.Show;
+  frmHelp.BringToFront;
+end;
+
+procedure TfrmMain.mnuQuitClick(Sender: TObject);
+begin
+  Close;
+end;
+
+procedure TfrmMain.mnuAnimEnabledClick(Sender: TObject);
+begin
+  FAnimationEnabled := not FAnimationEnabled;
+  mnuAnimEnabled.Checked := FAnimationEnabled;
+end;
+
+procedure TfrmMain.mnuSpeedClick(Sender: TObject);
+begin
+  FAnimationSpeed := (Sender as TMenuItem).Tag;
+end;
+
+procedure TfrmMain.mnuShowTerminalClick(Sender: TObject);
+begin
+  SnapTerminalOutput;
+  frmTerminalOutput.Show;
+  frmTerminalOutput.BringToFront;
+end;
+
+procedure TfrmMain.mnuTablesInfoClick(Sender: TObject);
+var
+  tableDir, solverPath, appDir: string;
+  sr: TSearchRec;
+  totalSize: int64;
+  fileCount: integer;
+  sizeStr: string;
+begin
+  tableDir := GetNxNTableDir;
+  appDir := ExtractFilePath(ParamStr(0));
+
+  SnapTerminalOutput;
+  frmTerminalOutput.Show;
+  frmTerminalOutput.memTerminal.Lines.Clear;
+  frmTerminalOutput.memTerminal.Lines.Add('=== Solver Status ===');
+  frmTerminalOutput.memTerminal.Lines.Add('');
+
+  // Solver binaries
+  frmTerminalOutput.memTerminal.Lines.Add('--- Solver Binaries ---');
+  frmTerminalOutput.memTerminal.Lines.Add('Application directory: ' + appDir);
+  frmTerminalOutput.memTerminal.Lines.Add('');
+
+  // NxN solver (4x4+)
+  {$IFDEF UNIX}
+  solverPath := appDir + 'nxn-solver' + PathDelim + 'nxn_solver';
+  {$ELSE}
+  solverPath := appDir + 'nxn-solver' + PathDelim + 'nxn_solver.exe';
+  {$ENDIF}
+  if FileExists(solverPath) then
+    frmTerminalOutput.memTerminal.Lines.Add('  NxN solver (4x4+):  ' + solverPath + '  [OK]')
+  else
+    frmTerminalOutput.memTerminal.Lines.Add('  NxN solver (4x4+):  ' + solverPath + '  [MISSING]');
+
+  // 3x3 solver is built-in
+  frmTerminalOutput.memTerminal.Lines.Add('  3x3 solver:         Built-in (pure Pascal min2phase)');
+  frmTerminalOutput.memTerminal.Lines.Add('');
+
+  // Table files
+  frmTerminalOutput.memTerminal.Lines.Add('--- Cached Table Files ---');
+  frmTerminalOutput.memTerminal.Lines.Add('Data directory: ' + tableDir);
+  frmTerminalOutput.memTerminal.Lines.Add('');
+
+  totalSize := 0;
+  fileCount := 0;
+
+  if DirectoryExists(tableDir) then
+  begin
+    if FindFirst(tableDir + '*', faAnyFile, sr) = 0 then
+    begin
+      repeat
+        if (sr.Attr and faDirectory) = 0 then
+        begin
+          if sr.Size >= 1024 * 1024 * 1024 then
+            sizeStr := Format('%.1f GB', [sr.Size / (1024.0 * 1024.0 * 1024.0)])
+          else if sr.Size >= 1024 * 1024 then
+            sizeStr := Format('%.0f MB', [sr.Size / (1024.0 * 1024.0)])
+          else
+            sizeStr := Format('%.0f KB', [sr.Size / 1024.0]);
+          frmTerminalOutput.memTerminal.Lines.Add(Format('  %-30s  %s', [sr.Name, sizeStr]));
+          totalSize := totalSize + sr.Size;
+          Inc(fileCount);
+        end;
+      until FindNext(sr) <> 0;
+      FindClose(sr);
+    end;
+  end;
+
+  if fileCount = 0 then
+    frmTerminalOutput.memTerminal.Lines.Add('  (no cached tables)')
+  else
+  begin
+    frmTerminalOutput.memTerminal.Lines.Add('');
+    if totalSize >= 1024 * 1024 * 1024 then
+      sizeStr := Format('%.1f GB', [totalSize / (1024.0 * 1024.0 * 1024.0)])
+    else
+      sizeStr := Format('%.0f MB', [totalSize / (1024.0 * 1024.0)]);
+    frmTerminalOutput.memTerminal.Lines.Add(Format('Total: %d file(s), %s', [fileCount, sizeStr]));
+  end;
+
+  // Check what's needed for current cube size
+  if ActiveCubeSize >= 4 then
+  begin
+    frmTerminalOutput.memTerminal.Lines.Add('');
+    if CheckNxNTables(ActiveCubeSize, sizeStr) then
+      frmTerminalOutput.memTerminal.Lines.Add(Format('Tables for %dx%d: READY', [ActiveCubeSize, ActiveCubeSize]))
+    else
+      frmTerminalOutput.memTerminal.Lines.Add(Format('Tables for %dx%d: %s', [ActiveCubeSize, ActiveCubeSize, sizeStr]));
+  end;
+end;
+
+procedure TfrmMain.mnuTablesGenerateClick(Sender: TObject);
+var
+  missingInfo, result_str, progressLine, progressParts: string;
+  progressPhase, progressTable, progressDoneStr, progressTotalStr: string;
+  progressDone, progressTotal, progressPct: int64;
+  StartTick, elapsed: QWord;
+  i: integer;
+begin
+  SnapTerminalOutput;
+  frmTerminalOutput.Show;
+  if ActiveCubeSize <= 3 then
+  begin
+    frmTerminalOutput.memTerminal.Lines.Clear;
+    frmTerminalOutput.memTerminal.Lines.Add('3x3 tables are generated automatically on first solve.');
+    Exit;
+  end;
+
+  if CheckNxNTables(ActiveCubeSize, missingInfo) then
+  begin
+    frmTerminalOutput.memTerminal.Lines.Clear;
+    frmTerminalOutput.memTerminal.Lines.Add(Format('All tables for %dx%d are already present.', [ActiveCubeSize, ActiveCubeSize]));
+    Exit;
+  end;
+
+  if MessageDlg('Generate Tables?',
+    Format('Generate solver tables for %dx%d?' + LineEnding + LineEnding +
+      '%s' + LineEnding + LineEnding +
+      'This may take a long time for large cubes.',
+      [ActiveCubeSize, ActiveCubeSize, missingInfo]),
+    mtConfirmation, [mbYes, mbNo], 0) <> mrYes then
+    Exit;
+
+  // Launch table generation process
+  progressLine := '';
+  Screen.Cursor := crHourGlass;
+  FSolverCancelled := False;
+  frmTerminalOutput.memTerminal.Lines.Clear;
+  frmTerminalOutput.memTerminal.Lines.Add(Format('=== Generating %dx%d tables ===', [ActiveCubeSize, ActiveCubeSize]));
+  frmTerminalOutput.memTerminal.Lines.Add(Format('Table directory: %s', [GetNxNTableDir]));
+  frmTerminalOutput.memTerminal.Lines.Add('');
+  edtMoveString.Text := Format('Generating %dx%d tables...', [ActiveCubeSize, ActiveCubeSize]);
+  Application.ProcessMessages;
+
+  FSolverProcess := TProcess.Create(nil);
+  btn2phaseSolve.Caption := 'Cancel';
+  try
+    {$IFDEF Linux}
+    FSolverProcess.Executable := ExtractFilePath(ParamStr(0)) + 'nxn-solver' + PathDelim + 'nxn_solver';
+    {$ENDIF}
+    {$IFDEF Windows}
+    FSolverProcess.Executable := ExtractFilePath(ParamStr(0)) + 'nxn-solver' + PathDelim + 'nxn_solver.exe';
+    {$ENDIF}
+    FSolverProcess.Parameters.Add('--generate-tables');
+    FSolverProcess.Parameters.Add(IntToStr(ActiveCubeSize));
+    FSolverProcess.Parameters.Add('--table-dir');
+    FSolverProcess.Parameters.Add(GetNxNTableDir);
+    FSolverProcess.Options := FSolverProcess.Options + [poUsePipes, poStderrToOutput, poNoConsole];
+    StartTick := GetTickCount64;
+    FSolverProcess.Execute;
+
+    while FSolverProcess.Running do
+    begin
+      Application.ProcessMessages;
+      if FSolverCancelled then
+      begin
+        FSolverProcess.Terminate(1);
+        edtMoveString.Text := 'Table generation cancelled.';
+        frmTerminalOutput.memTerminal.Lines.Add('');
+        frmTerminalOutput.memTerminal.Lines.Add('*** Cancelled ***');
+        Exit;
+      end;
+      elapsed := GetTickCount64 - StartTick;
+
+      while FSolverProcess.Output.NumBytesAvailable > 0 do
+      begin
+        SetLength(result_str, FSolverProcess.Output.NumBytesAvailable);
+        FSolverProcess.Output.Read(result_str[1], Length(result_str));
+        for i := 1 to Length(result_str) do
+        begin
+          if result_str[i] = #10 then
+          begin
+            if Pos('PROGRESS:', progressLine) = 1 then
+            begin
+              progressParts := progressLine;
+              Delete(progressParts, 1, 9);
+              progressPhase := Copy(progressParts, 1, Pos(':', progressParts) - 1);
+              Delete(progressParts, 1, Pos(':', progressParts));
+              progressTable := Copy(progressParts, 1, Pos(':', progressParts) - 1);
+              Delete(progressParts, 1, Pos(':', progressParts));
+              progressDoneStr := Copy(progressParts, 1, Pos(':', progressParts) - 1);
+              Delete(progressParts, 1, Pos(':', progressParts));
+              progressTotalStr := progressParts;
+              progressDone := StrToInt64Def(progressDoneStr, 0);
+              progressTotal := StrToInt64Def(progressTotalStr, 1);
+              if progressTotal > 0 then
+                progressPct := (progressDone * 100) div progressTotal
+              else
+                progressPct := 0;
+              if (frmTerminalOutput.memTerminal.Lines.Count > 0) and
+                 (Pos('[', frmTerminalOutput.memTerminal.Lines[frmTerminalOutput.memTerminal.Lines.Count - 1]) = 1) then
+                frmTerminalOutput.memTerminal.Lines[frmTerminalOutput.memTerminal.Lines.Count - 1] :=
+                  Format('[%3d%%] %s: %s', [progressPct, progressPhase, progressTable])
+              else
+                frmTerminalOutput.memTerminal.Lines.Add(
+                  Format('[%3d%%] %s: %s', [progressPct, progressPhase, progressTable]));
+              edtMoveString.Text := Format('Generating: %s - %s (%d%%) [%s]',
+                [progressPhase, progressTable, progressPct, FormatElapsed(elapsed)]);
+            end
+            else if progressLine <> '' then
+              frmTerminalOutput.memTerminal.Lines.Add(progressLine);
+            progressLine := '';
+            frmTerminalOutput.memTerminal.SelStart := Length(frmTerminalOutput.memTerminal.Text);
+          end
+          else if result_str[i] <> #13 then
+            progressLine := progressLine + result_str[i];
+        end;
+        Application.ProcessMessages;
+      end;
+
+      edtMoveString.Text := Format('Generating %dx%d tables... (%s)',
+        [ActiveCubeSize, ActiveCubeSize, FormatElapsed(elapsed)]);
+      Sleep(50);
+    end;
+
+    // Read remaining output
+    while FSolverProcess.Output.NumBytesAvailable > 0 do
+    begin
+      SetLength(result_str, FSolverProcess.Output.NumBytesAvailable);
+      FSolverProcess.Output.Read(result_str[1], Length(result_str));
+      for i := 1 to Length(result_str) do
+      begin
+        if result_str[i] = #10 then
+        begin
+          if (progressLine <> '') and (Pos('PROGRESS:', progressLine) <> 1) then
+            frmTerminalOutput.memTerminal.Lines.Add(progressLine);
+          progressLine := '';
+        end
+        else if result_str[i] <> #13 then
+          progressLine := progressLine + result_str[i];
+      end;
+    end;
+    if progressLine <> '' then
+      frmTerminalOutput.memTerminal.Lines.Add(progressLine);
+
+    elapsed := GetTickCount64 - StartTick;
+    frmTerminalOutput.memTerminal.Lines.Add('');
+    if FSolverProcess.ExitCode = 0 then
+    begin
+      frmTerminalOutput.memTerminal.Lines.Add(Format('Done! Tables generated in %s.', [FormatElapsed(elapsed)]));
+      edtMoveString.Text := 'Tables ready.';
+    end
+    else
+    begin
+      frmTerminalOutput.memTerminal.Lines.Add(Format('Table generation failed (exit code %d).', [FSolverProcess.ExitCode]));
+      edtMoveString.Text := 'Table generation failed.';
+    end;
+    frmTerminalOutput.memTerminal.SelStart := Length(frmTerminalOutput.memTerminal.Text);
+  finally
+    FreeAndNil(FSolverProcess);
+    btn2phaseSolve.Caption := '🧩 Solve';
+    Screen.Cursor := crDefault;
+  end;
+end;
+
+procedure TfrmMain.mnuTablesCleanClick(Sender: TObject);
+var
+  tableDir: string;
+  sr: TSearchRec;
+  totalSize: int64;
+  fileCount: integer;
+  sizeStr: string;
+begin
+  tableDir := GetNxNTableDir;
+
+  totalSize := 0;
+  fileCount := 0;
+
+  if DirectoryExists(tableDir) then
+    if FindFirst(tableDir + '*', faAnyFile, sr) = 0 then
+    begin
+      repeat
+        if (sr.Attr and faDirectory) = 0 then
+        begin
+          totalSize := totalSize + sr.Size;
+          Inc(fileCount);
+        end;
+      until FindNext(sr) <> 0;
+      FindClose(sr);
+    end;
+
+  if fileCount = 0 then
+  begin
+    MessageDlg('No Tables', 'No cached solver tables found.', mtInformation, [mbOK], 0);
+    Exit;
+  end;
+
+  if totalSize >= 1024 * 1024 * 1024 then
+    sizeStr := Format('%.1f GB', [totalSize / (1024.0 * 1024.0 * 1024.0)])
+  else
+    sizeStr := Format('%.0f MB', [totalSize / (1024.0 * 1024.0)]);
+
+  if MessageDlg('Delete Solver Tables?',
+    Format('%d cached table file(s) using %s.' + LineEnding + LineEnding +
+      'Delete all cached tables? They will be regenerated when needed.',
+      [fileCount, sizeStr]),
+    mtConfirmation, [mbYes, mbNo], 0) <> mrYes then
+    Exit;
+
+  if DirectoryExists(tableDir) then
+    if FindFirst(tableDir + '*', faAnyFile, sr) = 0 then
+    begin
+      repeat
+        if (sr.Attr and faDirectory) = 0 then
+          DeleteFile(tableDir + sr.Name);
+      until FindNext(sr) <> 0;
+      FindClose(sr);
+    end;
+
+  frmTerminalOutput.Show;
+  frmTerminalOutput.memTerminal.Lines.Clear;
+  frmTerminalOutput.memTerminal.Lines.Add('All cached solver tables deleted.');
+  frmTerminalOutput.memTerminal.Lines.Add('Tables will be regenerated when needed.');
+end;
+
+procedure TfrmMain.mnuQualityFastClick(Sender: TObject);
+begin
+  FSolveMaxLength := 23;
+  FSolveTimeLimitMs := 5000;
+  mnuQualityFast.Checked := True;
+end;
+
+procedure TfrmMain.mnuQualityBalancedClick(Sender: TObject);
+begin
+  FSolveMaxLength := 20;
+  FSolveTimeLimitMs := 15000;
+  mnuQualityBalanced.Checked := True;
+end;
+
+procedure TfrmMain.mnuQualityOptimalClick(Sender: TObject);
+begin
+  FSolveMaxLength := 18;
+  FSolveTimeLimitMs := 60000;
+  mnuQualityOptimal.Checked := True;
+end;
+
+procedure TfrmMain.mnuTimeoutClick(Sender: TObject);
+begin
+  if TMenuItem(Sender).Tag = 0 then
+    FSolverTimeoutMs := 0  // no limit
+  else
+    FSolverTimeoutMs := QWord(TMenuItem(Sender).Tag) * 60 * 1000;
+  TMenuItem(Sender).Checked := True;
 end;
 
 procedure TfrmMain.edtMoveStringKeyUp(Sender: TObject; var Key: word;
@@ -1810,452 +2299,767 @@ end;
 
 procedure TfrmMain.edtMoveStringKeyPress(Sender: TObject; var Key: char);
 begin
-
-  if Key in ['u', 'd', 'l', 'r', 'f', 'b'] then
-  begin
-    Key := UpCase(Key);
-  end
-  else if not (Key in ['U', 'D', 'L', 'R', 'F', 'B', '2', '''', ' ', #13, #8]) then
-  begin
+  // Accept: face letters (upper/lower), w, M/E/S, digits, modifiers, control chars
+  if Key in ['U', 'D', 'L', 'R', 'F', 'B',           // uppercase face letters
+             'u', 'd', 'l', 'r', 'f', 'b',           // lowercase = wide shorthand
+             'M', 'm', 'E', 'e', 'S', 's',           // M/E/S slice moves
+             'w', 'W',                                 // wide suffix
+             '0'..'9',                                 // numeric prefix + '2' modifier
+             '''', ' ', #13, #8] then                  // apostrophe, space, enter, backspace
+    // Allow the character
+  else
     Key := #0;
-  end;
 end;
 
 procedure TfrmMain.ExecuteSolverAndParseOutput(const faceString: string;
   aMemo: TMemo; MoveString: TMemo);
 var
-  Process: TProcess;
   OutputLines: TStringList;
-  i, dotCount: integer;
+  i, dotCount, moveCount, pipePos: integer;
+  actualFaceString, statusMsg, result_str, lastSolverMoves: string;
+  progressLine, progressParts, progressPhase, progressTable: string;
+  progressDoneStr, progressTotalStr: string;
+  progressDone, progressTotal: int64;
+  progressPct: int64;
+  StartTick, TimeoutMs, elapsed: QWord;
 begin
+  progressLine := '';
   Screen.Cursor := crHourGlass;
-  MoveString.Text := '2-Phase solver running... Please Wait';
+  FSolverCancelled := False;
+
+  // Set status message and prepare face string based on cube size
+  case ActiveCubeSize of
+    2: begin
+         statusMsg := 'Solving 2x2... Please Wait';
+         actualFaceString := faceString;
+       end;
+    3: begin
+         statusMsg := '2-Phase solver running... Please Wait';
+         actualFaceString := faceString;
+       end;
+  else
+    begin
+      statusMsg := Format('Solving %dx%d... Please Wait', [ActiveCubeSize, ActiveCubeSize]);
+      actualFaceString := faceString;
+    end;
+  end;
+
+  aMemo.Lines.Clear;
+  MoveString.Text := statusMsg;
   dotCount := 0;
 
-  Process := TProcess.Create(nil);
-  OutputLines := TStringList.Create;
-  try
-    {$IFDEF Linux}
-    Process.Executable := './linux-2phase';
-    {$ENDIF}
-    {$IFDEF Windows}
-    Process.Executable := 'win64-2phase.exe';
-    {$ENDIF}
-    Process.Parameters.Add(faceString);
-    Process.Options := Process.Options + [poUsePipes, poNoConsole];
-    Process.Execute;
-
-    while Process.Running do
+  begin
+    // Check if tables exist first (only needed for 4x4+)
+    if (ActiveCubeSize >= 4) and not CheckNxNTables(ActiveCubeSize, result_str) then
     begin
-      Application.ProcessMessages;
-      Inc(dotCount);
-      if dotCount > 20 then dotCount := 1;
-      MoveString.Text := '2-Phase solver running... Please Wait' +
-        StringOfChar('.', dotCount);
-      Sleep(200);
+      aMemo.Lines.Clear;
+      aMemo.Lines.Add(Format('%dx%d solver tables not ready', [ActiveCubeSize, ActiveCubeSize]));
+      aMemo.Lines.Add(result_str);
+      aMemo.Lines.Add('');
+      aMemo.Lines.Add('Tables must be generated before solving.');
+      aMemo.Lines.Add('This is a one-time process per cube size.');
+      aMemo.Lines.Add('');
+      if ActiveCubeSize >= 6 then
+        aMemo.Lines.Add('WARNING: 6x6+ tables require ~4 GB disk space and several hours to generate.')
+      else
+        aMemo.Lines.Add('4x4/5x5 tables take ~5-10 minutes to generate.');
+
+      if MessageDlg('Generate Tables?',
+        Format('Solver tables for %dx%d are not ready.' + LineEnding + LineEnding +
+          '%s' + LineEnding + LineEnding +
+          'Generate tables now? This may take a long time for large cubes.',
+          [ActiveCubeSize, ActiveCubeSize, result_str]),
+        mtConfirmation, [mbYes, mbNo], 0) = mrYes then
+      begin
+        // Launch table generation
+        aMemo.Lines.Clear;
+        aMemo.Lines.Add(Format('=== Generating %dx%d tables ===', [ActiveCubeSize, ActiveCubeSize]));
+        aMemo.Lines.Add(Format('Table directory: %s', [GetNxNTableDir]));
+        aMemo.Lines.Add('');
+        MoveString.Text := Format('Generating %dx%d tables...', [ActiveCubeSize, ActiveCubeSize]);
+        Application.ProcessMessages;
+
+        FSolverProcess := TProcess.Create(nil);
+        btn2phaseSolve.Caption := 'Cancel';
+        try
+          {$IFDEF Linux}
+          FSolverProcess.Executable := ExtractFilePath(ParamStr(0)) + 'nxn-solver' + PathDelim + 'nxn_solver';
+          {$ENDIF}
+          {$IFDEF Windows}
+          FSolverProcess.Executable := ExtractFilePath(ParamStr(0)) + 'nxn-solver' + PathDelim + 'nxn_solver.exe';
+          {$ENDIF}
+          FSolverProcess.Parameters.Add('--generate-tables');
+          FSolverProcess.Parameters.Add(IntToStr(ActiveCubeSize));
+          FSolverProcess.Parameters.Add('--table-dir');
+          FSolverProcess.Parameters.Add(GetNxNTableDir);
+          FSolverProcess.Options := FSolverProcess.Options + [poUsePipes, poStderrToOutput, poNoConsole];
+          StartTick := GetTickCount64;
+          FSolverProcess.Execute;
+
+          while FSolverProcess.Running do
+          begin
+            Application.ProcessMessages;
+            if FSolverCancelled then
+            begin
+              FSolverProcess.Terminate(1);
+              MoveString.Text := 'Table generation cancelled.';
+              aMemo.Lines.Add('');
+              aMemo.Lines.Add('*** Cancelled ***');
+              Exit;
+            end;
+            elapsed := GetTickCount64 - StartTick;
+
+            // Read available output and display as console log
+            while FSolverProcess.Output.NumBytesAvailable > 0 do
+            begin
+              SetLength(result_str, FSolverProcess.Output.NumBytesAvailable);
+              FSolverProcess.Output.Read(result_str[1], Length(result_str));
+              for i := 1 to Length(result_str) do
+              begin
+                if result_str[i] = #10 then
+                begin
+                  if Pos('PROGRESS:', progressLine) = 1 then
+                  begin
+                    // Parse PROGRESS:Phase:Table:done:total
+                    progressParts := progressLine;
+                    Delete(progressParts, 1, 9);
+                    progressPhase := Copy(progressParts, 1, Pos(':', progressParts) - 1);
+                    Delete(progressParts, 1, Pos(':', progressParts));
+                    progressTable := Copy(progressParts, 1, Pos(':', progressParts) - 1);
+                    Delete(progressParts, 1, Pos(':', progressParts));
+                    progressDoneStr := Copy(progressParts, 1, Pos(':', progressParts) - 1);
+                    Delete(progressParts, 1, Pos(':', progressParts));
+                    progressTotalStr := progressParts;
+                    progressDone := StrToInt64Def(progressDoneStr, 0);
+                    progressTotal := StrToInt64Def(progressTotalStr, 1);
+                    if progressTotal > 0 then
+                      progressPct := (progressDone * 100) div progressTotal
+                    else
+                      progressPct := 0;
+                    // Update last line in memo with progress bar
+                    if (aMemo.Lines.Count > 0) and
+                       (Pos('[', aMemo.Lines[aMemo.Lines.Count - 1]) = 1) then
+                      aMemo.Lines[aMemo.Lines.Count - 1] :=
+                        Format('[%3d%%] %s: %s', [progressPct, progressPhase, progressTable])
+                    else
+                      aMemo.Lines.Add(
+                        Format('[%3d%%] %s: %s', [progressPct, progressPhase, progressTable]));
+                    MoveString.Text := Format('Generating: %s - %s (%d%%) [%s]',
+                      [progressPhase, progressTable, progressPct, FormatElapsed(elapsed)]);
+                  end
+                  else if progressLine <> '' then
+                    aMemo.Lines.Add(progressLine);
+                  progressLine := '';
+                  // Auto-scroll memo to bottom
+                  aMemo.SelStart := Length(aMemo.Text);
+                end
+                else if result_str[i] <> #13 then
+                  progressLine := progressLine + result_str[i];
+              end;
+              Application.ProcessMessages;
+            end;
+
+            MoveString.Text := Format('Generating %dx%d tables... (%s)',
+              [ActiveCubeSize, ActiveCubeSize, FormatElapsed(elapsed)]);
+            Sleep(50);
+          end;
+
+          // Read any remaining output after process ends
+          while FSolverProcess.Output.NumBytesAvailable > 0 do
+          begin
+            SetLength(result_str, FSolverProcess.Output.NumBytesAvailable);
+            FSolverProcess.Output.Read(result_str[1], Length(result_str));
+            for i := 1 to Length(result_str) do
+            begin
+              if result_str[i] = #10 then
+              begin
+                if (progressLine <> '') and (Pos('PROGRESS:', progressLine) <> 1) then
+                  aMemo.Lines.Add(progressLine);
+                progressLine := '';
+              end
+              else if result_str[i] <> #13 then
+                progressLine := progressLine + result_str[i];
+            end;
+          end;
+          if progressLine <> '' then
+            aMemo.Lines.Add(progressLine);
+
+          elapsed := GetTickCount64 - StartTick;
+          aMemo.Lines.Add('');
+          if FSolverProcess.ExitCode = 0 then
+          begin
+            aMemo.Lines.Add(Format('Done! Tables generated in %s.', [FormatElapsed(elapsed)]));
+            aMemo.Lines.Add('Click Solve again to solve the cube.');
+            MoveString.Text := 'Tables ready - click Solve again.';
+          end
+          else
+          begin
+            aMemo.Lines.Add(Format('Table generation failed (exit code %d).', [FSolverProcess.ExitCode]));
+            MoveString.Text := 'Table generation failed.';
+          end;
+          aMemo.SelStart := Length(aMemo.Text);
+        finally
+          FreeAndNil(FSolverProcess);
+          btn2phaseSolve.Caption := '🧩 Solve';
+          Screen.Cursor := crDefault;
+        end;
+        Exit;
+      end
+      else
+      begin
+        MoveString.Text := 'Tables not generated.';
+        Screen.Cursor := crDefault;
+        Exit;
+      end;
     end;
 
-    OutputLines.LoadFromStream(Process.Output);
+    // Solver (spawns external process, uses built-in min2phase for 3x3 phase)
+    FSolverProcess := TProcess.Create(nil);
+    OutputLines := TStringList.Create;
+    btn2phaseSolve.Caption := 'Cancel';
+    try
+      {$IFDEF Linux}
+      FSolverProcess.Executable := ExtractFilePath(ParamStr(0)) + 'nxn-solver' + PathDelim + 'nxn_solver';
+      {$ENDIF}
+      {$IFDEF Windows}
+      FSolverProcess.Executable := ExtractFilePath(ParamStr(0)) + 'nxn-solver' + PathDelim + 'nxn_solver.exe';
+      {$ENDIF}
+      FSolverProcess.Parameters.Add(IntToStr(ActiveCubeSize));
+      FSolverProcess.Parameters.Add(actualFaceString);
+      FSolverProcess.Parameters.Add('--table-dir');
+      FSolverProcess.Parameters.Add(GetNxNTableDir);
+      FSolverProcess.Parameters.Add('--max-length');
+      FSolverProcess.Parameters.Add(IntToStr(FSolveMaxLength));
+      FSolverProcess.Parameters.Add('--time-limit');
+      FSolverProcess.Parameters.Add(IntToStr(FSolveTimeLimitMs));
 
-    aMemo.Lines.Clear;
-    for i := 0 to OutputLines.Count - 1 do
-      aMemo.Lines.Add(OutputLines[i]);
+      FSolverProcess.Options := FSolverProcess.Options + [poUsePipes, poNoConsole];
 
-    // Assume the solution is on the second line and display it in MoveString
-    if OutputLines.Count >= 2 then
-    begin
-      OutputLines[1] := FormatMovesString(OutputLines[1]);
-      MoveString.Text := OutputLines[1];
-    end
-    else
-      MoveString.Text := 'Error: No solution found.';
-  finally
-    OutputLines.Free;
-    Process.Free;
-    Screen.Cursor := crDefault;
+      StartTick := GetTickCount64;
+      FSolverProcess.Execute;
+
+      TimeoutMs := FSolverTimeoutMs;
+      dotCount := 0;
+
+      progressLine := '';
+      lastSolverMoves := '';
+      while FSolverProcess.Running do
+      begin
+        Application.ProcessMessages;
+
+        if FSolverCancelled then
+        begin
+          if lastSolverMoves <> '' then
+          begin
+            moveCount := CountMovesInString(lastSolverMoves);
+            elapsed := GetTickCount64 - StartTick;
+            aMemo.Lines.Add('');
+            aMemo.Lines.Add(Format('=== Cancelled - best solution: %d moves in %s ===',
+              [moveCount, FormatElapsed(elapsed)]));
+            aMemo.Lines.Add(lastSolverMoves);
+            MoveString.Text := lastSolverMoves;
+          end
+          else
+          begin
+            MoveString.Text := 'Solver cancelled (no solution found yet).';
+            aMemo.Lines.Add('Solver was cancelled (no solution found yet).');
+          end;
+          Exit;
+        end;
+
+        // Read stderr for progress (SOLUTION/SEARCH/PROGRESS lines)
+        while FSolverProcess.Stderr.NumBytesAvailable > 0 do
+        begin
+          SetLength(result_str, FSolverProcess.Stderr.NumBytesAvailable);
+          FSolverProcess.Stderr.Read(result_str[1], Length(result_str));
+          for i := 1 to Length(result_str) do
+          begin
+            if result_str[i] = #10 then
+            begin
+              if Pos('SOLUTION:', progressLine) = 1 then
+              begin
+                pipePos := Pos('|', progressLine);
+                if pipePos > 0 then
+                begin
+                  lastSolverMoves := Copy(progressLine, pipePos + 1, MaxInt);
+                  aMemo.Lines.Add(Copy(progressLine, 1, pipePos - 1));
+                  MoveString.Text := lastSolverMoves;
+                end
+                else
+                begin
+                  aMemo.Lines.Add(progressLine);
+                  MoveString.Text := Copy(progressLine, 11, MaxInt);
+                end;
+              end
+              else if Pos('SEARCH:', progressLine) = 1 then
+                aMemo.Lines.Add(progressLine)
+              else if Pos('PHASE:', progressLine) = 1 then
+              begin
+                aMemo.Lines.Add(progressLine);
+                MoveString.Text := Copy(progressLine, 8, MaxInt);
+              end
+              else if Pos('PROGRESS:', progressLine) = 1 then
+              begin
+                // Parse PROGRESS:Phase:Table:done:total
+                progressParts := progressLine;
+                Delete(progressParts, 1, 9);
+                progressPhase := Copy(progressParts, 1, Pos(':', progressParts) - 1);
+                Delete(progressParts, 1, Pos(':', progressParts));
+                progressTable := Copy(progressParts, 1, Pos(':', progressParts) - 1);
+                elapsed := GetTickCount64 - StartTick;
+                MoveString.Text := Format('%s: %s (%s)',
+                  [progressPhase, progressTable, FormatElapsed(elapsed)]);
+              end
+              else if progressLine <> '' then
+              begin
+                // Show any other solver output (version, progress updates, etc.)
+                aMemo.Lines.Add(progressLine);
+              end;
+              progressLine := '';
+              aMemo.SelStart := Length(aMemo.Text);
+            end
+            else if result_str[i] <> #13 then
+              progressLine := progressLine + result_str[i];
+          end;
+        end;
+
+        Inc(dotCount);
+        if dotCount > 20 then dotCount := 1;
+        elapsed := GetTickCount64 - StartTick;
+        frmTerminalOutput.Caption := statusMsg + StringOfChar('.', dotCount) +
+          Format(' (%s)', [FormatElapsed(elapsed)]);
+        if lastSolverMoves = '' then
+          MoveString.Text := statusMsg + StringOfChar('.', dotCount) +
+            Format(' (%s)', [FormatElapsed(elapsed)]);
+        Sleep(100);
+
+        if (TimeoutMs > 0) and (elapsed > TimeoutMs) then
+        begin
+          FSolverProcess.Terminate(1);
+          MoveString.Text := Format('Solver timed out after %s.', [FormatElapsed(elapsed)]);
+          aMemo.Lines.Clear;
+          aMemo.Lines.Add(Format('Solver timed out after %s.', [FormatElapsed(elapsed)]));
+          Exit;
+        end;
+      end;
+
+      elapsed := GetTickCount64 - StartTick;
+
+      // Handle cancel (process may have died before the in-loop check ran)
+      if FSolverCancelled then
+      begin
+        if lastSolverMoves <> '' then
+        begin
+          moveCount := CountMovesInString(lastSolverMoves);
+          aMemo.Lines.Add('');
+          aMemo.Lines.Add(Format('=== Cancelled - best solution: %d moves in %s ===',
+            [moveCount, FormatElapsed(elapsed)]));
+          aMemo.Lines.Add(lastSolverMoves);
+          MoveString.Text := lastSolverMoves;
+        end
+        else
+        begin
+          MoveString.Text := 'Solver cancelled (no solution found yet).';
+          aMemo.Lines.Add('Solver was cancelled (no solution found yet).');
+        end;
+        Exit;
+      end;
+
+      // Drain remaining stderr (SOLUTION/SEARCH lines)
+      while FSolverProcess.Stderr.NumBytesAvailable > 0 do
+      begin
+        SetLength(result_str, FSolverProcess.Stderr.NumBytesAvailable);
+        FSolverProcess.Stderr.Read(result_str[1], Length(result_str));
+        for i := 1 to Length(result_str) do
+        begin
+          if result_str[i] = #10 then
+          begin
+            if (Pos('SOLUTION:', progressLine) = 1) or
+               (Pos('SEARCH:', progressLine) = 1) or
+               (Pos('PHASE:', progressLine) = 1) then
+              aMemo.Lines.Add(progressLine);
+            progressLine := '';
+          end
+          else if result_str[i] <> #13 then
+            progressLine := progressLine + result_str[i];
+        end;
+      end;
+
+      OutputLines.LoadFromStream(FSolverProcess.Output);
+
+      // Check exit code
+      if FSolverProcess.ExitCode <> 0 then
+      begin
+        // Read stderr for error details
+        result_str := '';
+        if FSolverProcess.Stderr <> nil then
+        begin
+          OutputLines.Clear;
+          OutputLines.LoadFromStream(FSolverProcess.Stderr);
+          for i := 0 to OutputLines.Count - 1 do
+            if Trim(OutputLines[i]) <> '' then
+              aMemo.Lines.Add(OutputLines[i]);
+        end;
+        aMemo.Lines.Insert(0, Format('%dx%d solver failed (exit code %d)',
+          [ActiveCubeSize, ActiveCubeSize, FSolverProcess.ExitCode]));
+        if ActiveCubeSize >= 6 then
+          aMemo.Lines.Add('Hint: 6x6+ requires pre-generated tables. Run: ./nxn-solver/nxn_solver --generate-tables ' +
+            IntToStr(ActiveCubeSize));
+        MoveString.Text := 'Solver error - see summary.';
+      end
+      // Output format: line 1 = timing, line 2 = moves
+      else if OutputLines.Count >= 2 then
+      begin
+        result_str := Trim(OutputLines[1]);
+        moveCount := CountMovesInString(result_str);
+
+        aMemo.Lines.Add('');
+        aMemo.Lines.Add(Format('=== %dx%d Solution: %d moves in %s ===',
+          [ActiveCubeSize, ActiveCubeSize, moveCount, FormatElapsed(elapsed)]));
+        aMemo.Lines.Add(result_str);
+        MoveString.Text := result_str;
+      end
+      else
+      begin
+        aMemo.Lines.Add('Error: No solution found.');
+        if OutputLines.Count >= 1 then
+          aMemo.Lines.Add(OutputLines[0]);
+        MoveString.Text := 'Error: No solution found.';
+      end;
+    finally
+      OutputLines.Free;
+      FreeAndNil(FSolverProcess);
+      btn2phaseSolve.Caption := '🧩 Solve';
+      frmTerminalOutput.Caption := 'Terminal Output';
+      Screen.Cursor := crDefault;
+    end;
   end;
 end;
 
 procedure TfrmMain.ManualRotateFace(Face: integer; clockWise: boolean);
+const
+  // Map 0-based face index to TFace enum
+  // 0=U, 1=F, 2=R, 3=B, 4=L, 5=D
+  FaceToGeneric: array[0..5] of TFace = (faceU, faceF, faceR, faceB, faceL, faceD);
 var
-  tmp: tcube3d;
-  v, n: integer;
-  StartTime, LoopStart, LoopEnd, ElapsedMs, TargetDuration: QWord;
-  FrameCount: Integer;
-  Progress, CurrentAngle: Double;
+  genDir: TMoveDirection;
 begin
-  // Exit execution mode if user manually rotates
-  if ExecutionState <> esIdle then
-    ExitExecutionMode;
+  if clockWise then genDir := dirCW else genDir := dirCCW;
+  ManualRotateFaceSlice(FaceToGeneric[Face mod 6], genDir, 0, 0);
+end;
 
-  // Prevent re-entry
-  if IsRunning then Exit;
-  IsRunning := True;
+procedure TfrmMain.ManualRotateFaceSlice(genFace: TFace; genDir: TMoveDirection;
+  SliceStart, SliceEnd: Integer);
+const
+  // Animation angle sign for CW rotation, indexed by TFace ordinal.
+  //   +1 = positive angle looks CW from outside (F, D, L)
+  //   -1 = positive angle looks CCW from outside (U, R, B)
+  CWAnimSign: array[0..5] of Integer = (-1, -1, 1, 1, 1, -1);
+var
+  tmpN: TDynCube3D;
+  v: integer;
+  StartTime, ElapsedMs, TargetDuration: QWord;
+  Progress, CurrentAngle, RotAngle: Double;
+  clockWise: Boolean;
+  N: Integer;
+begin
+  // Bounds validation
+  N := ActiveCubeSize;
+  if SliceStart < 0 then SliceStart := 0;
+  if SliceEnd < SliceStart then SliceEnd := SliceStart;
+  if SliceStart >= N then Exit;
+  if SliceEnd >= N then SliceEnd := N - 1;
+
+  clockWise := (genDir = dirCW);
+
+  // Prevent re-entry during animation
+  if AnimatingFace then Exit;
+  AnimatingFace := True;
   try
-    StartTime := GetTickCount64;
-    if clockWise then n := Face + 10
-    else
-      n := Face;
-    v := spinEdtAnimationSpeed.Value;
+    v := FAnimationSpeed;
 
-    // For speed 11, skip animation entirely - instant rotation
-    if v >= 11 then
+    // Instant rotation when animation is disabled
+    if not FAnimationEnabled then
     begin
-      Rotateface(TUnitRubik(CurrentCubeState), face mod 10 + 1, (n div 10) * 2 + 1);
-      pntBoxCurrentState.Refresh;
-      pntBox3Dview.DiscardBitmap;
-      Caption := Format('Speed:%d | INSTANT MODE | Took:%dms', [v, GetTickCount64 - StartTime]);
+      GenericCube.RotateFace(genFace, genDir, SliceStart, SliceEnd);
+      if not FBatchExecuting then
+      begin
+        pntBoxCurrentState.Refresh;
+        pntBox3Dview.DiscardBitmap;
+      end;
+      AnimatingFace := False;
+      ProcessMoveQueue;
       Exit;
     end;
 
-  // Time-based animation (speeds 1-10)
-  case v of
-    1: TargetDuration := 5000;
-    2: TargetDuration := 3000;
-    3: TargetDuration := 2000;
-    4: TargetDuration := 1500;
-    5: TargetDuration := 1000;
-    6: TargetDuration := 700;
-    7: TargetDuration := 500;
-    8: TargetDuration := 350;
-    9: TargetDuration := 250;
-    10: TargetDuration := 150;
-  else
-    TargetDuration := 1000;
-  end;
+    // Time-based animation
+    case v of
+      1: TargetDuration := 5000;
+      2: TargetDuration := 3000;
+      3: TargetDuration := 2000;
+      4: TargetDuration := 1500;
+      5: TargetDuration := 1000;
+      6: TargetDuration := 700;
+      7: TargetDuration := 500;
+      8: TargetDuration := 350;
+      9: TargetDuration := 250;
+      10: TargetDuration := 150;
+    else
+      TargetDuration := 1000;
+    end;
 
-  tmp := cube3d;
-  FrameCount := 0;
-  LoopStart := GetTickCount64;
+    // Save 3D state for animation reset each frame
+    tmpN := Copy(Cube3DN);
+    StartTime := GetTickCount64;
 
-  while True do
-  begin
-    ElapsedMs := GetTickCount64 - LoopStart;
-    if ElapsedMs >= TargetDuration then Break;
+    while True do
+    begin
+      ElapsedMs := GetTickCount64 - StartTime;
+      if ElapsedMs >= TargetDuration then Break;
 
-    Inc(FrameCount);
+      Progress := EaseInOutQuad(ElapsedMs / TargetDuration);
+      CurrentAngle := Progress * 90;
+      RotAngle := CWAnimSign[Ord(genFace)] * CurrentAngle;
+      if not clockWise then RotAngle := -RotAngle;
 
-    // Linear progress from 0.0 to 1.0
-    Progress := ElapsedMs / TargetDuration;
+      Rotate3dSliceN(Cube3DN, NxNCubeSize, Ord(genFace),
+        SliceStart, SliceEnd, RotAngle * Pi / 180);
+      pntBox3Dview.DiscardBitmap;
+      Application.ProcessMessages;
 
-    // Apply easing for natural movement (slow start → fast → slow end)
-    Progress := EaseInOutQuad(Progress);
+      // Restore geometry for next frame
+      Cube3DN := Copy(tmpN);
+      Sleep(1);
+    end;
 
-    CurrentAngle := Progress * 90;
-
-    Rotate3dface(cube3d, n mod 10 + 1, (((n div 10) * 2 - 1) * CurrentAngle) * pi / 180);
-    // DrawCube3d handled by OnRedraw event
+    // Apply the actual move to the generic cube state
+    GenericCube.RotateFace(genFace, genDir, SliceStart, SliceEnd);
+  
+    pntBoxCurrentState.Refresh;
     pntBox3Dview.DiscardBitmap;
-    Application.ProcessMessages;
-
-    cube3d := tmp;
-    Sleep(1);  // Prevent CPU burn
-  end;
-
-  LoopEnd := GetTickCount64;
-
-  // Apply the actual move to the cube state
-  Rotateface(TUnitRubik(CurrentCubeState), face mod 10 + 1, (n div 10) * 2 + 1);
-  DrawCube(pntBoxCurrentState, CurrentCubeState);
-  // DrawCube3d handled by OnRedraw event
-  pntBoxCurrentState.Refresh;
-  pntBox3Dview.DiscardBitmap;
-
-  // Diagnostic output
-  Caption := Format('Speed:%d | Frames:%d | Loop:%dms | Total:%dms | PerFrame:%dms',
-    [v, FrameCount, LoopEnd - LoopStart, GetTickCount64 - StartTime,
-     (LoopEnd - LoopStart) div Max(FrameCount, 1)]);
   finally
-    IsRunning := False;
+    AnimatingFace := False;
   end;
+
+  ProcessMoveQueue;
 end;
 
-procedure TfrmMain.FastRotateFace(Face: integer; clockWise: boolean);
+procedure TfrmMain.ProcessMoveQueue;
 var
-  tmp: tcube3d;
-  i, n: integer;
+  Item: TMoveQueueItem;
 begin
-  if clockWise then n := Face + 10
-  else
-    n := Face;
-
-  // Fast rotation - always quick, no delay
-  tmp := cube3d;
-  for i := 0 to 90 do
+  if DequeueMove(Item) then
   begin
-    if i mod 20 <> 0 then Continue;
-    Rotate3dface(cube3d, n mod 10 + 1, (((n div 10) * 2 - 1) * i) * pi / 180);
-    pntBox3Dview.DiscardBitmap;
-    cube3d := tmp;
+    Application.ProcessMessages;
+    if Item.UseSlice then
+      ManualRotateFaceSlice(Item.GenFace, Item.GenDir, Item.SliceStart, Item.SliceEnd)
+    else
+      ManualRotateFace(Item.Face, Item.Clockwise);
   end;
-
-  Rotateface(TUnitRubik(CurrentCubeState), face mod 10 + 1, (n div 10) * 2 + 1);
-  DrawCube(pntBoxCurrentState, CurrentCubeState);
-  pntBoxCurrentState.Refresh;
-  pntBox3Dview.DiscardBitmap;
 end;
+
+procedure TfrmMain.QueueOrExecuteMove(Face: integer; clockWise: boolean);
+begin
+  if AnimatingFace then
+    QueueMove(Face, clockWise)
+  else
+    ManualRotateFace(Face, clockWise);
+end;
+
+procedure TfrmMain.QueueOrExecuteSliceMove(genFace: TFace; genDir: TMoveDirection;
+  SliceStart, SliceEnd: Integer);
+begin
+  if AnimatingFace then
+    QueueSliceMove(genFace, genDir, SliceStart, SliceEnd)
+  else
+    ManualRotateFaceSlice(genFace, genDir, SliceStart, SliceEnd);
+end;
+
 
 function TfrmMain.GenerateRandomScramble(MoveCount: integer): string;
 const
-  Moves: array[0..5] of string = ('U', 'D', 'L', 'R', 'F', 'B');
+  FaceLetters: array[0..5] of string = ('U', 'D', 'L', 'R', 'F', 'B');
   Modifiers: array[0..2] of string = ('', '''', '2');
 var
-  LastMove, MoveIndex, ModifierIndex: integer;
-  Scramble: string;
+  LastFace, FaceIdx, ModIdx, MoveType, Depth, MaxDepth, N: integer;
+  Scramble, MoveStr: string;
   i: integer;
+  Move: TCubeMove;
 begin
   Scramble := '';
-  LastMove := -1; // Initialize with an impossible move index
+  LastFace := -1;
+  N := ActiveCubeSize;
 
   for i := 1 to MoveCount do
   begin
-    // Ensure the next move is different from the last move
+    // Pick a face different from last
     repeat
-      MoveIndex := Random(Length(Moves));
-    until (MoveIndex <> LastMove) and ((i < 2) or (Moves[MoveIndex] <> Moves[LastMove]));
+      FaceIdx := Random(6);
+    until FaceIdx <> LastFace;
 
-    ModifierIndex := Random(Length(Modifiers));
+    ModIdx := Random(3);  // CW, CCW, 180
+
+    if N <= 3 then
+    begin
+      // 3x3 and below: outer moves only
+      MoveStr := FaceLetters[FaceIdx] + Modifiers[ModIdx];
+    end
+    else
+    begin
+      // 4x4+: mix of outer, wide, and inner slice moves
+      MaxDepth := (N div 2) - 1;
+      MoveType := Random(10);
+
+      Move.Face := TFace(FaceIdx);
+      case ModIdx of
+        0: Move.Direction := dirCW;
+        1: Move.Direction := dirCCW;
+        2: Move.Direction := dir180;
+      end;
+
+      if MoveType < 5 then
+      begin
+        // 50%: outer move
+        Move.SliceDepth := 0;
+        Move.SliceWidth := 1;
+        Move.IsWide := False;
+      end
+      else if MoveType < 8 then
+      begin
+        // 30%: wide move (2-layer or deeper)
+        Depth := Random(MaxDepth) + 2;
+        if Depth > MaxDepth + 1 then Depth := 2;
+        Move.SliceDepth := 0;
+        Move.SliceWidth := Depth;
+        Move.IsWide := True;
+      end
+      else
+      begin
+        // 20%: single inner slice
+        Depth := Random(MaxDepth) + 1;
+        Move.SliceDepth := Depth;
+        Move.SliceWidth := 1;
+        Move.IsWide := False;
+      end;
+
+      MoveStr := TCubeMoveParser.MoveToString(Move, N);
+    end;
 
     if Scramble <> '' then
       Scramble := Scramble + ' ';
-    Scramble := Scramble + Moves[MoveIndex] + Modifiers[ModifierIndex];
+    Scramble := Scramble + MoveStr;
 
-    LastMove := MoveIndex;
+    LastFace := FaceIdx;
   end;
 
   Result := Scramble;
 end;
 
-procedure TfrmMain.btnSearchForSolutionClick(Sender: TObject);
-var
-  s: string;
-  tmp: TFaceRubik;
-begin
-  memSolveSummary.Clear;
-  s := '';
-  if not VerifyCube(CurrentCubeState, s) then
-  begin
-    memSolveSummary.Lines.add('The cube has been disassembled or tampered with:');
-    memSolveSummary.Lines.add(s);
-    exit;
-  end;
-
-  solu := '';
-  tmp := CurrentCubeState;
-
-  // Step 1
-  placeWhiteEdges(tmp);
-  memSolveSummary.Lines.Add('---> placeWhiteEdges');
-  memSolveSummary.Lines.Add(AnsiReplaceText(solu, '/', sLineBreak));
-  LFDstringCorrection(solu);
-  s := solu;
-  solu := '';
-  // Step 2
-  placeWhiteCorners(tmp);
-  memSolveSummary.Lines.Add('---> placeWhiteCorners');
-  memSolveSummary.Lines.Add(AnsiReplaceText(solu, '/', sLineBreak));
-  LFDstringCorrection(solu);
-  s := s + solu;
-  solu := '';
-  // Step 3
-  placeSecondLayerEdges(tmp);
-  memSolveSummary.Lines.Add('---> placeSecondLayerEdges');
-  memSolveSummary.Lines.Add(AnsiReplaceText(solu, '/', sLineBreak));
-  LFDstringCorrection(solu);
-  s := s + solu;
-  solu := '';
-  // Step 4
-  PlaceYellowEdges(tmp);
-  memSolveSummary.Lines.Add('---> PlaceYellowEdges');
-  memSolveSummary.Lines.Add(AnsiReplaceText(solu, '/', sLineBreak));
-  LFDstringCorrection(solu);
-  s := s + solu;
-  solu := '';
-  // Step 5
-  OrientYellowEdges(tmp);
-  memSolveSummary.Lines.Add('---> OrientYellowEdges');
-  memSolveSummary.Lines.Add(AnsiReplaceText(solu, '/', sLineBreak));
-  LFDstringCorrection(solu);
-  s := s + solu;
-  solu := '';
-  // Step 6
-  PlaceYellowCorners(tmp);
-  memSolveSummary.Lines.Add('---> PlaceYellowCorners');
-  memSolveSummary.Lines.Add(AnsiReplaceText(solu, '/', sLineBreak));
-  LFDstringCorrection(solu);
-  s := s + solu;
-  solu := '';
-  // Step 7
-  OrientYellowCorners(tmp);
-  memSolveSummary.Lines.Add('---> OrientYellowCorners');
-  memSolveSummary.Lines.Add(AnsiReplaceText(solu, '/', sLineBreak));
-  LFDstringCorrection(solu);
-  s := s + solu;
-  solu := '';
-
-  memSolveSummary.Lines.Add('movements ' + IntToStr(CountMoves(s)));
-  FilterMoves(s, CurrentCubeState);
-  pntBoxCurrentState.Refresh;
-  memSolveSummary.Lines.Add('movements after filter ' + IntToStr(CountMoves(s)) + ')');
-  memSolveSummary.Lines.Add('');
-  memSolveSummary.Lines.Add('---> Filter');
-  memSolveSummary.Lines.Add(s);
-  UpperCase(s);
-  s := FormatMovesString(s);
-  edtMoveString.Text := s;
-end;
 
 procedure TfrmMain.ParseNotationMoves(const s: string);
 var
-  i, j: integer;
-  face: integer;
-  turns: integer;
-  moveStr: string;
+  Tokens: TStringList;
+  i, Count: Integer;
+  Token: string;
+  Move: TCubeMove;
+  SliceStart, SliceEnd: Integer;
 begin
   SetLength(ParsedMoves, 0);
   OriginalNotation := s;
-  i := 1;
 
-  while i <= Length(s) do
-  begin
-    turns := 1;
-    face := -1;
-    moveStr := '';
+  // Use TCubeMoveParser for full NxN notation support
+  Tokens := TStringList.Create;
+  try
+    Tokens.Delimiter := ' ';
+    Tokens.StrictDelimiter := True;
+    Tokens.DelimitedText := Trim(s);
 
-    // Parse the move
-    case s[i] of
-      'L': face := CUBE_LEFT;
-      'R': face := CUBE_RIGHT;
-      'B': face := CUBE_BACK;
-      'F': face := CUBE_FRONT;
-      'U': face := CUBE_TOP;
-      'D': face := CUBE_BOTTOM;
-      else
-      begin
-        Inc(i);
-        continue;
+    Count := 0;
+    for i := 0 to Tokens.Count - 1 do
+    begin
+      Token := Trim(Tokens[i]);
+      if Token = '' then Continue;
+
+      try
+        Move := TCubeMoveParser.ParseMove(Token, ActiveCubeSize);
+      except
+        Continue;  // Skip invalid tokens
       end;
+
+      // Calculate slice range
+      SliceStart := Move.SliceDepth;
+      if Move.IsWide then
+        SliceEnd := SliceStart + Move.SliceWidth - 1
+      else
+        SliceEnd := SliceStart;
+
+      // Convert direction to turns
+      SetLength(ParsedMoves, Count + 1);
+      case Move.Direction of
+        dirCW:  ParsedMoves[Count].Turns := 1;
+        dir180: ParsedMoves[Count].Turns := 2;
+        dirCCW: ParsedMoves[Count].Turns := 3;
+      end;
+
+      ParsedMoves[Count].Face := Ord(Move.Face);
+      ParsedMoves[Count].GenFace := Move.Face;
+      ParsedMoves[Count].Direction := Move.Direction;
+      ParsedMoves[Count].SliceStart := SliceStart;
+      ParsedMoves[Count].SliceEnd := SliceEnd;
+      ParsedMoves[Count].MoveStr := TCubeMoveParser.MoveToString(Move, ActiveCubeSize);
+      ParsedMoves[Count].StartPos := 0;
+      ParsedMoves[Count].Length := System.Length(Token);
+
+      Inc(Count);
     end;
-
-    moveStr := s[i];
-
-    // Check for modifiers
-    if (i < Length(s)) and (s[i + 1] = '''') then
-    begin
-      turns := 3;
-      moveStr := moveStr + '''';
-      Inc(i);
-    end
-    else if (i < Length(s)) and (s[i + 1] = '2') then
-    begin
-      turns := 2;
-      moveStr := moveStr + '2';
-      Inc(i);
-    end;
-
-    // Add move to array
-    SetLength(ParsedMoves, Length(ParsedMoves) + 1);
-    ParsedMoves[High(ParsedMoves)].Face := face;
-    ParsedMoves[High(ParsedMoves)].Turns := turns;
-    ParsedMoves[High(ParsedMoves)].StartPos := i - Length(moveStr) + 1;
-    ParsedMoves[High(ParsedMoves)].Length := Length(moveStr);
-
-    Inc(i);
+  finally
+    Tokens.Free;
   end;
 end;
 
 procedure TfrmMain.ExecuteSingleMove(MoveIndex: integer; Animated: boolean);
 var
-  tmp: tcube3d;
-  f, j: integer;
-  SpeedVal: integer;
-  StartTime, ElapsedMs: QWord;
-  Progress, CurrentAngle, TargetAngle: Double;
-  TargetDuration: QWord;
+  j: integer;
+  oldAnimEnabled: boolean;
+  gf: TFace;
+  ss, se: Integer;
 begin
   if (MoveIndex < 0) or (MoveIndex >= Length(ParsedMoves)) then Exit;
 
-  f := ParsedMoves[MoveIndex].Face;
-  j := ParsedMoves[MoveIndex].Turns;
-  SpeedVal := spinEdtAnimationSpeed.Value;
+  j := ParsedMoves[MoveIndex].Turns;  // 1=CW, 2=180, 3=CCW
+  gf := ParsedMoves[MoveIndex].GenFace;
+  ss := ParsedMoves[MoveIndex].SliceStart;
+  se := ParsedMoves[MoveIndex].SliceEnd;
 
-  if not Animated or (SpeedVal >= 11) then
+  if not Animated then
   begin
-    // Instant move
-    RotateFace(TUnitRubik(CurrentCubeState), f, j);
-    DrawCube(pntBoxCurrentState, CurrentCubeState);
-    // DrawCube3d handled by OnRedraw event
-    pntBoxCurrentState.Refresh;
-    pntBox3Dview.DiscardBitmap;
+    // Set speed to instant temporarily
+    oldAnimEnabled := FAnimationEnabled;
+    FAnimationEnabled := False;
+    try
+      case j of
+        1: ManualRotateFaceSlice(gf, dirCW, ss, se);
+        2: begin
+             ManualRotateFaceSlice(gf, dirCW, ss, se);
+             ManualRotateFaceSlice(gf, dirCW, ss, se);
+           end;
+        3: ManualRotateFaceSlice(gf, dirCCW, ss, se);
+      end;
+    finally
+      FAnimationEnabled := oldAnimEnabled;
+    end;
     Exit;
   end;
 
-  // Time-based animation (speeds 1-10)
-  // Better speed scale: Speed 1 = 5 seconds (slow teaching), Speed 10 = 150ms (fast)
-  case SpeedVal of
-    1: TargetDuration := 5000;
-    2: TargetDuration := 3000;
-    3: TargetDuration := 2000;
-    4: TargetDuration := 1500;
-    5: TargetDuration := 1000;
-    6: TargetDuration := 700;
-    7: TargetDuration := 500;
-    8: TargetDuration := 350;
-    9: TargetDuration := 250;
-    10: TargetDuration := 150;
-  else
-    TargetDuration := 1000;
+  // Animated
+  case j of
+    1: ManualRotateFaceSlice(gf, dirCW, ss, se);
+    2: begin
+         ManualRotateFaceSlice(gf, dirCW, ss, se);
+         ManualRotateFaceSlice(gf, dirCW, ss, se);
+       end;
+    3: ManualRotateFaceSlice(gf, dirCCW, ss, se);
   end;
-
-  // Calculate target angle based on turns
-  // j=1: 90° one direction, j=2: 180° same direction, j=3: 90° opposite direction
-  if j = 2 then
-    TargetAngle := 180
-  else
-    TargetAngle := 90;
-
-  // CRITICAL: Scale duration - only j=2 takes 2x as long (j=3 is still just 90°!)
-  if j = 2 then
-    TargetDuration := TargetDuration * 2;
-
-  tmp := cube3d;
-  StartTime := GetTickCount64;
-
-  while True do
-  begin
-    ElapsedMs := GetTickCount64 - StartTime;
-    if ElapsedMs >= TargetDuration then Break;
-
-    // Linear progress from 0.0 to 1.0
-    Progress := ElapsedMs / TargetDuration;
-
-    // Apply easing for natural movement (slow start → fast → slow end)
-    Progress := EaseInOutQuad(Progress);
-
-    CurrentAngle := Progress * TargetAngle;
-
-    // Apply rotation at current angle
-    if j = 1 then
-      Rotate3dface(cube3d, f, -CurrentAngle * pi / 180)
-    else if j = 2 then
-      Rotate3dface(cube3d, f, -CurrentAngle * pi / 180)
-    else if j = 3 then
-      Rotate3dface(cube3d, f, CurrentAngle * pi / 180);
-
-    // DrawCube3d handled by OnRedraw event
-    pntBox3Dview.DiscardBitmap;
-    Application.ProcessMessages;
-
-    cube3d := tmp;
-    Sleep(1);  // Prevent CPU burn
-  end;
-
-  // Apply final rotation to cube state
-  RotateFace(TUnitRubik(CurrentCubeState), f, j);
-  DrawCube(pntBoxCurrentState, CurrentCubeState);
-  // DrawCube3d handled by OnRedraw event
-  pntBoxCurrentState.Refresh;
-  pntBox3Dview.DiscardBitmap;
 end;
 
 procedure TfrmMain.ExecuteSingleMoveReverse(MoveIndex: integer; Animated: boolean);
@@ -2293,14 +3097,11 @@ begin
 
   for i := 0 to High(ParsedMoves) do
   begin
-    // Get the move text
-    moveText := Copy(OriginalNotation, ParsedMoves[i].StartPos, ParsedMoves[i].Length);
+    moveText := ParsedMoves[i].MoveStr;
 
     if i = CurrentMoveIndex then
-      // Current move: wrap with colorful markers
       newText := newText + '🔹' + moveText + '🔹 '
     else
-      // Other moves: normal
       newText := newText + moveText + ' ';
   end;
 

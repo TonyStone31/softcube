@@ -1,0 +1,3 @@
+const
+  SOLVER_VERSION = '0.9.1';
+  SOLVER_BUILD = 5;

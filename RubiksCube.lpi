@@ -18,6 +18,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
+            <OtherUnitFiles Value="nxn-solver"/>
             <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <Parsing>
@@ -58,6 +59,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
+            <OtherUnitFiles Value="nxn-solver"/>
             <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <Parsing>
@@ -96,19 +98,16 @@
     </RunParams>
     <RequiredPackages>
       <Item>
-        <PackageName Value="TAChartLazarusPkg"/>
+        <PackageName Value="bgracontrols"/>
       </Item>
       <Item>
-        <PackageName Value="bgracontrols"/>
+        <PackageName Value="BGRABitmapPack"/>
       </Item>
       <Item>
         <PackageName Value="FCL"/>
       </Item>
       <Item>
         <PackageName Value="LCLBase"/>
-      </Item>
-      <Item>
-        <PackageName Value="AnchorDocking"/>
       </Item>
       <Item>
         <PackageName Value="LCL"/>
@@ -135,8 +134,36 @@
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="URubik.pas"/>
+        <Filename Value="UWebcamScan.pas"/>
         <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmWebcamScan"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+      </Unit>
+      <Unit>
+        <Filename Value="UGenericCube.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="UTerminalOutput.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmTerminalOutput"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+      </Unit>
+      <Unit>
+        <Filename Value="UAbout.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmAbout"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+      </Unit>
+      <Unit>
+        <Filename Value="UHelp.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmHelp"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
       </Unit>
     </Units>
   </ProjectOptions>
@@ -147,6 +174,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
+      <OtherUnitFiles Value="nxn-solver"/>
       <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Parsing>

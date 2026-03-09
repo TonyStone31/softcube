@@ -1,0 +1,157 @@
+object frmAbout: TfrmAbout
+  Left = 0
+  Height = 380
+  Top = 0
+  Width = 460
+  BorderStyle = bsDialog
+  Caption = 'About SoftCube'
+  Position = poMainFormCenter
+  LCLVersion = '4.99.0.0'
+  object pnlHeader: TPanel
+    Left = 0
+    Height = 100
+    Top = 0
+    Width = 460
+    Align = alTop
+    BevelOuter = bvNone
+    Color = 2500134
+    ParentBackground = False
+    ParentColor = False
+    TabOrder = 0
+    object lblTitle: TLabel
+      Left = 0
+      Height = 60
+      Top = 12
+      Width = 460
+      Align = alTop
+      Alignment = taCenter
+      BorderSpacing.Top = 12
+      Caption = 'SoftCube'
+      Font.Color = clWhite
+      Font.Height = -40
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+    end
+    object lblSubtitle: TLabel
+      Left = 0
+      Height = 20
+      Top = 72
+      Width = 460
+      Align = alTop
+      Alignment = taCenter
+      Caption = 'NxN Rubik''s Cube Simulator & Solver'
+      Font.Color = 11184810
+      Font.Height = -14
+      ParentColor = False
+      ParentFont = False
+    end
+  end
+  object pnlBody: TPanel
+    Left = 0
+    Height = 240
+    Top = 100
+    Width = 460
+    Align = alClient
+    BevelOuter = bvNone
+    Color = 3289650
+    ParentBackground = False
+    ParentColor = False
+    TabOrder = 1
+    object lblVersion: TLabel
+      Left = 0
+      Height = 26
+      Top = 20
+      Width = 460
+      Alignment = taCenter
+      AutoSize = False
+      Caption = 'Version 1.0'
+      Font.Color = 13421772
+      Font.Height = -14
+      ParentColor = False
+      ParentFont = False
+    end
+    object lblAuthor: TLabel
+      Left = 0
+      Height = 22
+      Top = 56
+      Width = 460
+      Alignment = taCenter
+      AutoSize = False
+      Caption = 'by Tony Stone'
+      Font.Color = 11184810
+      Font.Height = -13
+      ParentColor = False
+      ParentFont = False
+    end
+    object lblSeparator: TLabel
+      Left = 130
+      Height = 2
+      Top = 92
+      Width = 200
+      AutoSize = False
+      Color = 4473924
+      ParentColor = False
+      Transparent = False
+    end
+    object lblEngine: TLabel
+      Left = 0
+      Height = 20
+      Top = 110
+      Width = 460
+      Alignment = taCenter
+      AutoSize = False
+      Caption = 'Rendering: BGRABitmap  |  Solver: min2phase / NxN Kociemba'
+      Font.Color = 8421504
+      Font.Height = -11
+      ParentColor = False
+      ParentFont = False
+    end
+    object lblOriginal: TLabel
+      Left = 0
+      Height = 18
+      Top = 136
+      Width = 460
+      Alignment = taCenter
+      AutoSize = False
+      Caption = 'Based on original code from CodeS-SourceS.CommentCaMarche.net'
+      Font.Color = 6710886
+      Font.Height = -10
+      ParentColor = False
+      ParentFont = False
+    end
+    object lblBuilt: TLabel
+      Left = 0
+      Height = 18
+      Top = 160
+      Width = 460
+      Alignment = taCenter
+      AutoSize = False
+      Caption = 'Built with Free Pascal & Lazarus IDE'
+      Font.Color = 6710886
+      Font.Height = -10
+      ParentColor = False
+      ParentFont = False
+    end
+  end
+  object pnlFooter: TPanel
+    Left = 0
+    Height = 40
+    Top = 340
+    Width = 460
+    Align = alBottom
+    BevelOuter = bvNone
+    Color = 2500134
+    ParentBackground = False
+    ParentColor = False
+    TabOrder = 2
+    object btnClose: TSpeedButton
+      Left = 180
+      Height = 30
+      Top = 5
+      Width = 100
+      Caption = 'Close'
+      OnClick = btnCloseClick
+    end
+  end
+end

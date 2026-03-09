@@ -148,11 +148,56 @@ const
   FACE_NAMES: array[0..6] of string = ('void', 'U', 'F', 'R', 'B', 'L', 'D');
 
 type
-  T3dPoint = array[0..2] of single;
+  T3dPoint = array[0..2] of single;  // X, Y, Z coordinates
+
+  // ---- Cube State Representations ----
+  //
+  // The cube state can be represented in two equivalent ways:
+  //
+  // TUnitRubik: 3D array [face 1..6][row 0..2][col 0..2]
+  //   Intuitive grid layout - use for algorithms that think in row/col.
+  //   Cast between TUnitRubik and TFaceRubik freely (same memory layout).
+  //
+  // TFaceRubik (= TRubik): 2D array [face 1..6][sticker 0..8]
+  //   Linearized sticker layout per face. Sticker indices map to positions:
+  //
+  //     0 | 1 | 2       Row 0: stickers 0, 1, 2
+  //     ---------
+  //     3 | 4 | 5       Row 1: stickers 3, 4(center), 5
+  //     ---------
+  //     6 | 7 | 8       Row 2: stickers 6, 7, 8
+  //
+  //   Sticker 4 is always the center (fixed color, identifies the face).
+  //
+  // Face numbering:
+  //   1 = U (Top/White)     2 = F (Front/Green)    3 = R (Right/Red)
+  //   4 = B (Back/Blue)     5 = L (Left/Orange)    6 = D (Bottom/Yellow)
+
   TunitRubik = packed array[1..6, 0..2, 0..2] of byte;
   TLinRubik = packed array[0..53] of byte;
   TFaceRubik = packed array[1..6, 0..8] of byte;
+
+  // ---- 3D Polygon Geometry ----
+  //
+  // TCube3D holds 270 quads (4 vertices each) that define the 3D cube mesh.
+  // Structure: 6 faces x 9 stickers x 5 polygons per sticker = 270 polygons.
+  //
+  // For each sticker, the 5 polygons are:
+  //   [0..3] = 4 side panels (the black "walls" between cubelets)
+  //   [4]    = top face (the colored sticker you actually see)
+  //
+  // To find which face/sticker a polygon belongs to:
+  //   cubeletIndex = polygonIndex div 5    (0..53)
+  //   face         = cubeletIndex div 9 + 1  (1..6)
+  //   sticker      = cubeletIndex mod 9      (0..8)
+  //   isTopFace    = polygonIndex mod 5 = 4  (colored sticker vs black side)
+  //
+  // Each vertex is stored as [1..4] (1-based) with T3dPoint = (X, Y, Z).
+  // The cube spans from -3.0 to +3.0 on each axis, with small gaps between
+  // cubelets (e.g. 3.0 vs 3.1) creating the visible separation.
+
   TCube3D = array[0..269, 1..4] of T3dPoint;
+  TDynCube3D = array of array[1..4] of T3dPoint;
   TRubik = TFaceRubik;
 
 
@@ -174,8 +219,12 @@ const
 
 
 
+  // Color index mapping:
+  //   0 = Silver (background/empty)
+  //   1 = White (U face)    2 = Green (F face)    3 = Red (R face)
+  //   4 = Blue (B face)     5 = Orange (L face)   6 = Yellow (D face)
+  // These match the face numbering: C_COLOR[faceNumber] = that face's solved color.
   C_COLOR: array[0..6] of tcolor = (ClSilver, ClWhite, ClLime, ClRed, ClBlue, $0080FF, ClYellow);
-  //C_CUBE_SIZE = 24;
   C_CUBE_COMPLETE: TRubik =
     ((1, 1, 1, 1, 1, 1, 1, 1, 1),
     (2, 2, 2, 2, 2, 2, 2, 2, 2),
@@ -201,6 +250,19 @@ const
  }
 
 
+  // C3dFaceRotation: Maps each face to the 21 cubelet indices that rotate with it.
+  //
+  // When rotating a face, these 21 cubelets are affected:
+  //   [0..8]   = the 9 cubelets ON the face itself
+  //   [9..20]  = the 12 adjacent cubelets on neighboring faces (3 per adjacent face)
+  //
+  // These indices refer to the linearized cubelet numbering (0..53), where:
+  //   Cubelets 0-8   = Face 1 (U)     Cubelets 9-17  = Face 2 (F)
+  //   Cubelets 18-26 = Face 3 (R)     Cubelets 27-35 = Face 4 (B)
+  //   Cubelets 36-44 = Face 5 (L)     Cubelets 45-53 = Face 6 (D)
+  //
+  // To get 3D polygon indices from cubelet index: polygonStart = cubeletIndex * 5
+  // (each cubelet has 5 polygons: 4 sides + 1 top face)
   C3dFaceRotation: array[1..6, 0..20] of integer =
     ((00, 01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 11, 18, 19, 20, 27, 28, 29, 36, 37, 38)
     , (09, 10, 11, 12, 13, 14, 15, 16, 17, 06, 07, 08, 18, 21, 24, 45, 46, 47, 38, 41, 44)

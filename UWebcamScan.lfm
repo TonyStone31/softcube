@@ -1,0 +1,264 @@
+object frmWebcamScan: TfrmWebcamScan
+  Left = 0
+  Height = 1078
+  Top = 0
+  Width = 958
+  Caption = 'Scan Rubik''s Cube from Webcam'
+  ClientHeight = 1078
+  ClientWidth = 958
+  DesignTimePPI = 115
+  Position = poScreenCenter
+  LCLVersion = '4.99.0.0'
+  OnClose = FormClose
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnShow = FormShow
+  object lblInstructions: TLabel
+    Left = 24
+    Height = 57
+    Top = 12
+    Width = 910
+    Alignment = taCenter
+    Anchors = [akTop, akLeft, akRight]
+    Caption = 'Hold your Rubik''s Cube up to the camera.'#10'Position it so it fills the yellow grid.'#10'Match the colors on the edges with the colored indicators.'
+    Font.Height = -16
+    Font.Style = [fsBold]
+    ParentFont = False
+    WordWrap = True
+  end
+  object lblCurrentFace: TLabel
+    Left = 24
+    Height = 22
+    Top = 84
+    Width = 910
+    Alignment = taCenter
+    Anchors = [akTop, akLeft, akRight]
+    Caption = 'Scanning Face: U (Top/White)'
+    Font.Color = clAqua
+    Font.Height = -19
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+  end
+  object pnlWebcamViewer: TPanel
+    Left = 96
+    Height = 575
+    Top = 120
+    Width = 766
+    Anchors = [akTop, akLeft, akRight]
+    BevelOuter = bvNone
+    ClientHeight = 575
+    ClientWidth = 766
+    Color = clBlack
+    ParentBackground = False
+    ParentColor = False
+    TabOrder = 0
+    object pntWebcam: TPaintBox
+      Left = 0
+      Height = 575
+      Top = 0
+      Width = 766
+      Align = alClient
+      OnMouseDown = pntWebcamMouseDown
+      OnPaint = pntWebcamPaint
+    end
+    object pnlTopIndicator: TPanel
+      Left = 353
+      Height = 36
+      Top = 12
+      Width = 60
+      BevelOuter = bvLowered
+      Color = clWhite
+      ParentBackground = False
+      ParentColor = False
+      TabOrder = 0
+    end
+    object lblTopColor: TLabel
+      Left = 288
+      Height = 19
+      Top = 54
+      Width = 29
+      Alignment = taCenter
+      Caption = 'Top'
+      Font.Color = clWhite
+      Font.Height = -16
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+    end
+    object pnlLeftIndicator: TPanel
+      Left = 12
+      Height = 59
+      Top = 258
+      Width = 36
+      BevelOuter = bvLowered
+      Color = clWhite
+      ParentBackground = False
+      ParentColor = False
+      TabOrder = 1
+    end
+    object lblLeftColor: TLabel
+      Left = 12
+      Height = 19
+      Top = 323
+      Width = 32
+      Alignment = taCenter
+      Caption = 'Left'
+      Font.Color = clWhite
+      Font.Height = -16
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+    end
+    object pnlRightIndicator: TPanel
+      Left = 719
+      Height = 59
+      Top = 258
+      Width = 36
+      BevelOuter = bvLowered
+      Color = clWhite
+      ParentBackground = False
+      ParentColor = False
+      TabOrder = 2
+    end
+    object lblRightColor: TLabel
+      Left = 683
+      Height = 19
+      Top = 323
+      Width = 39
+      Alignment = taCenter
+      Caption = 'Right'
+      Font.Color = clWhite
+      Font.Height = -16
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+    end
+    object pnlBottomIndicator: TPanel
+      Left = 353
+      Height = 36
+      Top = 527
+      Width = 60
+      BevelOuter = bvLowered
+      Color = clWhite
+      ParentBackground = False
+      ParentColor = False
+      TabOrder = 3
+    end
+    object lblBottomColor: TLabel
+      Left = 288
+      Height = 19
+      Top = 503
+      Width = 59
+      Alignment = taCenter
+      Caption = 'Bottom'
+      Font.Color = clWhite
+      Font.Height = -16
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+    end
+  end
+  object pnlCubeLayout: TPanel
+    Left = 24
+    Height = 263
+    Top = 707
+    Width = 910
+    Anchors = [akTop, akLeft, akRight]
+    BevelOuter = bvLowered
+    ClientHeight = 263
+    ClientWidth = 910
+    Color = clWhite
+    ParentBackground = False
+    ParentColor = False
+    TabOrder = 1
+    object pntCubeLayout: TPaintBox
+      Left = 1
+      Height = 261
+      Hint = 'Click to manually adjust colors'
+      Top = 1
+      Width = 908
+      Align = alClient
+      OnMouseDown = pntCubeLayoutMouseDown
+      OnPaint = pntCubeLayoutPaint
+    end
+  end
+  object pnlControls: TPanel
+    Left = 24
+    Height = 72
+    Top = 982
+    Width = 910
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    BevelOuter = bvNone
+    ClientHeight = 72
+    ClientWidth = 910
+    TabOrder = 2
+    object btnCaptureFace: TSpeedButton
+      Left = 12
+      Height = 60
+      Top = 6
+      Width = 144
+      Caption = '📸 Capture Face'
+      OnClick = btnCaptureFaceClick
+    end
+    object btnPreviousFace: TSpeedButton
+      Left = 168
+      Height = 60
+      Top = 6
+      Width = 143
+      Caption = '⬅️ Previous Face'
+      Enabled = False
+      OnClick = btnPreviousFaceClick
+    end
+    object btnTrainingMode: TSpeedButton
+      Left = 323
+      Height = 60
+      Top = 6
+      Width = 155
+      Caption = '🎓 Training Mode'
+      OnClick = btnTrainingModeClick
+    end
+    object btnResetTraining: TSpeedButton
+      Left = 623
+      Height = 60
+      Top = 6
+      Width = 175
+      Caption = '🗑️ Reset Training'
+      Enabled = False
+      Visible = False
+      OnClick = btnResetTrainingClick
+    end
+    object btnReset: TSpeedButton
+      Left = 490
+      Height = 60
+      Top = 6
+      Width = 120
+      Caption = '🔄 Reset'
+      OnClick = btnResetClick
+    end
+    object btnDone: TSpeedButton
+      Left = 623
+      Height = 60
+      Top = 6
+      Width = 132
+      Caption = '✅ Done'
+      Enabled = False
+      OnClick = btnDoneClick
+    end
+    object btnCancel: TSpeedButton
+      Left = 767
+      Height = 60
+      Top = 6
+      Width = 90
+      Caption = '❌ Cancel'
+      OnClick = btnCancelClick
+    end
+  end
+  object tmrWebcam: TTimer
+    Enabled = False
+    Interval = 15
+    OnTimer = tmrWebcamTimer
+    Left = 863
+    Top = 48
+  end
+end

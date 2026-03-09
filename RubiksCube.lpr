@@ -23,12 +23,19 @@ program RubiksCube;
 {$MODE Delphi}
 
 uses
-  Forms, tachartlazaruspkg,
+  {$IFDEF UNIX}
+  cthreads,
+  {$ENDIF}
+  Forms,
   Interfaces,
   UMain in 'UMain.pas' {Form1},
   UConst in 'UConst.pas',
   UDraw in 'UDraw.pas',
-  URubik in 'URubik.pas';
+  UGenericCube in 'UGenericCube.pas',
+  UWebcamScan in 'UWebcamScan.pas' {frmWebcamScan},
+  UTerminalOutput in 'UTerminalOutput.pas' {frmTerminalOutput},
+  UAbout in 'UAbout.pas' {frmAbout},
+  UHelp in 'UHelp.pas' {frmHelp};
 
   //{$R *.res}
 
@@ -36,5 +43,6 @@ begin
   Application.Title:='SoftCube';
   Application.Initialize;
   Application.CreateForm(TfrmMain, frmMain);
+  Application.CreateForm(TfrmTerminalOutput, frmTerminalOutput);
   Application.Run;
 end.

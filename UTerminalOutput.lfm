@@ -1,0 +1,29 @@
+object frmTerminalOutput: TfrmTerminalOutput
+  Left = 1170
+  Height = 350
+  Top = 402
+  Width = 620
+  BorderStyle = bsSizeToolWin
+  Caption = 'Terminal Output'
+  ClientHeight = 350
+  ClientWidth = 620
+  FormStyle = fsStayOnTop
+  LCLVersion = '4.99.0.0'
+  OnShow = FormShow
+  object memTerminal: TMemo
+    Left = 0
+    Height = 350
+    Top = 0
+    Width = 620
+    Align = alClient
+    Color = 1905680
+    Font.Color = 13434726
+    Font.Height = -12
+    Font.Name = 'Monospace'
+    Font.Pitch = fpFixed
+    ParentFont = False
+    ReadOnly = True
+    ScrollBars = ssAutoBoth
+    TabOrder = 0
+  end
+end
