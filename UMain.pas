@@ -2316,6 +2316,7 @@ var
   OutputLines: TStringList;
   i, dotCount, moveCount, pipePos: integer;
   actualFaceString, statusMsg, result_str, lastSolverMoves: string;
+  stdoutBuffer: string;
   progressLine, progressParts, progressPhase, progressTable: string;
   progressDoneStr, progressTotalStr: string;
   progressDone, progressTotal: int64;
@@ -2537,6 +2538,7 @@ begin
 
       progressLine := '';
       lastSolverMoves := '';
+      stdoutBuffer := '';
       while FSolverProcess.Running do
       begin
         Application.ProcessMessages;
@@ -2617,6 +2619,14 @@ begin
           end;
         end;
 
+        // Drain stdout to prevent pipe deadlock on large solutions
+        while FSolverProcess.Output.NumBytesAvailable > 0 do
+        begin
+          SetLength(result_str, FSolverProcess.Output.NumBytesAvailable);
+          FSolverProcess.Output.Read(result_str[1], Length(result_str));
+          stdoutBuffer := stdoutBuffer + result_str;
+        end;
+
         Inc(dotCount);
         if dotCount > 20 then dotCount := 1;
         elapsed := GetTickCount64 - StartTick;
@@ -2659,7 +2669,7 @@ begin
         Exit;
       end;
 
-      // Drain remaining stderr (SOLUTION/SEARCH lines)
+      // Drain remaining stderr
       while FSolverProcess.Stderr.NumBytesAvailable > 0 do
       begin
         SetLength(result_str, FSolverProcess.Stderr.NumBytesAvailable);
@@ -2668,9 +2678,7 @@ begin
         begin
           if result_str[i] = #10 then
           begin
-            if (Pos('SOLUTION:', progressLine) = 1) or
-               (Pos('SEARCH:', progressLine) = 1) or
-               (Pos('PHASE:', progressLine) = 1) then
+            if progressLine <> '' then
               frmTerminalOutput.AddLine(progressLine);
             progressLine := '';
           end
@@ -2678,8 +2686,19 @@ begin
             progressLine := progressLine + result_str[i];
         end;
       end;
+      if progressLine <> '' then
+        frmTerminalOutput.AddLine(progressLine);
 
-      OutputLines.LoadFromStream(FSolverProcess.Output);
+      // Drain remaining stdout
+      while FSolverProcess.Output.NumBytesAvailable > 0 do
+      begin
+        SetLength(result_str, FSolverProcess.Output.NumBytesAvailable);
+        FSolverProcess.Output.Read(result_str[1], Length(result_str));
+        stdoutBuffer := stdoutBuffer + result_str;
+      end;
+
+      // Parse stdout (line 1 = timing, line 2 = moves)
+      OutputLines.Text := stdoutBuffer;
 
       // Check exit code
       if FSolverProcess.ExitCode <> 0 then
