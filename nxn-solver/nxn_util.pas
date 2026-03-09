@@ -24,6 +24,8 @@ const
   URFDLBToKociemba: array[0..5] of integer = (0, 2, 4, 1, 3, 5);
   KociembaToURFDLB: array[0..5] of integer = (0, 3, 1, 4, 2, 5);
 
+procedure TSWriteLn(const msg: string);
+procedure TSWrite(const msg: string);
 procedure WriteLnVerbose(const msg: string);
 procedure WriteVerbose(const msg: string);
 procedure WriteProgress(const phase, table: string; done, total: int64);
@@ -43,13 +45,27 @@ function FormatMs(ms: QWord): string;
 
 implementation
 
+function TimeStamp: string;
+begin
+  Result := '[' + FormatDateTime('hh:nn:ss', Now) + '] ';
+end;
+
+procedure TSWriteLn(const msg: string);
+begin
+  WriteLn(StdErr, TimeStamp + msg);
+  Flush(StdErr);
+end;
+
+procedure TSWrite(const msg: string);
+begin
+  Write(StdErr, TimeStamp + msg);
+  Flush(StdErr);
+end;
+
 procedure WriteLnVerbose(const msg: string);
 begin
   if Verbose then
-  begin
-    WriteLn(StdErr, msg);
-    Flush(StdErr);
-  end;
+    TSWriteLn(msg);
 end;
 
 procedure WriteVerbose(const msg: string);
@@ -61,10 +77,9 @@ end;
 procedure WriteProgress(const phase, table: string; done, total: int64);
 begin
   if total > 0 then
-    WriteLn(StdErr, Format('PROGRESS:%s:%s:%d:%d', [phase, table, done, total]))
+    TSWriteLn(Format('PROGRESS:%s:%s:%d:%d', [phase, table, done, total]))
   else
-    WriteLn(StdErr, Format('PROGRESS:%s:%s:0:0', [phase, table]));
-  Flush(StdErr);
+    TSWriteLn(Format('PROGRESS:%s:%s:0:0', [phase, table]));
 end;
 
 procedure InitTableDir(const dir: string = '');

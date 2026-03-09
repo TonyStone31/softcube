@@ -218,7 +218,7 @@ type
     FSolverTimeoutMs: QWord;
     procedure ActiveSleep(ms: cardinal);
     procedure ExecuteSolverAndParseOutput(const faceString: string;
-      aMemo: TMemo; MoveString: TMemo);
+      MoveString: TMemo);
     function GenerateRandomScramble(MoveCount: integer): string;
     procedure RotateCubeLeftRight(Direction: integer);
     procedure RotateCubePeakUnder();
@@ -1794,8 +1794,7 @@ begin
 
   SnapTerminalOutput;
   frmTerminalOutput.Show;
-  ExecuteSolverAndParseOutput(GenericCube.ToDefinitionString,
-    frmTerminalOutput.memTerminal, edtMoveString);
+  ExecuteSolverAndParseOutput(GenericCube.ToDefinitionString, edtMoveString);
 end;
 
 function CountMovesInString(const s: string): integer;
@@ -2312,7 +2311,7 @@ begin
 end;
 
 procedure TfrmMain.ExecuteSolverAndParseOutput(const faceString: string;
-  aMemo: TMemo; MoveString: TMemo);
+  MoveString: TMemo);
 var
   OutputLines: TStringList;
   i, dotCount, moveCount, pipePos: integer;
@@ -2344,7 +2343,7 @@ begin
     end;
   end;
 
-  aMemo.Lines.Clear;
+  frmTerminalOutput.ClearOutput;
   MoveString.Text := statusMsg;
   dotCount := 0;
 
@@ -2352,17 +2351,17 @@ begin
     // Check if tables exist first (only needed for 4x4+)
     if (ActiveCubeSize >= 4) and not CheckNxNTables(ActiveCubeSize, result_str) then
     begin
-      aMemo.Lines.Clear;
-      aMemo.Lines.Add(Format('%dx%d solver tables not ready', [ActiveCubeSize, ActiveCubeSize]));
-      aMemo.Lines.Add(result_str);
-      aMemo.Lines.Add('');
-      aMemo.Lines.Add('Tables must be generated before solving.');
-      aMemo.Lines.Add('This is a one-time process per cube size.');
-      aMemo.Lines.Add('');
+      frmTerminalOutput.ClearOutput;
+      frmTerminalOutput.AddLine(Format('%dx%d solver tables not ready', [ActiveCubeSize, ActiveCubeSize]));
+      frmTerminalOutput.AddLine(result_str);
+      frmTerminalOutput.AddLine('');
+      frmTerminalOutput.AddLine('Tables must be generated before solving.');
+      frmTerminalOutput.AddLine('This is a one-time process per cube size.');
+      frmTerminalOutput.AddLine('');
       if ActiveCubeSize >= 6 then
-        aMemo.Lines.Add('WARNING: 6x6+ tables require ~4 GB disk space and several hours to generate.')
+        frmTerminalOutput.AddLine('WARNING: 6x6+ tables require ~4 GB disk space and several hours to generate.')
       else
-        aMemo.Lines.Add('4x4/5x5 tables take ~5-10 minutes to generate.');
+        frmTerminalOutput.AddLine('4x4/5x5 tables take ~5-10 minutes to generate.');
 
       if MessageDlg('Generate Tables?',
         Format('Solver tables for %dx%d are not ready.' + LineEnding + LineEnding +
@@ -2372,10 +2371,10 @@ begin
         mtConfirmation, [mbYes, mbNo], 0) = mrYes then
       begin
         // Launch table generation
-        aMemo.Lines.Clear;
-        aMemo.Lines.Add(Format('=== Generating %dx%d tables ===', [ActiveCubeSize, ActiveCubeSize]));
-        aMemo.Lines.Add(Format('Table directory: %s', [GetNxNTableDir]));
-        aMemo.Lines.Add('');
+        frmTerminalOutput.ClearOutput;
+        frmTerminalOutput.AddLine(Format('=== Generating %dx%d tables ===', [ActiveCubeSize, ActiveCubeSize]));
+        frmTerminalOutput.AddLine(Format('Table directory: %s', [GetNxNTableDir]));
+        frmTerminalOutput.AddLine('');
         MoveString.Text := Format('Generating %dx%d tables...', [ActiveCubeSize, ActiveCubeSize]);
         Application.ProcessMessages;
 
@@ -2403,8 +2402,8 @@ begin
             begin
               FSolverProcess.Terminate(1);
               MoveString.Text := 'Table generation cancelled.';
-              aMemo.Lines.Add('');
-              aMemo.Lines.Add('*** Cancelled ***');
+              frmTerminalOutput.AddLine('');
+              frmTerminalOutput.AddLine('*** Cancelled ***');
               Exit;
             end;
             elapsed := GetTickCount64 - StartTick;
@@ -2437,21 +2436,16 @@ begin
                     else
                       progressPct := 0;
                     // Update last line in memo with progress bar
-                    if (aMemo.Lines.Count > 0) and
-                       (Pos('[', aMemo.Lines[aMemo.Lines.Count - 1]) = 1) then
-                      aMemo.Lines[aMemo.Lines.Count - 1] :=
-                        Format('[%3d%%] %s: %s', [progressPct, progressPhase, progressTable])
-                    else
-                      aMemo.Lines.Add(
-                        Format('[%3d%%] %s: %s', [progressPct, progressPhase, progressTable]));
+                    frmTerminalOutput.UpdateLastLine(
+                      Format('[%3d%%] %s: %s', [progressPct, progressPhase, progressTable]));
                     MoveString.Text := Format('Generating: %s - %s (%d%%) [%s]',
                       [progressPhase, progressTable, progressPct, FormatElapsed(elapsed)]);
                   end
                   else if progressLine <> '' then
-                    aMemo.Lines.Add(progressLine);
+                    frmTerminalOutput.AddLine(progressLine);
                   progressLine := '';
                   // Auto-scroll memo to bottom
-                  aMemo.SelStart := Length(aMemo.Text);
+                  frmTerminalOutput.ScrollToBottom;
                 end
                 else if result_str[i] <> #13 then
                   progressLine := progressLine + result_str[i];
@@ -2474,7 +2468,7 @@ begin
               if result_str[i] = #10 then
               begin
                 if (progressLine <> '') and (Pos('PROGRESS:', progressLine) <> 1) then
-                  aMemo.Lines.Add(progressLine);
+                  frmTerminalOutput.AddLine(progressLine);
                 progressLine := '';
               end
               else if result_str[i] <> #13 then
@@ -2482,22 +2476,22 @@ begin
             end;
           end;
           if progressLine <> '' then
-            aMemo.Lines.Add(progressLine);
+            frmTerminalOutput.AddLine(progressLine);
 
           elapsed := GetTickCount64 - StartTick;
-          aMemo.Lines.Add('');
+          frmTerminalOutput.AddLine('');
           if FSolverProcess.ExitCode = 0 then
           begin
-            aMemo.Lines.Add(Format('Done! Tables generated in %s.', [FormatElapsed(elapsed)]));
-            aMemo.Lines.Add('Click Solve again to solve the cube.');
+            frmTerminalOutput.AddLine(Format('Done! Tables generated in %s.', [FormatElapsed(elapsed)]));
+            frmTerminalOutput.AddLine('Click Solve again to solve the cube.');
             MoveString.Text := 'Tables ready - click Solve again.';
           end
           else
           begin
-            aMemo.Lines.Add(Format('Table generation failed (exit code %d).', [FSolverProcess.ExitCode]));
+            frmTerminalOutput.AddLine(Format('Table generation failed (exit code %d).', [FSolverProcess.ExitCode]));
             MoveString.Text := 'Table generation failed.';
           end;
-          aMemo.SelStart := Length(aMemo.Text);
+          frmTerminalOutput.ScrollToBottom;
         finally
           FreeAndNil(FSolverProcess);
           btn2phaseSolve.Caption := '🧩 Solve';
@@ -2553,16 +2547,16 @@ begin
           begin
             moveCount := CountMovesInString(lastSolverMoves);
             elapsed := GetTickCount64 - StartTick;
-            aMemo.Lines.Add('');
-            aMemo.Lines.Add(Format('=== Cancelled - best solution: %d moves in %s ===',
+            frmTerminalOutput.AddLine('');
+            frmTerminalOutput.AddLine(Format('=== Cancelled - best solution: %d moves in %s ===',
               [moveCount, FormatElapsed(elapsed)]));
-            aMemo.Lines.Add(lastSolverMoves);
+            frmTerminalOutput.AddLine(lastSolverMoves);
             MoveString.Text := lastSolverMoves;
           end
           else
           begin
             MoveString.Text := 'Solver cancelled (no solution found yet).';
-            aMemo.Lines.Add('Solver was cancelled (no solution found yet).');
+            frmTerminalOutput.AddLine('Solver was cancelled (no solution found yet).');
           end;
           Exit;
         end;
@@ -2582,20 +2576,20 @@ begin
                 if pipePos > 0 then
                 begin
                   lastSolverMoves := Copy(progressLine, pipePos + 1, MaxInt);
-                  aMemo.Lines.Add(Copy(progressLine, 1, pipePos - 1));
+                  frmTerminalOutput.AddLine(Copy(progressLine, 1, pipePos - 1));
                   MoveString.Text := lastSolverMoves;
                 end
                 else
                 begin
-                  aMemo.Lines.Add(progressLine);
+                  frmTerminalOutput.AddLine(progressLine);
                   MoveString.Text := Copy(progressLine, 11, MaxInt);
                 end;
               end
               else if Pos('SEARCH:', progressLine) = 1 then
-                aMemo.Lines.Add(progressLine)
+                frmTerminalOutput.AddLine(progressLine)
               else if Pos('PHASE:', progressLine) = 1 then
               begin
-                aMemo.Lines.Add(progressLine);
+                frmTerminalOutput.AddLine(progressLine);
                 MoveString.Text := Copy(progressLine, 8, MaxInt);
               end
               else if Pos('PROGRESS:', progressLine) = 1 then
@@ -2613,10 +2607,10 @@ begin
               else if progressLine <> '' then
               begin
                 // Show any other solver output (version, progress updates, etc.)
-                aMemo.Lines.Add(progressLine);
+                frmTerminalOutput.AddLine(progressLine);
               end;
               progressLine := '';
-              aMemo.SelStart := Length(aMemo.Text);
+              frmTerminalOutput.ScrollToBottom;
             end
             else if result_str[i] <> #13 then
               progressLine := progressLine + result_str[i];
@@ -2637,8 +2631,8 @@ begin
         begin
           FSolverProcess.Terminate(1);
           MoveString.Text := Format('Solver timed out after %s.', [FormatElapsed(elapsed)]);
-          aMemo.Lines.Clear;
-          aMemo.Lines.Add(Format('Solver timed out after %s.', [FormatElapsed(elapsed)]));
+          frmTerminalOutput.ClearOutput;
+          frmTerminalOutput.AddLine(Format('Solver timed out after %s.', [FormatElapsed(elapsed)]));
           Exit;
         end;
       end;
@@ -2651,16 +2645,16 @@ begin
         if lastSolverMoves <> '' then
         begin
           moveCount := CountMovesInString(lastSolverMoves);
-          aMemo.Lines.Add('');
-          aMemo.Lines.Add(Format('=== Cancelled - best solution: %d moves in %s ===',
+          frmTerminalOutput.AddLine('');
+          frmTerminalOutput.AddLine(Format('=== Cancelled - best solution: %d moves in %s ===',
             [moveCount, FormatElapsed(elapsed)]));
-          aMemo.Lines.Add(lastSolverMoves);
+          frmTerminalOutput.AddLine(lastSolverMoves);
           MoveString.Text := lastSolverMoves;
         end
         else
         begin
           MoveString.Text := 'Solver cancelled (no solution found yet).';
-          aMemo.Lines.Add('Solver was cancelled (no solution found yet).');
+          frmTerminalOutput.AddLine('Solver was cancelled (no solution found yet).');
         end;
         Exit;
       end;
@@ -2677,7 +2671,7 @@ begin
             if (Pos('SOLUTION:', progressLine) = 1) or
                (Pos('SEARCH:', progressLine) = 1) or
                (Pos('PHASE:', progressLine) = 1) then
-              aMemo.Lines.Add(progressLine);
+              frmTerminalOutput.AddLine(progressLine);
             progressLine := '';
           end
           else if result_str[i] <> #13 then
@@ -2698,12 +2692,12 @@ begin
           OutputLines.LoadFromStream(FSolverProcess.Stderr);
           for i := 0 to OutputLines.Count - 1 do
             if Trim(OutputLines[i]) <> '' then
-              aMemo.Lines.Add(OutputLines[i]);
+              frmTerminalOutput.AddLine(OutputLines[i]);
         end;
-        aMemo.Lines.Insert(0, Format('%dx%d solver failed (exit code %d)',
+        frmTerminalOutput.AddLine(Format('%dx%d solver failed (exit code %d)',
           [ActiveCubeSize, ActiveCubeSize, FSolverProcess.ExitCode]));
         if ActiveCubeSize >= 6 then
-          aMemo.Lines.Add('Hint: 6x6+ requires pre-generated tables. Run: ./nxn-solver/nxn_solver --generate-tables ' +
+          frmTerminalOutput.AddLine('Hint: 6x6+ requires pre-generated tables. Run: ./nxn-solver/nxn_solver --generate-tables ' +
             IntToStr(ActiveCubeSize));
         MoveString.Text := 'Solver error - see summary.';
       end
@@ -2713,17 +2707,17 @@ begin
         result_str := Trim(OutputLines[1]);
         moveCount := CountMovesInString(result_str);
 
-        aMemo.Lines.Add('');
-        aMemo.Lines.Add(Format('=== %dx%d Solution: %d moves in %s ===',
+        frmTerminalOutput.AddLine('');
+        frmTerminalOutput.AddLine(Format('=== %dx%d Solution: %d moves in %s ===',
           [ActiveCubeSize, ActiveCubeSize, moveCount, FormatElapsed(elapsed)]));
-        aMemo.Lines.Add(result_str);
+        frmTerminalOutput.AddLine(result_str);
         MoveString.Text := result_str;
       end
       else
       begin
-        aMemo.Lines.Add('Error: No solution found.');
+        frmTerminalOutput.AddLine('Error: No solution found.');
         if OutputLines.Count >= 1 then
-          aMemo.Lines.Add(OutputLines[0]);
+          frmTerminalOutput.AddLine(OutputLines[0]);
         MoveString.Text := 'Error: No solution found.';
       end;
     finally

@@ -674,10 +674,10 @@ begin
       end;
     end;
     Inc(depth);
-    Write(StdErr, #13'Phase 1 pruning depth ', depth, ': ', done, '/', total);
+    TSWrite(#13'Phase 1 pruning depth ' + IntToStr(depth) + ': ' + IntToStr(done) + '/' + IntToStr(total));
     if not changed then break;
   end;
-  WriteLn(StdErr, '');
+  TSWriteLn('');
 end;
 
 procedure CreatePruningPhase2Table;
@@ -733,10 +733,10 @@ begin
       end;
     end;
     Inc(depth);
-    Write(StdErr, #13'Phase 2 pruning depth ', depth, ': ', done, '/', total);
+    TSWrite(#13'Phase 2 pruning depth ' + IntToStr(depth) + ': ' + IntToStr(done) + '/' + IntToStr(total));
     if not changed then break;
   end;
-  WriteLn(StdErr, '');
+  TSWriteLn('');
 end;
 
 procedure CreateCornPermPruningTable;
@@ -911,7 +911,7 @@ begin
     end;
   except
     on E: Exception do
-      WriteLn(StdErr, '  Load error: ', path, ' - ', E.Message);
+      TSWriteLn('  Load error: ' + path + ' - ' + E.Message);
   end;
 end;
 
@@ -925,22 +925,22 @@ var
 begin
   if TablesReady then exit;
 
-  WriteLn(StdErr, 'Initializing min2phase tables...');
+  TSWriteLn('Initializing min2phase tables...');
 
   // Symmetries (always computed, fast)
-  WriteLn(StdErr, '  Creating symmetry tables...');
+  TSWriteLn('  Creating symmetry tables...');
   CreateSymmetries;
   CreateSymMultTable;
   CreateSymMoveTable;
 
   // Class-index tables (needed before move tables)
-  WriteLn(StdErr, '  Creating FlipUDSlice class table...');
+  TSWriteLn('  Creating FlipUDSlice class table...');
   CreateFlipUDSliceClassTable;
-  WriteLn(StdErr, '  Creating CornPerm class table...');
+  TSWriteLn('  Creating CornPerm class table...');
   CreateCornPermClassTable;
 
   // Move tables
-  WriteLn(StdErr, '  Creating move tables...');
+  TSWriteLn('  Creating move tables...');
   CreateTwistMoveTable;
   CreateFlipMoveTable;
   CreateUDSliceMoveTable;
@@ -950,19 +950,19 @@ begin
   CreateFlipSliceMoveTable;
 
   // Conjugation tables
-  WriteLn(StdErr, '  Creating conjugation tables...');
+  TSWriteLn('  Creating conjugation tables...');
   CreateTwistConjTable;
   CreateEdge8PermConjTable;
 
   // Edge8Perm extraction table
-  WriteLn(StdErr, '  Creating Edge8Perm table...');
+  TSWriteLn('  Creating Edge8Perm table...');
   CreateGetEdge8PermTable;
 
   // Pruning tables (full depth, 1 byte per entry)
   prunSize1 := Int64(N_FLIPSLICE_CLASS) * N_TWIST;
   prunSize2 := Int64(N_CORNPERM_CLASS) * N_UD_EDGES_PERM;
 
-  WriteLn(StdErr, '  Phase 1 pruning table (', prunSize1 div 1024 div 1024, ' MB)...');
+  TSWriteLn('  Phase 1 pruning table (' + IntToStr(prunSize1 div 1024 div 1024) + ' MB)...');
   SetLength(PruningPhase1, prunSize1);
   if not TryLoadDynTable('prun_phase1_v' + IntToStr(CACHE_VERSION) + '.dat',
                           PruningPhase1, prunSize1) then
@@ -971,7 +971,7 @@ begin
     TrySaveDynTable('prun_phase1_v' + IntToStr(CACHE_VERSION) + '.dat', PruningPhase1);
   end;
 
-  WriteLn(StdErr, '  Phase 2 pruning table (', prunSize2 div 1024 div 1024, ' MB)...');
+  TSWriteLn('  Phase 2 pruning table (' + IntToStr(prunSize2 div 1024 div 1024) + ' MB)...');
   SetLength(PruningPhase2, prunSize2);
   if not TryLoadDynTable('prun_phase2_v' + IntToStr(CACHE_VERSION) + '.dat',
                           PruningPhase2, prunSize2) then
@@ -984,7 +984,7 @@ begin
   CreateCornPermPruningTable;
 
   TablesReady := true;
-  WriteLn(StdErr, 'min2phase tables ready.');
+  TSWriteLn('min2phase tables ready.');
 end;
 
 initialization

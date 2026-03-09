@@ -166,8 +166,7 @@ begin
   fc.moveLog := '';
 
   // Create tables
-  WriteLn(StdErr, 'Phase 1: Loading UD center tables...');
-  Flush(StdErr);
+  TSWriteLn('Phase 1: Loading UD center tables...');
   WriteProgress('Phase1', 'Loading/Creating', 0, 0);
   WriteLnVerbose('Creating Phase 1 tables...');
   createNextMovePhase1Table;
@@ -214,9 +213,8 @@ begin
       Inc(stepsDone);
       if (GetTickCount64 - lastReport >= 5000) then
       begin
-        WriteLn(StdErr, Format('Phase 1: UD centers +cross %d/%d, %d moves, %s elapsed',
+        TSWriteLn(Format('Phase 1: UD centers +cross %d/%d, %d moves, %s elapsed',
           [stepsDone, totalSteps, moveCount, FormatMs(GetTickCount64 - phaseStart)]));
-        Flush(StdErr);
         lastReport := GetTickCount64;
       end;
     end;
@@ -230,9 +228,8 @@ begin
         Exit('');
       if (GetTickCount64 - lastReport >= 5000) then
       begin
-        WriteLn(StdErr, Format('Phase 1: UD centers oblique orbit (%d,%d), step %d/%d, %d moves, %s elapsed',
+        TSWriteLn(Format('Phase 1: UD centers oblique orbit (%d,%d), step %d/%d, %d moves, %s elapsed',
           [i, j, stepsDone, totalSteps, moveCount, FormatMs(GetTickCount64 - phaseStart)]));
-        Flush(StdErr);
         lastReport := GetTickCount64;
       end;
       SolveUDCenterObliqueSeq(fc, i, j);
@@ -255,9 +252,8 @@ begin
     Inc(stepsDone);
     if (GetTickCount64 - lastReport >= 5000) then
     begin
-      WriteLn(StdErr, Format('Phase 1: UD centers x-cross %d/%d, %d moves, %s elapsed',
+      TSWriteLn(Format('Phase 1: UD centers x-cross %d/%d, %d moves, %s elapsed',
         [stepsDone, totalSteps, moveCount, FormatMs(GetTickCount64 - phaseStart)]));
-      Flush(StdErr);
       lastReport := GetTickCount64;
     end;
   end;
@@ -274,8 +270,7 @@ begin
   moveCount := 0;
   fc.moveLog := '';
 
-  WriteLn(StdErr, 'Phase 2: Loading FB center tables...');
-  Flush(StdErr);
+  TSWriteLn('Phase 2: Loading FB center tables...');
   WriteProgress('Phase2', 'Loading/Creating', 0, 0);
   WriteLnVerbose('Creating Phase 2 tables...');
   createNextMovePhase2Table;
@@ -311,9 +306,8 @@ begin
     Inc(stepsDone);
     if (GetTickCount64 - lastReport >= 5000) then
     begin
-      WriteLn(StdErr, Format('Phase 2: FB centers +cross %d/%d, %d moves, %s elapsed',
+      TSWriteLn(Format('Phase 2: FB centers +cross %d/%d, %d moves, %s elapsed',
         [stepsDone, totalSteps, moveCount, FormatMs(GetTickCount64 - phaseStart)]));
-      Flush(StdErr);
       lastReport := GetTickCount64;
     end;
   end;
@@ -325,9 +319,8 @@ begin
     begin
       if (GetTickCount64 - lastReport >= 5000) then
       begin
-        WriteLn(StdErr, Format('Phase 2: FB centers oblique orbit (%d,%d), step %d/%d, %d moves, %s elapsed',
+        TSWriteLn(Format('Phase 2: FB centers oblique orbit (%d,%d), step %d/%d, %d moves, %s elapsed',
           [i, j, stepsDone, totalSteps, moveCount, FormatMs(GetTickCount64 - phaseStart)]));
-        Flush(StdErr);
         lastReport := GetTickCount64;
       end;
       if fc.MakeFBFullCenter(i, j) then
@@ -352,9 +345,8 @@ begin
     Inc(stepsDone);
     if (GetTickCount64 - lastReport >= 5000) then
     begin
-      WriteLn(StdErr, Format('Phase 2: FB centers x-cross %d/%d, %d moves, %s elapsed',
+      TSWriteLn(Format('Phase 2: FB centers x-cross %d/%d, %d moves, %s elapsed',
         [stepsDone, totalSteps, moveCount, FormatMs(GetTickCount64 - phaseStart)]));
-      Flush(StdErr);
       lastReport := GetTickCount64;
     end;
   end;
@@ -371,8 +363,7 @@ begin
   moveCount := 0;
   fc.moveLog := '';
 
-  WriteLn(StdErr, 'Phase 3: Loading RLFB center tables...');
-  Flush(StdErr);
+  TSWriteLn('Phase 3: Loading RLFB center tables...');
   WriteProgress('Phase3', 'Loading/Creating', 0, 0);
   WriteLnVerbose('Creating Phase 3 tables...');
   createNextMovePhase3Table;
@@ -411,9 +402,8 @@ begin
     Inc(stepsDone);
     if (GetTickCount64 - lastReport >= 5000) then
     begin
-      WriteLn(StdErr, Format('Phase 3: RLFB centers +cross %d/%d, %d moves, %s elapsed',
+      TSWriteLn(Format('Phase 3: RLFB centers +cross %d/%d, %d moves, %s elapsed',
         [stepsDone, totalSteps, moveCount, FormatMs(GetTickCount64 - phaseStart)]));
-      Flush(StdErr);
       lastReport := GetTickCount64;
     end;
   end;
@@ -425,9 +415,8 @@ begin
     begin
       if (GetTickCount64 - lastReport >= 5000) then
       begin
-        WriteLn(StdErr, Format('Phase 3: RLFB centers oblique orbit (%d,%d), step %d/%d, %d moves, %s elapsed',
+        TSWriteLn(Format('Phase 3: RLFB centers oblique orbit (%d,%d), step %d/%d, %d moves, %s elapsed',
           [i, j, stepsDone, totalSteps, moveCount, FormatMs(GetTickCount64 - phaseStart)]));
-        Flush(StdErr);
         lastReport := GetTickCount64;
       end;
       if fc.MakePh3Cent702(i, j) then
@@ -452,9 +441,8 @@ begin
     Inc(stepsDone);
     if (GetTickCount64 - lastReport >= 5000) then
     begin
-      WriteLn(StdErr, Format('Phase 3: RLFB centers x-cross %d/%d, %d moves, %s elapsed',
+      TSWriteLn(Format('Phase 3: RLFB centers x-cross %d/%d, %d moves, %s elapsed',
         [stepsDone, totalSteps, moveCount, FormatMs(GetTickCount64 - phaseStart)]));
-      Flush(StdErr);
       lastReport := GetTickCount64;
     end;
   end;
@@ -471,8 +459,7 @@ begin
   moveCount := 0;
   fc.moveLog := '';
 
-  WriteLn(StdErr, 'Phase 4: Loading UD center tables...');
-  Flush(StdErr);
+  TSWriteLn('Phase 4: Loading UD center tables...');
   WriteProgress('Phase4', 'Loading/Creating', 0, 0);
   WriteLnVerbose('Creating Phase 4 tables...');
   createNextMovePhase4Table;
@@ -508,9 +495,8 @@ begin
     Inc(stepsDone);
     if (GetTickCount64 - lastReport >= 5000) then
     begin
-      WriteLn(StdErr, Format('Phase 4: UD centers +cross %d/%d, %d moves, %s elapsed',
+      TSWriteLn(Format('Phase 4: UD centers +cross %d/%d, %d moves, %s elapsed',
         [stepsDone, totalSteps, moveCount, FormatMs(GetTickCount64 - phaseStart)]));
-      Flush(StdErr);
       lastReport := GetTickCount64;
     end;
   end;
@@ -522,9 +508,8 @@ begin
     begin
       if (GetTickCount64 - lastReport >= 5000) then
       begin
-        WriteLn(StdErr, Format('Phase 4: UD centers oblique orbit (%d,%d), step %d/%d, %d moves, %s elapsed',
+        TSWriteLn(Format('Phase 4: UD centers oblique orbit (%d,%d), step %d/%d, %d moves, %s elapsed',
           [i, j, stepsDone, totalSteps, moveCount, FormatMs(GetTickCount64 - phaseStart)]));
-        Flush(StdErr);
         lastReport := GetTickCount64;
       end;
       if fc.MakePh4UDCenters(i, j) then
@@ -549,9 +534,8 @@ begin
     Inc(stepsDone);
     if (GetTickCount64 - lastReport >= 5000) then
     begin
-      WriteLn(StdErr, Format('Phase 4: UD centers x-cross %d/%d, %d moves, %s elapsed',
+      TSWriteLn(Format('Phase 4: UD centers x-cross %d/%d, %d moves, %s elapsed',
         [stepsDone, totalSteps, moveCount, FormatMs(GetTickCount64 - phaseStart)]));
-      Flush(StdErr);
       lastReport := GetTickCount64;
     end;
   end;
@@ -615,9 +599,8 @@ begin
 
   if fc.ph5InitialBad > 0 then
   begin
-    WriteLn(StdErr, Format('Phase 5: Pairing %d edge orbits (%d/%d slots need fixing)',
+    TSWriteLn(Format('Phase 5: Pairing %d edge orbits (%d/%d slots need fixing)',
       [numOrbits, fc.ph5InitialBad, fc.ph5TotalSlots]));
-    Flush(StdErr);
   end;
 
   while fc.MakeFLEdge do

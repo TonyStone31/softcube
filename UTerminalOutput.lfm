@@ -9,6 +9,8 @@ object frmTerminalOutput: TfrmTerminalOutput
   ClientWidth = 620
   FormStyle = fsStayOnTop
   LCLVersion = '4.99.0.0'
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
   OnShow = FormShow
   object memTerminal: TMemo
     Left = 0

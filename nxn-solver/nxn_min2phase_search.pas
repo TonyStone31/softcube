@@ -22,7 +22,7 @@ function SolveSearch(const facelets: string; maxLength: integer = DEFAULT_MAX_LE
 
 implementation
 
-uses SysUtils;
+uses SysUtils, nxn_util;
 
 type
   TSearchNode = record
@@ -268,10 +268,9 @@ turn1:
         bestMoves := BuildSolutionString(depth1, -1);
         found := true;
         if SearchSolutionPrefix <> '' then
-          WriteLn(StdErr, Format('SOLUTION: %s%d moves|%s %s', [SearchStatusPrefix, bestLen, SearchSolutionPrefix, bestMoves]))
+          TSWriteLn(Format('SOLUTION: %s%d moves|%s %s', [SearchStatusPrefix, bestLen, SearchSolutionPrefix, bestMoves]))
         else
-          WriteLn(StdErr, Format('SOLUTION: %s%d moves|%s', [SearchStatusPrefix, bestLen, bestMoves]));
-        Flush(StdErr);
+          TSWriteLn(Format('SOLUTION: %s%d moves|%s', [SearchStatusPrefix, bestLen, bestMoves]));
         Result := bestMoves;
         exit;
       end;
@@ -355,18 +354,17 @@ p2turn:
             if SearchSolutionPrefix <> '' then
             begin
               if bestLen <= maxLength then
-                WriteLn(StdErr, Format('SOLUTION: %s%d moves (target: %d)|%s %s', [SearchStatusPrefix, bestLen, maxLength, SearchSolutionPrefix, bestMoves]))
+                TSWriteLn(Format('SOLUTION: %s%d moves (target: %d)|%s %s', [SearchStatusPrefix, bestLen, maxLength, SearchSolutionPrefix, bestMoves]))
               else
-                WriteLn(StdErr, Format('SOLUTION: %s%d moves (searching for <= %d)|%s %s', [SearchStatusPrefix, bestLen, maxLength, SearchSolutionPrefix, bestMoves]));
+                TSWriteLn(Format('SOLUTION: %s%d moves (searching for <= %d)|%s %s', [SearchStatusPrefix, bestLen, maxLength, SearchSolutionPrefix, bestMoves]));
             end
             else
             begin
               if bestLen <= maxLength then
-                WriteLn(StdErr, Format('SOLUTION: %s%d moves (target: %d)|%s', [SearchStatusPrefix, bestLen, maxLength, bestMoves]))
+                TSWriteLn(Format('SOLUTION: %s%d moves (target: %d)|%s', [SearchStatusPrefix, bestLen, maxLength, bestMoves]))
               else
-                WriteLn(StdErr, Format('SOLUTION: %s%d moves (searching for <= %d)|%s', [SearchStatusPrefix, bestLen, maxLength, bestMoves]));
+                TSWriteLn(Format('SOLUTION: %s%d moves (searching for <= %d)|%s', [SearchStatusPrefix, bestLen, maxLength, bestMoves]));
             end;
-            Flush(StdErr);
           end;
           goto p2incPower;
         end;
@@ -458,8 +456,7 @@ left1:
     begin
       if found then
       begin
-        WriteLn(StdErr, Format('SEARCH: %sbest so far %d moves, searching depth %d...', [SearchStatusPrefix, bestLen, depth1 + 1]));
-        Flush(StdErr);
+        TSWriteLn(Format('SEARCH: %sbest so far %d moves, searching depth %d...', [SearchStatusPrefix, bestLen, depth1 + 1]));
       end;
       // Can't improve: phase1 depth already >= bestLen-1
       if depth1 >= bestLen - 1 then

@@ -860,7 +860,7 @@ begin
       Inc(j);
     if j >= 24 then
     begin
-      WriteLn(StdErr, Format('getEdgeCluster(%d) FAIL: slot %d, face0=%d[%d,%d]=%d, face1=%d[%d,%d]=%d',
+      TSWriteLn(Format('getEdgeCluster(%d) FAIL: slot %d, face0=%d[%d,%d]=%d, face1=%d[%d,%d]=%d',
         [y, i,
          Ord(ECCI[i, 0]), getPos(ECFRow[i, 0], y, size), getPos(ECFCol[i, 0], y, size), Ord(c[0]),
          Ord(ECCI[i, 1]), getPos(ECFRow[i, 1], y, size), getPos(ECFCol[i, 1], y, size), Ord(c[1])]));
@@ -4262,11 +4262,10 @@ begin
   else
     pctDone := 100;
 
-  WriteLn(StdErr, Format('Phase 5: %d/%d edge slots paired (%.0f%%), %d moves, %s elapsed [%s, depth %d]',
+  TSWriteLn(Format('Phase 5: %d/%d edge slots paired (%.0f%%), %d moves, %s elapsed [%s, depth %d]',
     [paired, ph5TotalSlots, pctDone, ns, FormatMs(elapsedMs), context, togo]));
-  WriteLn(StdErr, Format('PROGRESS:Phase5:EdgePairing:%d:%d',
+  TSWriteLn(Format('PROGRESS:Phase5:EdgePairing:%d:%d',
     [paired, ph5TotalSlots]));
-  Flush(StdErr);
 end;
 
 function faceletCube.MakeFLEdge: boolean;

@@ -527,8 +527,7 @@ begin
   SetLength(UDStates10Table, N_SYMCENTCOORD * 256);
   if FileExists(TableDir + fName) then
   begin
-    WriteLn(StdErr, 'Phase 1: Loading oblique orbit table (' + fName + ')...');
-    Flush(StdErr);
+    TSWriteLn('Phase 1: Loading oblique orbit table (' + fName + ')...');
     n := N_SYMCENTCOORD * 256;
     fs := TFileStream.Create(TableDir + fName, fmOpenRead);
     j := 0; // last report tick counter
@@ -541,14 +540,12 @@ begin
         fs.ReadBuffer(UDStates10Table[i].state[0], used * 4);
       if i mod 2500000 = 0 then
       begin
-        WriteLn(StdErr, Format('Phase 1: Loading oblique table... %d%%',
+        TSWriteLn(Format('Phase 1: Loading oblique table... %d%%',
           [Int64(i) * 100 div n]));
-        Flush(StdErr);
       end;
     end;
     fs.Free;
-    WriteLn(StdErr, 'Phase 1: Oblique orbit table loaded');
-    Flush(StdErr);
+    TSWriteLn('Phase 1: Oblique orbit table loaded');
   end
   else
   begin

@@ -5,7 +5,7 @@ Rubik's Cube simulator and solver written with Lazarus and Free Pascal. Supports
 
 ## Features
 - Interactive 3D cube with mouse and keyboard controls for any size (2x2 and up)
-- Full solver for all cube sizes — solved a 20x20 in ~11 minutes (3342 moves)
+- Full solver for all cube sizes — solved a 50x50 in ~9 hours (2330 moves)
 - Real-time solver progress in the terminal output window
 - Manual color entry and webcam-based color scanning (up to 5x5)
 - Solve quality presets (Fast / Balanced / Optimal)

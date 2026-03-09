@@ -44,7 +44,7 @@ begin
   try
     if not ParseFaceletString(origFaceStr, origSize, vfc.faceCols) then
     begin
-      WriteLn(StdErr, 'VERIFY: failed to parse original facelet string');
+      TSWriteLn('VERIFY: failed to parse original facelet string');
       Exit;
     end;
 
@@ -69,7 +69,7 @@ begin
         end;
         if p > Length(token) then
         begin
-          WriteLn(StdErr, 'VERIFY: bad move token: ', token);
+          TSWriteLn('VERIFY: bad move token: ' + token);
           Exit;
         end;
 
@@ -85,7 +85,7 @@ begin
           'F': ax := F;
           'B': ax := B;
         else
-          WriteLn(StdErr, 'VERIFY: bad face letter in: ', token);
+          TSWriteLn('VERIFY: bad face letter in: ' + token);
           Exit;
         end;
 
@@ -112,7 +112,7 @@ begin
 
         // Debug: print state periodically
         if Verbose then
-          WriteLn(StdErr, Format('VERIFY after move %d (%s): %s',
+          TSWriteLn(Format('VERIFY after move %d (%s): %s',
             [k, token, BuildFaceletString(origSize, vfc.faceCols)]));
       end;
     finally
@@ -125,10 +125,10 @@ begin
         for col := 0 to origSize - 1 do
           if vfc.faceCols[face, row, col] <> vfc.faceCols[face, origSize div 2, origSize div 2] then
           begin
-            WriteLn(StdErr, Format('VERIFY FAILED: face %d pos [%d,%d] = %d, expected %d',
+            TSWriteLn(Format('VERIFY FAILED: face %d pos [%d,%d] = %d, expected %d',
               [face, row, col, Ord(vfc.faceCols[face, row, col]),
                Ord(vfc.faceCols[face, origSize div 2, origSize div 2])]));
-            WriteLn(StdErr, 'VERIFY: final state: ' + BuildFaceletString(origSize, vfc.faceCols));
+            TSWriteLn('VERIFY: final state: ' + BuildFaceletString(origSize, vfc.faceCols));
             Exit;
           end;
 
@@ -601,8 +601,7 @@ begin
         totalMoves := totalMoves + ' ';
       totalMoves := totalMoves + phaseMoves;
     end;
-    WriteLn(StdErr, Format('PHASE: 1 UD centers - %d moves in %s', [phaseLength, FormatMs(GetTickCount64 - phaseStartMs)]));
-    Flush(StdErr);
+    TSWriteLn(Format('PHASE: 1 UD centers - %d moves in %s', [phaseLength, FormatMs(GetTickCount64 - phaseStartMs)]));
     WriteLnVerbose(Format('Phase 1: %d moves', [phaseLength]));
     WriteLnVerbose('STATE_AFTER_P1: ' + BuildFaceletString(fc.size, fc.faceCols));
     WriteLnVerbose(Format('P1 coord check: plus(%d,%d)=%d, xcross(%d,%d)=%d',
@@ -620,8 +619,7 @@ begin
         totalMoves := totalMoves + ' ';
       totalMoves := totalMoves + phaseMoves;
     end;
-    WriteLn(StdErr, Format('PHASE: 2 FB centers - %d moves in %s', [phaseLength, FormatMs(GetTickCount64 - phaseStartMs)]));
-    Flush(StdErr);
+    TSWriteLn(Format('PHASE: 2 FB centers - %d moves in %s', [phaseLength, FormatMs(GetTickCount64 - phaseStartMs)]));
     WriteLnVerbose(Format('Phase 2: %d moves', [phaseLength]));
     WriteLnVerbose('STATE_AFTER_P2: ' + BuildFaceletString(fc.size, fc.faceCols));
     WriteLnVerbose(Format('P1 coord after P2: plus=%d, xcross=%d',
@@ -638,8 +636,7 @@ begin
         totalMoves := totalMoves + ' ';
       totalMoves := totalMoves + phaseMoves;
     end;
-    WriteLn(StdErr, Format('PHASE: 3 RLFB centers - %d moves in %s', [phaseLength, FormatMs(GetTickCount64 - phaseStartMs)]));
-    Flush(StdErr);
+    TSWriteLn(Format('PHASE: 3 RLFB centers - %d moves in %s', [phaseLength, FormatMs(GetTickCount64 - phaseStartMs)]));
     WriteLnVerbose(Format('Phase 3: %d moves', [phaseLength]));
     WriteLnVerbose('STATE_AFTER_P3: ' + BuildFaceletString(fc.size, fc.faceCols));
     WriteLnVerbose(Format('P1 coord after P3: plus=%d, xcross=%d',
@@ -656,8 +653,7 @@ begin
         totalMoves := totalMoves + ' ';
       totalMoves := totalMoves + phaseMoves;
     end;
-    WriteLn(StdErr, Format('PHASE: 4 UD centers - %d moves in %s', [phaseLength, FormatMs(GetTickCount64 - phaseStartMs)]));
-    Flush(StdErr);
+    TSWriteLn(Format('PHASE: 4 UD centers - %d moves in %s', [phaseLength, FormatMs(GetTickCount64 - phaseStartMs)]));
     WriteLnVerbose(Format('Phase 4: %d moves', [phaseLength]));
     WriteLnVerbose('STATE_AFTER_P4: ' + BuildFaceletString(fc.size, fc.faceCols));
     WriteLnVerbose(Format('P1 coord after P4: plus=%d, xcross=%d',
@@ -680,8 +676,7 @@ begin
         totalMoves := totalMoves + ' ';
       totalMoves := totalMoves + phaseMoves;
     end;
-    WriteLn(StdErr, Format('PHASE: 5 Edge pairing - %d moves in %s', [phaseLength, FormatMs(GetTickCount64 - phaseStartMs)]));
-    Flush(StdErr);
+    TSWriteLn(Format('PHASE: 5 Edge pairing - %d moves in %s', [phaseLength, FormatMs(GetTickCount64 - phaseStartMs)]));
     WriteLnVerbose(Format('Phase 5: %d moves', [phaseLength]));
     WriteLnVerbose('STATE_AFTER_P5: ' + BuildFaceletString(fc.size, fc.faceCols));
 
@@ -779,15 +774,15 @@ begin
                 Continue;
             if fc.faceCols[p6face, p6row, p6col] <> ColorIndex(p6face) then
             begin
-              WriteLn(StdErr, Format('5x5 VERIFY FAIL: face %d [%d,%d] = %d, expected %d',
+              TSWriteLn(Format('5x5 VERIFY FAIL: face %d [%d,%d] = %d, expected %d',
                 [p6face, p6row, p6col, Ord(fc.faceCols[p6face, p6row, p6col]), p6face]));
               p6solved := False;
             end;
           end;
       if p6solved then
-        WriteLn(StdErr, 'Virtual ' + IntToStr(fc.size) + 'x' + IntToStr(fc.size) + ' VERIFY: Phase 6 solved correctly')
+        TSWriteLn('Virtual ' + IntToStr(fc.size) + 'x' + IntToStr(fc.size) + ' VERIFY: Phase 6 solved correctly')
       else
-        WriteLn(StdErr, 'Virtual ' + IntToStr(fc.size) + 'x' + IntToStr(fc.size) + ' VERIFY: Phase 6 FAILED');
+        TSWriteLn('Virtual ' + IntToStr(fc.size) + 'x' + IntToStr(fc.size) + ' VERIFY: Phase 6 FAILED');
     end;
 
     // Count moves in phase 6
@@ -805,8 +800,7 @@ begin
         totalMoves := totalMoves + ' ';
       totalMoves := totalMoves + Trim(phaseMoves);
     end;
-    WriteLn(StdErr, Format('PHASE: 6 3x3 solve - %d moves in %s', [phaseLength, FormatMs(GetTickCount64 - phaseStartMs)]));
-    Flush(StdErr);
+    TSWriteLn(Format('PHASE: 6 3x3 solve - %d moves in %s', [phaseLength, FormatMs(GetTickCount64 - phaseStartMs)]));
     WriteLnVerbose(Format('Phase 6: %d moves', [phaseLength]));
 
     WriteLnVerbose(Format('Total moves: %d', [totalLength]));
@@ -845,43 +839,43 @@ begin
     cubeSize := tests[t].size;
     faceletStr := GenerateScramble(cubeSize, tests[t].scramble);
 
-    WriteLn(StdErr, '');
-    WriteLn(StdErr, Format('=== Test %d: %s (scramble: %s) ===', [t + 1, tests[t].name, tests[t].scramble]));
-    WriteLn(StdErr, 'Facelet: ' + faceletStr);
+    TSWriteLn('');
+    TSWriteLn(Format('=== Test %d: %s (scramble: %s) ===', [t + 1, tests[t].name, tests[t].scramble]));
+    TSWriteLn('Facelet: ' + faceletStr);
 
     startTime := Now;
     try
       allMoves := SolveNxN;
       elapsedMs := Round((Now - startTime) * 24 * 60 * 60 * 1000);
 
-      WriteLn(StdErr, Format('Solution (%d ms): %s', [elapsedMs, allMoves]));
+      TSWriteLn(Format('Solution (%d ms): %s', [elapsedMs, allMoves]));
 
       if allMoves = '' then
       begin
-        WriteLn(StdErr, 'PASS (already solved)');
+        TSWriteLn('PASS (already solved)');
         Inc(passed);
       end
       else if VerifySolution(faceletStr, cubeSize, allMoves) then
       begin
-        WriteLn(StdErr, 'PASS');
+        TSWriteLn('PASS');
         Inc(passed);
       end
       else
       begin
-        WriteLn(StdErr, 'FAIL (verification failed)');
+        TSWriteLn('FAIL (verification failed)');
         Inc(failed);
       end;
     except
       on E: Exception do
       begin
-        WriteLn(StdErr, 'FAIL (exception: ' + E.Message + ')');
+        TSWriteLn('FAIL (exception: ' + E.Message + ')');
         Inc(failed);
       end;
     end;
   end;
 
-  WriteLn(StdErr, '');
-  WriteLn(StdErr, Format('Results: %d passed, %d failed, %d total', [passed, failed, passed + failed]));
+  TSWriteLn('');
+  TSWriteLn(Format('Results: %d passed, %d failed, %d total', [passed, failed, passed + failed]));
   if failed > 0 then
     Halt(1);
 end;
@@ -902,9 +896,8 @@ begin
     Exit;
   end;
 
-  WriteLn(StdErr, Format('NxN Solver v%s (build %d) - solving %dx%d cube',
+  TSWriteLn(Format('NxN Solver v%s (build %d) - solving %dx%d cube',
     [SOLVER_VERSION, SOLVER_BUILD, cubeSize, cubeSize]));
-  Flush(StdErr);
 
   startTime := Now;
 
@@ -925,11 +918,11 @@ begin
   if (cubeSize > 3) and (allMoves <> '') then
   begin
     if VerifySolution(faceletStr, cubeSize, allMoves) then
-      WriteLn(StdErr, 'VERIFY: Solution verified OK on ' + IntToStr(cubeSize) + 'x' + IntToStr(cubeSize))
+      TSWriteLn('VERIFY: Solution verified OK on ' + IntToStr(cubeSize) + 'x' + IntToStr(cubeSize))
     else
     begin
-      WriteLn(StdErr, 'VERIFY: Solution FAILED on ' + IntToStr(cubeSize) + 'x' + IntToStr(cubeSize));
-      WriteLn(StdErr, 'Moves: ' + allMoves);
+      TSWriteLn('VERIFY: Solution FAILED on ' + IntToStr(cubeSize) + 'x' + IntToStr(cubeSize));
+      TSWriteLn('Moves: ' + allMoves);
       Halt(4);
     end;
   end;
@@ -937,9 +930,8 @@ begin
   // Summary on stderr
   if (cubeSize > 3) and (Trim(allMoves) <> '') then
   begin
-    WriteLn(StdErr, Format('=== %dx%d Solution in %s ===',
+    TSWriteLn(Format('=== %dx%d Solution in %s ===',
       [cubeSize, cubeSize, FormatMs(elapsedMs)]));
-    Flush(StdErr);
   end;
 
   // Output format compatible with min2phase:
