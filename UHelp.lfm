@@ -29,7 +29,7 @@ object frmHelp: TfrmHelp
       '  NxN Rubik''s Cube Simulator & Solver'
       '  ======================================'
       ''
-      '  Supports 2x2 and up. Tested on cubes up to 50x50.'
+      '  Supports 2x2 and up. Tested on cubes up to 25x25.'
       '  Uses Kociemba''s reduction method for 4x4+ and'
       '  min2phase for the final 3x3 reduction solve.'
       ''
