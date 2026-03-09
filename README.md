@@ -1,12 +1,23 @@
 # SoftCube
 Rubik's Cube simulator and solver written with Lazarus and Free Pascal. Supports any cube size from 2x2 and up with 3D visualization, keyboard controls, and webcam scanning.
 
+![3x3 solved with terminal output](screenshots/3x3solved.png)
+
 ## Features
 - Interactive 3D cube with mouse and keyboard controls for any size (2x2 and up)
 - Full solver for all cube sizes — solved a 20x20 in ~11 minutes (3342 moves)
+- Real-time solver progress in the terminal output window
 - Manual color entry and webcam-based color scanning (up to 5x5)
 - Solve quality presets (Fast / Balanced / Optimal)
 - BGRABitmap-based rendering with lighting effects
+
+### Solving a 6x6
+
+![6x6 mid-solve](screenshots/6x6screenshotsmall.png)
+
+### 50x50 scrambled
+
+![50x50 scrambled cube](screenshots/50x50screenshot-huge.png)
 
 ## Credits & Acknowledgments
 
